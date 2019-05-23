@@ -12,7 +12,7 @@
 
 #### Definition of Done:
 
-- [ ] Code is easy to understand and conforms with Prettier config
+- [ ] Code is easy to understand and conforms with Prettier & eslint configs
 - [ ] Incomplete code is marked with TODOs
 - [ ] Code is suitably instrumented with logging and metrics
 - [ ] Documentation has been updated as appropriate

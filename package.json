@@ -1,0 +1,14 @@
+{
+  "name": "range-for-chrome",
+  "description": "Dev dependencies for Range for Chrome",
+  "private": true,
+  "scripts": {
+    "lint": "./node_modules/.bin/eslint **/*.js",
+    "fmt": "./node_modules/.bin/prettier --write **/*.js"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.3.0",
+    "prettier": "^1.17.1"
+  }
+}

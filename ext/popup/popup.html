@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head></head>
+  <link rel="stylesheet" href="popup.css" />
+  <body>
+    <div id="canvas" class="ok">
+      <div class="topbar">
+        <img src="/assets/images/arch.png" class="topbarLogo" />
+        <div class="topbarInfo">Recent suggestions:</div>
+      </div>
+      <div id="main">
+        <div id="alert"></div>
+      </div>
+      <div class="bottombar">
+        <div class="bottombarInfo">Syncing to...</div>
+        <div id="accounts"></div>
+      </div>
+    </div>
+    <template id="account-template">
+      <div class="account">
+        <img class="account__photo" src="" />
+        <span class="account__org slotOrgName"></span>
+      </div>
+    </template>
+    <template id="suggestion-template">
+      <div class="suggestion">
+        <div class="suggestion__name slotName"></div>
+        <div class="suggestion__meta">
+          <span class="slotProvider"></span>
+          <span class="slotTime"></span>
+        </div>
+      </div>
+    </template>
+    <script type="text/javascript" src="popup.js"></script>
+  </body>
+</html>
