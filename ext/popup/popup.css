@@ -1,0 +1,133 @@
+body {
+  background-color: #fff;
+  color: #555;
+  width: 350px;
+  margin: 0px;
+  padding: 0px;
+}
+
+#canvas {
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  position: relative;
+  background-color: #f6f6f6;
+  box-shadow: 0px 1px 5px #ddd;
+  height: 45px;
+}
+.topbarLogo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 35px;
+  height: 35px;
+  margin: 4px;
+  border: 1px solid #eee;
+  border-radius: 100px;
+}
+.topbarInfo {
+  display: none;
+  position: absolute;
+  bottom: 5px;
+  font-style: italic;
+  padding-left: 12px;
+}
+.ok .topbarInfo {
+  display: block;
+}
+
+#main {
+  height: 250px;
+  overflow: auto;
+}
+#alert {
+  display: none;
+  padding: 5px;
+  margin: 10px;
+  text-align: center;
+  border-radius: 3px;
+  background-color: #eee;
+  border: 1px solid #ddd;
+}
+.alert--link {
+  cursor: pointer;
+  text-decoration: underline;
+}
+.info #alert {
+  display: block;
+  font-style: italic;
+}
+.warn #alert {
+  display: block;
+  background-color: #fdd04d;
+  border: 1px solid #ffa924;
+}
+.error #alert {
+  display: block;
+  font-weight: bold;
+  background-color: #fd5f4d;
+  border: 1px solid #fd5f4d;
+  color: #fff;
+}
+
+.suggestion {
+  cursor: pointer;
+  padding: 9px 12px;
+  font-size: 14px;
+  border-bottom: 1px solid #f6f6f6;
+}
+.suggestion:hover {
+  background-color: rgba(100, 100, 100, 0.1);
+  color: #333;
+}
+.suggestion__name {
+}
+.suggestion__meta {
+  margin-top: 3px;
+  font-size: 11px;
+  color: #aaa;
+}
+.suggestion__meta > span + span::before {
+  content: ' - ';
+  margin: 3px 0;
+}
+
+.bottombar {
+  background-color: #f6f6f6;
+  box-shadow: 0px -2px 5px #ddd;
+  padding-top: 6px;
+}
+.bottombarInfo {
+  font-style: italic;
+  padding-left: 12px;
+}
+.error .bottombarInfo,
+.warn .bottombarInfo {
+  display: none;
+}
+
+#accounts {
+  display: flex;
+  height: 38px;
+}
+.account {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 20px;
+  cursor: pointer;
+}
+.account:hover {
+  background-color: #eee;
+}
+.account__photo {
+  width: 24px;
+  height: 24px;
+  margin-right: 6px;
+  border-radius: 100px;
+  border: 1px solid #ddd;
+}
