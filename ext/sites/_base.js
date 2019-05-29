@@ -44,20 +44,21 @@ const Types = {
 
 // For types.FILE, more specific subtypes.
 const Subtypes = {
-  NONE: 0,
-  GOOGLE_DOCUMENT: 1,
-  GOOGLE_DRIVE: 2,
-  GOOGLE_FORMS: 3,
-  GOOGLE_PRESENTATION: 4,
-  GOOGLE_SPREADSHEET: 5,
-  MICROSOFT_WORD: 6,
-  MICROSOFT_POWERPOINT: 7,
-  MICROSOFT_EXCEL: 8,
-  DROPBOX_FILE: 9,
-  PDF: 10,
-  IMAGE: 11,
-  CODE: 12,
-  VIDEO: 13,
+  NONE: 'NONE',
+  GOOGLE_DOCUMENT: 'GOOGLE_DOCUMENT',
+  GOOGLE_DRIVE: 'GOOGLE_DRIVE',
+  GOOGLE_FORMS: 'GOOGLE_FORMS',
+  GOOGLE_PRESENTATION: 'GOOGLE_PRESENTATION',
+  GOOGLE_SPREADSHEET: 'GOOGLE_SPREADSHEET',
+  MICROSOFT_WORD: 'MICROSOFT_WORD',
+  MICROSOFT_POWERPOINT: 'MICROSOFT_POWERPOINT',
+  MICROSOFT_EXCEL: 'MICROSOFT_EXCEL',
+  DROPBOX_FILE: 'DROPBOX_FILE',
+  PDF: 'PDF',
+  IMAGE: 'IMAGE',
+  CODE: 'CODE',
+  VIDEO: 'VIDEO',
+  FIGMA_DOCUMENT: 'FIGMA_DOCUMENT',
 };
 
 // Reads an open graph property, if present in the document.
@@ -207,7 +208,7 @@ class Monitor {
   }
 
   // Attachment: for file attachments, a subtype. See `Subtypes`.
-  setSubType(val) {
+  setSubtype(val) {
     this._subtype = val;
     return this;
   }
