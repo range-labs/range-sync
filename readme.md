@@ -30,6 +30,7 @@ Range for Chrome adds support for:
 
 - **[Confluence](https://www.atlassian.com/software/confluence)** - Keep your team informed of
   documentation changes
+- **[Quip](https://www.quip.com)** - Share updates to your Quip documents
 - **[Dropbox Paper](https://paper.dropbox.com)** - Link to documents you've worked on
 - **[Medium](https://medium.com)** - Share blog posts you are writing
 - **[Apollo](https://apollo.io)** - See activity on your sales campaigns and sequences

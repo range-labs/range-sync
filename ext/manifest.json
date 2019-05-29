@@ -1,6 +1,6 @@
 {
   "name": "Range for Chrome",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Capture work from your browser based tools and share progress with your team.",
   "permissions": ["storage", "cookies", "https://api.range.co/*"],
   "browser_action": {
@@ -29,6 +29,10 @@
     {
       "matches": ["https://paper.dropbox.com/*"],
       "js": ["sites/_base.js", "sites/dropbox.js"]
+    },
+    {
+      "matches": ["https://*.quip.com/*"],
+      "js": ["sites/_base.js", "sites/quip.js"]
     },
     {
       "matches": ["https://medium.com/*"],
