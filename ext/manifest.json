@@ -27,6 +27,10 @@
       "js": ["sites/_base.js", "sites/confluence.js"]
     },
     {
+      "matches": ["https://www.figma.com/*"],
+      "js": ["sites/_base.js", "sites/figma.js"]
+    },
+    {
       "matches": ["https://paper.dropbox.com/*"],
       "js": ["sites/_base.js", "sites/dropbox.js"]
     },
