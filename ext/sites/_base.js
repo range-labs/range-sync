@@ -327,6 +327,7 @@ class Monitor {
     return {
       reason: resolve(this._reason),
       snippet_type: resolve(this._snippetType),
+      dedupe_strategy: 'UPSERT_PENDING',
       attachment: {
         source_id: sourceID,
         provider: resolve(this._provider),
