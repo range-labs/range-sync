@@ -1,6 +1,6 @@
 {
   "name": "Range for Chrome",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Capture work from your browser based tools and share progress with your team.",
   "permissions": ["storage", "cookies", "https://api.range.co/*"],
   "browser_action": {
