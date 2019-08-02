@@ -15,9 +15,9 @@ chrome.runtime.getBackgroundPage(bg => {
         console.error('Error fetching accounts:', e);
       }
     });
-  bg.recentSuggestions().then(attachments => {
+  bg.getAttachments().then(attachments => {
     if (attachments.length > 0) {
-      attachments.forEach(renderSuggestion);
+      attachments.forEach(renderAttachmment);
     } else {
       renderAlert('No suggestions captured yet', 'info');
     }
@@ -37,15 +37,15 @@ function renderAlert(msg, level, opt_action) {
   document.getElementById('canvas').className = level;
 }
 
-function renderSuggestion(s) {
-  let tmpl = document.getElementById('suggestion-template');
+function renderAttachmment(attachment) {
+  let tmpl = document.getElementById('attachment-template');
   let inst = tmpl.content.cloneNode(true);
-  inst.querySelector('.slotName').textContent = s.attachment.name;
-  inst.querySelector('.slotProvider').textContent = s.attachment.provider_name;
-  inst.querySelector('.slotTime').textContent = formatTime(s.createdAt);
+  inst.querySelector('.slotName').textContent = attachment.name;
+  inst.querySelector('.slotProvider').textContent = attachment.provider_name;
+  inst.querySelector('.slotTime').textContent = formatTime(new Date(attachment.display_date));
   inst
-    .querySelector('.suggestion')
-    .addEventListener('click', e => window.open(s.attachment.html_url), true);
+    .querySelector('.attachment')
+    .addEventListener('click', e => window.open(attachment.html_url), true);
   document.getElementById('main').appendChild(inst);
 }
 

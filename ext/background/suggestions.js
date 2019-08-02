@@ -1,14 +1,60 @@
-let _recentSuggestions = [];
+let _lastFetch = 0;
+let _attachments = [];
 
-// Returns an array of recent attachments that have been suggested via the
-// extension.
-function recentSuggestions() {
-  return Promise.resolve(_recentSuggestions);
+// Returns an array of attachments that have been suggested via the extension.
+function getAttachments() {
+  if (Date.now() - _lastFetch < 1000 * 60) {
+    return Promise.resolve(_attachments);
+  }
+  return loadAttachments()
+    .then(() => _attachments)
+    .catch(e => {
+      console.error('Failed to load attachments: ', e);
+      return _attachments;
+    });
 }
 
-// Background page is ephemeral, so load stored version of suggestions.
-chrome.storage.local.get('suggestions', function(result) {
-  _recentSuggestions = result.suggestions || [];
+// Sort, remove duplicates via source_id, and keep track of only last 100 suggestions.
+function cleanAttachments() {
+  let seen = {};
+  _attachments.forEach(
+    a => (a.display_date = a.display_date || a.date_modified || a.date_created || a.created_at)
+  );
+  _attachments.sort((a, b) => new Date(b.display_date) - new Date(a.display_date));
+  _attachments = _attachments.filter(attachment =>
+    seen[attachment.source_id] ? false : (seen[attachment.source_id] = 1)
+  );
+  _attachments.length = Math.min(_attachments.length, 100);
+}
+
+function storeAttachments() {
+  chrome.storage.local.set({ attachments: _attachments });
+}
+
+function loadAttachments() {
+  let after = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  return orgs()
+    .then(slugs => Promise.all(slugs.map(getSession)))
+    .then(sessions =>
+      Promise.all(
+        sessions.map(s => {
+          return listAttachments(s.user.user_id, after, authorize(s)).then(resp => {
+            console.log(resp);
+            resp.attachments.forEach(attachment => _attachments.push(attachment));
+          });
+        })
+      )
+    )
+    .then(() => {
+      cleanAttachments();
+      storeAttachments();
+      _lastFetch = Date.now();
+    });
+}
+
+// Background page is ephemeral, so load stored version of attachments.
+chrome.storage.local.get('attachments', function(result) {
+  _attachments = result.attachments || [];
 });
 
 // Listen for suggestion requests from the content scripts.
@@ -19,19 +65,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
   const suggestion = request.suggestion;
 
-  _recentSuggestions.unshift({ createdAt: Date.now(), ...suggestion });
-
-  // Remove duplicates via source_id and keep track of last 100 suggestions.
-  let seen = {};
-  _recentSuggestions = _recentSuggestions.filter(s =>
-    seen[s.attachment.source_id] ? false : (seen[s.attachment.source_id] = 1)
-  );
-  _recentSuggestions.length = Math.min(_recentSuggestions.length, 100);
-  chrome.storage.local.set({ suggestions: _recentSuggestions });
+  _attachments.push({ display_date: new Date().toISOString(), ...suggestion.attachment });
+  cleanAttachments();
+  storeAttachments();
 
   // Look up each account the user is authed as and send a suggestion.
   // TODO: If the user isn't logged-in the suggestion will get dropped. Perhaps
-  // we should use `_recentSuggestions` to replay recent activity.
+  // we should use `_attachments` to replay recent activity.
   orgs()
     .then(slugs => Promise.all(slugs.map(getSession)))
     .then(sessions =>
