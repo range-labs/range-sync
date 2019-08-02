@@ -6,10 +6,10 @@ function getAccounts() {
     .then(sessions =>
       sessions.map(s => ({
         userID: s.user.user_id,
-        name: s.user.settings.full_name,
-        email: s.user.settings.email,
+        name: s.user.profile.full_name,
+        email: s.user.profile.email,
         profilePhoto: `https://range.imgix.net${
-          s.user.settings.profile_photo
+          s.user.profile.profile_photo
         }?fit=crop&crop=faces&w=150&h=150&dpr=2&q=40&sharp=20`,
         orgID: s.org.org_id,
         orgName: s.org.name,

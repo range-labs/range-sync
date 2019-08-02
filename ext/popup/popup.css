@@ -72,24 +72,24 @@ body {
   color: #fff;
 }
 
-.suggestion {
+.attachment {
   cursor: pointer;
   padding: 9px 12px;
   font-size: 14px;
   border-bottom: 1px solid #f6f6f6;
 }
-.suggestion:hover {
+.attachment:hover {
   background-color: rgba(100, 100, 100, 0.1);
   color: #333;
 }
-.suggestion__name {
+.attachment__name {
 }
-.suggestion__meta {
+.attachment__meta {
   margin-top: 3px;
   font-size: 11px;
   color: #aaa;
 }
-.suggestion__meta > span + span::before {
+.attachment__meta > span + span::before {
   content: ' - ';
   margin: 3px 0;
 }

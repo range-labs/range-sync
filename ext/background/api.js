@@ -34,6 +34,22 @@ function addSuggestion(userID, suggestion, params) {
   return post(`/v1/users/${userID}/suggestions`, suggestion, params);
 }
 
+// List attachments retrieves metadata about
+function listAttachments(userID, after, params) {
+  let qs = [
+    `after=${after}`,
+    'types=LINK',
+    'types=FILE',
+    'types=DOCUMENT',
+    'types=CODE_CHANGE',
+    'types=ISSUE',
+    'types=TASK',
+    'types=CAMPAIGN',
+    'types=PROJECT',
+  ].join('&');
+  return get(`/v1/users/${userID}/attachments?${qs}`, params);
+}
+
 // Builds a request params object with the appropriate headers to make an
 // authenticated request.
 function authorize(session) {
@@ -77,11 +93,21 @@ function request(path, params = {}) {
     });
 }
 
-function post(path, data, params) {
+function post(path, data, params = {}) {
   return request(path, {
     ...params,
     method: 'POST',
     body: JSON.stringify(data),
+    headers: {
+      ...params.headers,
+    },
+  });
+}
+
+function get(path, params = {}) {
+  return request(path, {
+    ...params,
+    method: 'GET',
     headers: {
       ...params.headers,
     },
