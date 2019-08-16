@@ -4,7 +4,7 @@
 new Monitor()
   .pathMatch(/^\/doc\//)
   .resetOnNav()
-  .requireKeypress(10)
+  .requireKeypress(5)
 
   .reason(Reasons.EDITED)
   .past()
@@ -14,16 +14,16 @@ new Monitor()
   // or sometimes:
   //   https://paper.dropbox.com/doc/[base64id]
   .sourceID(() => {
-    let url = openGraph('og:url');
-    let i = url.indexOf('--');
-    if (i !== -1) return url.substr(i + 2);
-    else return url.split('/').pop();
+    let p = document.location.pathname;
+    let i = p.indexOf('--');
+    if (i !== -1) return p.substr(i + 2);
+    else return p.split('/').pop();
   })
 
   .setProvider('dropbox_paper', 'Dropbox Paper')
   .setType(Types.DOCUMENT)
   .attachment({
-    name: () => openGraph('og:title'),
-    html_url: () => openGraph('og:url'),
-    description: () => openGraph('og:description'),
+    name: () => textContent('.hp-header-title', 'Untitled'),
+    html_url: () => document.location.href,
+    description: () => '',
   });
