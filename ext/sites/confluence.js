@@ -5,7 +5,7 @@ const wikiURL = /^\/wiki\/spaces\/([A-Z]+)\/pages\/edit(?:-v2)?\/([0-9]+)$/;
 new Monitor()
   .pathMatch(wikiURL)
   .resetOnNav()
-  .requireKeypress(10)
+  .requireKeypress(5)
 
   .reason(Reasons.EDITED)
   .past()
