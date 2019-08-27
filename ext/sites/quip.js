@@ -4,7 +4,7 @@ const reEditPage = /^\/([A-Za-z0-9]+)\/[^\\]+$/;
 new Monitor()
   .pathMatch(reEditPage)
   .resetOnNav()
-  .requireKeypress(10)
+  .requireKeypress(4)
 
   .reason(Reasons.EDITED)
   .past()
