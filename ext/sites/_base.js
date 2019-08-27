@@ -74,7 +74,7 @@ function openGraph(property) {
 //     textContent('h1.title > span')
 function textContent(selector, opt_defaultText) {
   const el = document.querySelector(selector);
-  return el ? el.textContent : opt_defaultText || '';
+  return (el && (el.textContent || el.value)) || opt_defaultText || '';
 }
 
 // Convenience for calling a regular expression on a string and returning the
@@ -143,17 +143,33 @@ class Monitor {
 
   // Adds a requirement that the user must click at least 'n' times before a
   // suggestion will be made.
-  requireClick(n = 1) {
-    window.addEventListener('click', e => this._clickCounter++, true);
-    this._requirements.push(() => (this._clickCounter < n ? 'click required' : null));
+  requireClick(n = 1, target = window) {
+    let counter = 0;
+    target.addEventListener(
+      'click',
+      e => {
+        counter++;
+        this._log('click', counter, _elName(e.target));
+      },
+      true
+    );
+    this._requirements.push(() => (counter < n ? 'click required' : null));
     return this;
   }
 
   // Adds a requirement that the user must type at least 'n' characters before a
   // suggestion will be made.
-  requireKeypress(n = 1) {
-    window.addEventListener('keypress', e => this._keypressCounter++, true);
-    this._requirements.push(() => (this._keypressCounter < n ? 'keypress required' : null));
+  requireKeypress(n = 1, target = window) {
+    let counter = 0;
+    target.addEventListener(
+      'keypress',
+      e => {
+        counter++;
+        this._log('keypress', counter, _elName(e.target));
+      },
+      true
+    );
+    this._requirements.push(() => (counter < n ? 'keypress required' : null));
     return this;
   }
 
@@ -227,6 +243,7 @@ class Monitor {
   // values can be literals or a lambda which resolves the values at runtime.
   attachment(att) {
     this._att = att;
+    return this;
   }
 
   //----------------------------------------------------------------------------
@@ -267,8 +284,6 @@ class Monitor {
   _reset() {
     this._pageStart = Date.now();
     this._currentHref = document.location.href;
-    this._clickCounter = 0;
-    this._keypressCounter = 0;
     this._suggestion = null;
   }
 
@@ -348,4 +363,8 @@ class Monitor {
 function resolve(val) {
   if (typeof val === 'function') return val();
   else return val;
+}
+
+function _elName(el) {
+  return el.constructor.name + (el.className ? '.' + el.className : '');
 }
