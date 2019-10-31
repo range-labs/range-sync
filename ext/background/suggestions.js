@@ -1,4 +1,5 @@
 let _lastFetch = 0;
+let _lastError = 0;
 let _attachments = [];
 
 // Returns an array of attachments that have been suggested via the extension.
@@ -61,10 +62,17 @@ chrome.storage.local.get('attachments', function(result) {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.message !== 'suggestion') {
     console.error('unexpected message:', request);
+    sendResponse({ success: false, reason: new Error('Unexpected message') });
     return;
   }
-  const suggestion = request.suggestion;
 
+  if (Date.now() - _lastError < 1000 * 60) {
+    console.error('rejecting suggestion due to recent error');
+    sendResponse({ success: false, reason: new Error('Backing off from recent error') });
+    return;
+  }
+
+  const suggestion = request.suggestion;
   _attachments.push({ display_date: new Date().toISOString(), ...suggestion.attachment });
   cleanAttachments();
   storeAttachments();
@@ -73,7 +81,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   // TODO: If the user isn't logged-in the suggestion will get dropped. Perhaps
   // we should use `_attachments` to replay recent activity.
   orgs()
-    .then(slugs => Promise.all(slugs.map(getSession)))
+    .then(slugs => {
+      if (slugs.length === 0) throw new Error('Not authenticated');
+      return Promise.all(slugs.map(getSession));
+    })
     .then(sessions =>
       Promise.all(
         sessions.map(s => {
@@ -92,6 +103,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     )
     .then(() => sendResponse({ success: true }))
     .catch(e => {
+      _lastError = Date.now();
       sendResponse({ success: false, reason: e });
     });
   return true;
