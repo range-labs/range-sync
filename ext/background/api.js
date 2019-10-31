@@ -79,6 +79,7 @@ function request(path, params = {}) {
       return resp.json();
     })
     .catch(e => {
+      _sessionCache = {};
       throw new Error(`Network error, status: ${statusCode},  ${statusText} (${String(e)})`);
     })
     .then(resp => {

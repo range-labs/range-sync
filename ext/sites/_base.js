@@ -135,7 +135,7 @@ class Monitor {
   resetOnNav() {
     window.addEventListener('popstate', () => {
       this._log('popstate fired');
-      this._reset;
+      this._reset();
     });
     this._resetOnNav = true;
     return this;
