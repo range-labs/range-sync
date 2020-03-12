@@ -45,6 +45,10 @@
     {
       "matches": ["https://docs.google.com/*"],
       "js": ["sites/_base.js", "sites/google.js"]
+    },
+    {
+      "matches": ["https://stackoverflow.com/c/*", "https://*.stackenterprise.co/*"],
+      "js": ["sites/_base.js", "sites/stackoverflow.js"]
     }
   ],
   "icons": {
