@@ -9,21 +9,17 @@ new Monitor()
   .reason(Reasons.EDITED)
   .past()
 
-  // Paper encodes the documents canonical ID in the Open Graph URL in the form:
-  //   https://paper.dropbox.com/doc/Some-Title--[base64id]
-  // or sometimes:
-  //   https://paper.dropbox.com/doc/[base64id]
+  // Paper runs in an iframe and encodes the document's canonical ID in the URL with the form:
+  //   https://paper.dropbox.com/doc/Title-Of-Document-[base64id]
   .sourceID(() => {
-    let p = document.location.pathname;
-    let i = p.indexOf('--');
-    if (i !== -1) return p.substr(i + 2);
-    else return p.split('/').pop();
+    let parts = document.location.pathname.split('-');
+    return parts[parts.length - 1];
   })
 
   .setProvider('dropbox_paper', 'Dropbox Paper')
   .setType(Types.DOCUMENT)
   .attachment({
     name: () => textContent('.hp-header-title', 'Untitled'),
-    html_url: () => document.location.href,
+    html_url: () => document.querySelector('.hp-sharing-header-copylink').href,
     description: () => '',
   });
