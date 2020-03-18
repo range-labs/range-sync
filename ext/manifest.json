@@ -32,7 +32,8 @@
     },
     {
       "matches": ["https://paper.dropbox.com/*"],
-      "js": ["sites/_base.js", "sites/dropbox.js"]
+      "js": ["sites/_base.js", "sites/dropbox.js"],
+      "all_frames": true
     },
     {
       "matches": ["https://*.quip.com/*"],
