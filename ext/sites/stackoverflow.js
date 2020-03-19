@@ -30,7 +30,7 @@ function stackOverflowMonitor() {
     });
 }
 
-// Returns a parsed array of post signitures.
+// Returns a parsed array of post signatures.
 // The first post is the original question, the rest are answers.
 // Each post includes: isByCurrentUser and isNew
 function postSignatures() {
@@ -43,7 +43,8 @@ function postSignatures() {
   for (var i = 0; i < sigEls.length; i++) {
     const userEl = sigEls[i].querySelector('.user-details a');
     const timeEl = sigEls[i].querySelector('.user-action-time span');
-    if (!userEl || !userEl.pathname || !timeEl || !timeEl.title) break;
+    if (!userEl || !userEl.pathname || !timeEl || !timeEl.title) continue;
+``
     const isNew = new Date() - new Date(timeEl.title) < NEW_POST_TIME_CUTOFF_MSEC;
     const user = reMatch(userEl.pathname, reUserId, 1);
     sigs.push({
