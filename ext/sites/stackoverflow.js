@@ -44,7 +44,6 @@ function postSignatures() {
     const userEl = sigEls[i].querySelector('.user-details a');
     const timeEl = sigEls[i].querySelector('.user-action-time span');
     if (!userEl || !userEl.pathname || !timeEl || !timeEl.title) continue;
-``
     const isNew = new Date() - new Date(timeEl.title) < NEW_POST_TIME_CUTOFF_MSEC;
     const user = reMatch(userEl.pathname, reUserId, 1);
     sigs.push({
