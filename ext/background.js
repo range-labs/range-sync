@@ -33,7 +33,7 @@ chrome.runtime.onMessage.addListener((data) => {
 
     if (!seen[data.url]) return;
 
-    const idx = history.findIndex((e) => (e.url == data.url));
+    const idx = history.findIndex((e) => e.url == data.url);
     if (!history[idx].title) {
       history[idx].title = data.title;
       chrome.storage.sync.set({ history }, console.log);

@@ -8,13 +8,11 @@
     "scripts": ["background.js"],
     "persistent": false
   },
-  "content_scripts":[
+  "content_scripts": [
     {
-      "matches": [
-        "*://*/*"
-      ],
+      "matches": ["*://*/*"],
       "js": ["title_loader.js"],
-      "run_at":"document_start"
+      "run_at": "document_start"
     }
   ],
   "browser_action": {
