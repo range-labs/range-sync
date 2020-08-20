@@ -1,0 +1,27 @@
+# Configuration for GitHub Pull Request Labeler action
+# See: https://github.com/actions/labeler
+
+# Auto-label any changes to our infra Terraform files with "infra-change"
+
+infra-change:
+  - infra/**/*.tf
+
+# Auto-label dependency updates with "deps" and the language
+
+deps:
+  - go/src/vendor/manifest
+  - node/**/package*.json
+  - package*.json
+  - python/**/requirements.txt
+  - react/package*.json
+
+go:
+  - go/src/vendor/manifest
+
+npm:
+  - node/**/package*.json
+  - package*.json
+  - react/package*.json
+
+python:
+  - python/**/requirements.txt
