@@ -1,12 +1,11 @@
 const manifest = chrome.runtime.getManifest();
-const API_HOST = 'api.range.co';
 
 let _sessionCache = {};
 
 // Returns a list of org slugs which the user is logged into.
 function listOrgs() {
   return new Promise((resolve, reject) => {
-    chrome.cookies.getAll({ domain: API_HOST }, (cookies) => {
+    chrome.cookies.getAll({ domain: CONFIG.api_host }, (cookies) => {
       if (cookies === null) reject(chrome.runtime.lastError.message);
       else resolve(cookies.map((c) => c.name.substr(3)));
     });
@@ -66,7 +65,7 @@ function get(path, params = {}) {
 function request(path, params = {}) {
   let statusCode = 0;
   let statusText = 'OK';
-  return fetch(`https://${API_HOST}${path}`, {
+  return fetch(`https://${CONFIG.api_host}${path}`, {
     ...params,
     headers: {
       ...params.headers,

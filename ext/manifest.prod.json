@@ -1,11 +1,11 @@
 {
-  "name": "[STAGING] Range Sync",
+  "name": "Range Sync",
   "version": "1.0",
-  "description": "[STAGING] The Range Chrome extension, rearchitected to be lighter-weight and flexible",
-  "permissions": ["tabs", "cookies", "https://*.habitat.team/*"],
+  "description": "The Range Chrome extension, rearchitected to be lighter-weight and flexible",
+  "permissions": ["tabs", "cookies", "https://*.range.co/*"],
   "options_page": "options/options.html",
   "background": {
-    "scripts": ["background/conf/staging.js", "background/api.js", "background/background.js"],
+    "scripts": ["background/conf/prod.js", "background/api.js", "background/background.js"],
     "persistent": false
   },
   "browser_action": {

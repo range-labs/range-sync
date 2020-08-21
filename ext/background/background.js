@@ -2,7 +2,7 @@
 
 chrome.tabs.onUpdated.addListener((_tabId, info, tab) => {
   // no-op unless done loading
-  if (!tab.status || !tab.status == 'complete') return;
+  if (!tab.status || !tab.status.localeCompare('complete') == 0) return;
 
   // no-op unless we have enough info to make an attachment
   if (!tab.url || !tab.title) return;
