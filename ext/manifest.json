@@ -1,22 +1,15 @@
 {
-  "name": "Getting Started Example",
+  "name": "Range Sync",
   "version": "1.0",
-  "description": "Build an Extension!",
-  "permissions": ["history", "storage"],
-  "options_page": "options.html",
+  "description": "The Range Chrome extension, rearchitected to be lighter-weight and flexible",
+  "permissions": ["tabs", "cookies", "https://api.range.co/*"],
+  "options_page": "options/options.html",
   "background": {
-    "scripts": ["background.js"],
+    "scripts": ["background/api.js", "background/background.js"],
     "persistent": false
   },
-  "content_scripts": [
-    {
-      "matches": ["*://*/*"],
-      "js": ["title_loader.js"],
-      "run_at": "document_start"
-    }
-  ],
   "browser_action": {
-    "default_popup": "popup.html",
+    "default_popup": "popup/popup.html",
     "default_icon": {
       "16": "images/get_started16.png",
       "32": "images/get_started32.png",
