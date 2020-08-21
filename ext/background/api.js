@@ -15,7 +15,7 @@ function listOrgs() {
 
 // Posts a new suggestion to the Range servers on behalf of the user. Based on
 // the suggestion object it will be deduped.
-function addInteraction(interaction, params) {
+function recordInteraction(interaction, params) {
   return post(`/v1/activity`, interaction, params);
 }
 
@@ -52,7 +52,6 @@ function post(path, data, params = {}) {
   });
 }
 
-// helper to creating get requests
 function get(path, params = {}) {
   return request(path, {
     ...params,
@@ -63,7 +62,7 @@ function get(path, params = {}) {
   });
 }
 
-// helper to handle requests
+// Makes a request to the Range API server, handling authentication and common error cases
 function request(path, params = {}) {
   let statusCode = 0;
   let statusText = 'OK';

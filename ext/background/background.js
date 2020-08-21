@@ -17,7 +17,7 @@ chrome.tabs.onUpdated.addListener((_tabId, info, tab) => {
         sessions.map((s) => {
           const url = new URL(tab.url);
           const base = url.hostname + url.pathname;
-          return addInteraction(
+          return recordInteraction(
             {
               interaction_type: 'VIEWED',
               idempotency_key: tab.title,
@@ -37,5 +37,5 @@ chrome.tabs.onUpdated.addListener((_tabId, info, tab) => {
         })
       )
     )
-    .then(console.log);
+    .catch(console.log);
 });
