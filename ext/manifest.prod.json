@@ -5,7 +5,12 @@
   "permissions": ["tabs", "cookies", "https://*.range.co/*"],
   "options_page": "options/options.html",
   "background": {
-    "scripts": ["background/conf/prod.js", "background/api.js", "background/background.js"],
+    "scripts": [
+      "background/conf/prod.js",
+      "background/api.js",
+      "background/background.js",
+      "background/regex.js"
+    ],
     "persistent": false
   },
   "browser_action": {

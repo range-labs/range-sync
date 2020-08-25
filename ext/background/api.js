@@ -1,3 +1,5 @@
+'use strict';
+
 const manifest = chrome.runtime.getManifest();
 
 let _sessionCache = {};
@@ -24,6 +26,7 @@ function getSession(orgSlug, opt_force) {
   if (_sessionCache[orgSlug] && !opt_force) {
     return _sessionCache[orgSlug];
   }
+
   return request(`/v1/auth/login/${orgSlug}`).then((resp) => {
     _sessionCache[orgSlug] = resp;
     return resp;
