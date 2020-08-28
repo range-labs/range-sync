@@ -5,8 +5,8 @@ chrome.tabs.onUpdated.addListener((tabId, _info, tab) => {
   if (!tab.status || !tab.status.localeCompare('complete') == 0) return;
 
   // no-op if title is in the global block list
-  for (const re of BLOCK_LIST.title) {
-    if (re.test(tab.title)) return;
+  for (const reTitle of BLOCK_LIST.title) {
+    if (reTitle.test(tab.title)) return;
   }
 
   // no-op unless we have enough info to make an attachment
@@ -58,7 +58,7 @@ function attachment(session, tab) {
 function providerInfo(url, title) {
   // For consistency, remove trailing forward slashes
   const base = url.hostname + url.pathname.replace(/\/+$/, '');
-  // Loop through the known providers and check the url against them
+  // Loop through the known providers and check if the current URL matches one
   for (const filter of FILTER) {
     let sourceId = '';
     for (const reUrl of filter.url_regex) {
@@ -71,11 +71,14 @@ function providerInfo(url, title) {
           return {
             name: processor.title_processor(title),
             provider: filter.provider,
-            provider_name: filter.provider_name,
+            provider_name: filter.provider_name(url),
             source_id: sourceId,
           };
         }
       }
+
+      // No processor found for a recognized domain; return to avoid spam
+      return null;
     }
   }
 

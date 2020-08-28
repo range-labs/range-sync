@@ -9,7 +9,7 @@
       "background/conf/prod.js",
       "background/api.js",
       "background/background.js",
-      "background/regex.js"
+      "background/filter.js"
     ],
     "persistent": false
   },
