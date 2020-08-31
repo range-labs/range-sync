@@ -82,18 +82,8 @@ function providerInfo(url, title) {
     }
   }
 
-  // If there's no known provider, generate one based on the URL
-  const hostParts = url.hostname.split('.');
-  return {
-    name: title,
-    source_id: base,
-    // i.e. 'subdomain.nytimes.com' -> 'chromeext_nytimes'
-    provider: `chromeext_${hostParts[hostParts.length - 2]}`,
-    // i.e. 'subdomain.nytimes.com' -> 'nytimes.com (via Range Sync)'
-    provider_name: `${hostParts[hostParts.length - 2]}.${
-      hostParts[hostParts.length - 1]
-    } (via Range Sync)`,
-  };
+  // No processor found for any domain; return null to avoid spam
+  return null;
 }
 
 function blocked(blockList, url, title) {
