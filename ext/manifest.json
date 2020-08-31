@@ -6,10 +6,20 @@
   "options_page": "options/options.html",
   "background": {
     "scripts": [
-      "background/conf/staging.js",
       "background/api.js",
+      "background/conf/staging.js",
       "background/background.js",
-      "background/filter.js"
+      "background/filter/filter.js",
+      "background/filter/asana.js",
+      "background/filter/dropbox_paper.js",
+      "background/filter/figma.js",
+      "background/filter/github.js",
+      "background/filter/gmail.js",
+      "background/filter/google_drive.js",
+      "background/filter/lever.js",
+      "background/filter/medium.js",
+      "background/filter/metabase.js",
+      "background/filter/stack_overflow.js"
     ],
     "persistent": false
   },
