@@ -1,6 +1,6 @@
 'use strict';
 
-register_filter({
+registerFilter({
   url_regex: [/figma\.com/],
   provider: 'figma',
   provider_name: (_url) => 'Figma',

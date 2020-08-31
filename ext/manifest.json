@@ -11,14 +11,17 @@
       "background/background.js",
       "background/filter/filter.js",
       "background/filter/asana.js",
+      "background/filter/confluence.js",
       "background/filter/dropbox_paper.js",
       "background/filter/figma.js",
       "background/filter/github.js",
       "background/filter/gmail.js",
       "background/filter/google_drive.js",
       "background/filter/lever.js",
+      "background/filter/lucid_chart.js",
       "background/filter/medium.js",
       "background/filter/metabase.js",
+      "background/filter/quip.js",
       "background/filter/stack_overflow.js"
     ],
     "persistent": false

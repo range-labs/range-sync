@@ -1,6 +1,6 @@
 'use strict';
 
-register_filter({
+registerFilter({
   url_regex: [/stackoverflow\.com/, /stackenterprise\.co/],
   provider: 'stackoverflow',
   provider_name: (_url) => 'Stack Overflow',

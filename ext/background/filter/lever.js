@@ -1,6 +1,6 @@
 'use strict';
 
-register_filter({
+registerFilter({
   url_regex: [/hire\.lever\.co\/.+/],
   provider: 'lever',
   provider_name: (_url) => 'Lever',

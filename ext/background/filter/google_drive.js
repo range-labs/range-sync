@@ -1,6 +1,6 @@
 'use strict';
 
-register_filter({
+registerFilter({
   url_regex: [/docs\.google\.com/],
   provider: 'drive',
   provider_name: (url) => {
@@ -25,7 +25,11 @@ register_filter({
         return reMatch(url.pathname, rePath, 0);
       },
       // i.e. 'Document Title - Google Docs' -> 'Document Title'
-      title_processor: (t) => t.split(' - ')[0],
+      title_processor: (t) => {
+        const parts = t.split(' - ');
+        parts.pop();
+        return parts.join(' - ');
+      },
     },
   ],
   block_list: { title: [/Google Drive$/] },

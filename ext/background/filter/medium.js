@@ -1,6 +1,6 @@
 'use strict';
 
-register_filter({
+registerFilter({
   url_regex: [/medium\.com/],
   provider: 'medium',
   provider_name: (_url) => 'Medium',

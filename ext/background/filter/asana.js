@@ -1,6 +1,6 @@
 'use strict';
 
-register_filter({
+registerFilter({
   url_regex: [/app\.asana\.com/],
   provider: 'asana',
   provider_name: (_url) => 'Asana',

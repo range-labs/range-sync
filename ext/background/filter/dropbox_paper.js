@@ -1,6 +1,6 @@
 'use strict';
 
-register_filter({
+registerFilter({
   url_regex: [/dropbox\.com\/.*\.paper/],
   provider: 'dropbox_paper',
   provider_name: (_url) => 'Dropbox Paper',

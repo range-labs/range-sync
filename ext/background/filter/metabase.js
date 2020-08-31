@@ -1,6 +1,6 @@
 'use strict';
 
-register_filter({
+registerFilter({
   url_regex: [/metabase\..*/],
   provider: 'metabase',
   provider_name: (_url) => 'Metabase',

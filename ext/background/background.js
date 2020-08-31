@@ -59,7 +59,7 @@ function providerInfo(url, title) {
   // For consistency, remove trailing forward slashes
   const base = url.hostname + url.pathname.replace(/\/+$/, '');
   // Loop through the known providers and check if the current URL matches one
-  for (const filter of FILTER) {
+  for (const filter of FILTERS) {
     let sourceId = '';
     for (const reUrl of filter.url_regex) {
       if (!reUrl.test(base)) continue;

@@ -5,13 +5,13 @@ const GUID_REGEX =
 
 const BLOCK_LIST = { title: [/^chrome:\/\//, /^Range/] };
 
-const FILTER = [];
+const FILTERS = [];
+
+function registerFilter(filter) {
+  FILTERS.push(filter);
+}
 
 function reMatch(str, re, index) {
   const match = str.match(re);
   return match ? match[index] : null;
-}
-
-function register_filter(filter) {
-  FILTER.push(filter);
 }

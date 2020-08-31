@@ -1,6 +1,6 @@
 'use strict';
 
-register_filter({
+registerFilter({
   url_regex: [/mail\.google\.com/],
   provider: 'gmail',
   provider_name: (_url) => 'Gmail',
