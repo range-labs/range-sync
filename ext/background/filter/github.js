@@ -4,6 +4,7 @@ registerFilter({
   url_regex: [/github\.com\/.+/],
   provider: 'github',
   provider_name: (_url) => 'GitHub',
+  type: (_url) => 'CODE_CHANGE',
   processors: [
     // Issue
     {

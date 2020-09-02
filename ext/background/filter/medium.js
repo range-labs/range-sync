@@ -4,6 +4,7 @@ registerFilter({
   url_regex: [/medium\.com/],
   provider: 'medium',
   provider_name: (_url) => 'Medium',
+  type: (_url) => 'DOCUMENT',
   processors: [
     // Story Edit
     {

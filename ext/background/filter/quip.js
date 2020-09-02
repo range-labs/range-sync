@@ -4,6 +4,7 @@ registerFilter({
   url_regex: [/\.quip\.com/],
   provider: 'quip',
   provider_name: (_url) => 'Quip',
+  type: (_url) => 'DOCUMENT',
   processors: [
     // Document
     {

@@ -4,6 +4,7 @@ registerFilter({
   url_regex: [/atlassian\.net\/wiki/],
   provider: 'confluence',
   provider_name: (_url) => 'Confluence',
+  type: (_url) => 'DOCUMENT',
   processors: [
     // Document
     {

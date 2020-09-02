@@ -4,6 +4,7 @@ registerFilter({
   url_regex: [/app\.lucidchart\.com/],
   provider: 'lucid_chart',
   provider_name: (_url) => 'Lucid Chart',
+  type: (_url) => 'DOCUMENT',
   processors: [
     {
       source_id_processor: (url) => {

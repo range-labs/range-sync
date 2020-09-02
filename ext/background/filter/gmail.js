@@ -4,6 +4,7 @@ registerFilter({
   url_regex: [/mail\.google\.com/],
   provider: 'gmail',
   provider_name: (_url) => 'Gmail',
+  type: (_url) => 'DOCUMENT',
   processors: [
     // Email
     {

@@ -4,6 +4,8 @@ registerFilter({
   url_regex: [/figma\.com/],
   provider: 'figma',
   provider_name: (_url) => 'Figma',
+  type: (_url) => 'DOCUMENT',
+  subtype: (_url) => 'FIGMA_DOCUMENT',
   processors: [
     // Project
     {

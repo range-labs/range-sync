@@ -1,5 +1,8 @@
 'use strict';
 
+const DEFAULT_TYPE = 'LINK';
+const DEFAULT_SUBTYPE = 'NONE';
+
 chrome.tabs.onUpdated.addListener((tabId, _info, tab) => {
   // no-op unless done loading
   if (!tab.status || !tab.status.localeCompare('complete') == 0) return;
@@ -25,7 +28,7 @@ chrome.tabs.onUpdated.addListener((tabId, _info, tab) => {
 
           return recordInteraction(
             {
-              interaction_type: 'VIEWED',
+              interaction_type: (_url) => 'VIEWED',
               idempotency_key: `${tabId}::${tab.title}`,
               attachment: a,
             },
@@ -50,8 +53,6 @@ function attachment(session, tab) {
     ...provider,
     html_url: url.href,
     org_id: session.org.org_id,
-    type: 'LINK',
-    subtype: 'NONE',
   };
 }
 
@@ -73,6 +74,8 @@ function providerInfo(url, title) {
             provider: filter.provider,
             provider_name: filter.provider_name(url),
             source_id: sourceId,
+            type: !!filter.type ? filter.type(url) : DEFAULT_TYPE,
+            subtype: !!filter.subtype ? filter.subtype(url) : DEFAULT_SUBTYPE,
           };
         }
       }
