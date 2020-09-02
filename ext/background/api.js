@@ -7,9 +7,9 @@ let _sessionCache = {};
 // Returns a list of org slugs which the user is logged into.
 function listOrgs() {
   return new Promise((resolve, reject) => {
-    chrome.cookies.getAll({ domain: CONFIG.api_host }, (cookies) => {
+    chrome.cookies.getAll({ domain: CONFIG.cookie_host || CONFIG.api_host }, (cookies) => {
       if (cookies === null) reject(chrome.runtime.lastError.message);
-      else resolve(cookies.map((c) => c.name.substr(3)));
+      else resolve(cookies.filter((c) => c.name.startsWith('at-')).map((c) => c.name.substr(3)));
     });
   });
 }
