@@ -7,7 +7,7 @@
   "background": {
     "scripts": [
       "background/api.js",
-      "background/conf/staging.js",
+      "background/conf/prod.js",
       "background/background.js",
       "background/filter/filter.js",
       "background/filter/asana.js",
