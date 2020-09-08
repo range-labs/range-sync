@@ -3,7 +3,7 @@
 const DEFAULT_TYPE = 'LINK';
 const DEFAULT_SUBTYPE = 'NONE';
 
-chrome.tabs.onUpdated.addListener((tabId, _info, tab) => {
+chrome.tabs.onUpdated.addListener((_tabId, _info, tab) => {
   // no-op unless done loading
   if (!tab.status || !tab.status.localeCompare('complete') == 0) return;
 
@@ -18,18 +18,32 @@ chrome.tabs.onUpdated.addListener((tabId, _info, tab) => {
   // no-op if the title has not actually loaded yet
   if (tab.url.localeCompare(tab.title) == 0) return;
 
+  attemptRecordInteraction(tab, false);
+});
+
+chrome.runtime.onMessage.addListener((request, _sender, _response) => {
+  switch (request.action) {
+    case 'INTERACTION':
+      attemptRecordInteraction(request.tab, true);
+      break;
+  }
+});
+
+function attemptRecordInteraction(tab, force) {
+  if (!tab || !tab.id) return;
+
   listOrgs()
     .then((slugs) => Promise.all(slugs.map(getSession)))
     .then((sessions) =>
       Promise.all(
         sessions.map((s) => {
-          const a = attachment(s, tab);
+          const a = attachment(s, tab, force);
           if (!a) return Promise.resolve();
 
           return recordInteraction(
             {
-              interaction_type: (_url) => 'VIEWED',
-              idempotency_key: `${tabId}::${tab.title}`,
+              interaction_type: (_) => 'VIEWED',
+              idempotency_key: `${tab.id}::${tab.title}`,
               attachment: a,
             },
             authorize(s)
@@ -38,15 +52,15 @@ chrome.tabs.onUpdated.addListener((tabId, _info, tab) => {
       )
     )
     .catch(console.log);
-});
+}
 
-function attachment(session, tab) {
+function attachment(session, tab, force) {
   const url = new URL(tab.url);
 
   // To avoid spam, do not automatically track domains without paths
   if (url.pathname.length <= 1) return null;
 
-  const provider = providerInfo(url, tab.title);
+  const provider = providerInfo(url, tab.title, force);
   if (!provider) return null;
 
   return {
@@ -56,7 +70,7 @@ function attachment(session, tab) {
   };
 }
 
-function providerInfo(url, title) {
+function providerInfo(url, title, force) {
   // For consistency, remove trailing forward slashes
   const base = url.hostname + url.pathname.replace(/\/+$/, '');
   // Loop through the known providers and check if the current URL matches one
@@ -81,12 +95,40 @@ function providerInfo(url, title) {
       }
 
       // No processor found for a recognized domain; return to avoid spam
-      return null;
+      if (!force) return null;
+
+      return {
+        name: title,
+        provider: filter.provider,
+        provider_name: filter.provider_name(url),
+        // suffixing 'chromeext_' will make it easier to find out what pages to
+        // add next
+        source_id: `chromeext_${base}`,
+        type: DEFAULT_TYPE,
+        subtype: DEFAULT_SUBTYPE,
+      };
     }
   }
 
   // No processor found for any domain; return null to avoid spam
-  return null;
+  if (!force) return null;
+
+  // If there's no known provider, generate one based on the URL
+  const hostParts = url.hostname.split('.');
+  return {
+    name: title,
+    // i.e. 'subdomain.nytimes.com' -> 'chromeext_nytimes'
+    provider: `chromeext_${hostParts[hostParts.length - 2]}`,
+    // i.e. 'subdomain.nytimes.com' -> 'nytimes.com (via Range Sync)'
+    provider_name: `${hostParts[hostParts.length - 2]}.${
+      hostParts[hostParts.length - 1]
+    } (via Range Sync)`,
+    // suffixing 'chromeext_' will make it easier to find out what providers to
+    // add next
+    source_id: `chromeext_${base}`,
+    type: DEFAULT_TYPE,
+    subtype: DEFAULT_SUBTYPE,
+  };
 }
 
 function blocked(blockList, url, title) {

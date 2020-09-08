@@ -1,17 +1,13 @@
+// Copyright 2018 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 'use strict';
 
-const histNode = document.getElementById('history');
+const recordInteraction = document.getElementById('recordInteraction');
 
-chrome.storage.sync.get('history', (results) => {
-  const history = results.history;
-
-  for (const item of history) {
-    console.log(item.title);
-    const itemTitle = document.createElement('p');
-    itemTitle.appendChild(document.createTextNode(item.title));
-    histNode.appendChild(itemTitle);
-    const itemUrl = document.createElement('p');
-    itemUrl.appendChild(document.createTextNode(item.url));
-    histNode.appendChild(itemUrl);
-  }
-});
+recordInteraction.onclick = (_) => {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    chrome.runtime.sendMessage({ action: 'INTERACTION', tab: tabs[0] });
+  });
+};
