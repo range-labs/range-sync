@@ -2,7 +2,7 @@
   "name": "[STAGING] Range Sync",
   "version": "1.0",
   "description": "[STAGING] The Range Chrome extension, rearchitected to be lighter-weight and flexible",
-  "permissions": ["tabs", "cookies", "https://*.habitat.team/*"],
+  "permissions": ["tabs", "cookies", "storage", "https://*.habitat.team/*"],
   "options_page": "options/options.html",
   "background": {
     "scripts": [
@@ -29,17 +29,17 @@
   "browser_action": {
     "default_popup": "popup/popup.html",
     "default_icon": {
-      "16": "images/get_started16.png",
-      "32": "images/get_started32.png",
-      "48": "images/get_started48.png",
-      "128": "images/get_started128.png"
+      "16": "images/icon16.png",
+      "32": "images/icon32.png",
+      "48": "images/icon48.png",
+      "128": "images/icon128.png"
     }
   },
   "icons": {
-    "16": "images/get_started16.png",
-    "32": "images/get_started32.png",
-    "48": "images/get_started48.png",
-    "128": "images/get_started128.png"
+    "16": "images/icon16.png",
+    "32": "images/icon32.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
   },
   "manifest_version": 2
 }

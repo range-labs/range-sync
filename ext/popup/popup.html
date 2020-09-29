@@ -1,16 +1,37 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <style>
-      button {
-        height: 30px;
-        width: 30px;
-        outline: none;
-      }
-    </style>
-  </head>
-  <body>
-    <button id="recordInteraction"></button>
-    <script src="popup.js"></script>
-  </body>
+
+<head>
+  <link rel="stylesheet" href="accordion.css" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="topbarLogoContainer">
+      <img src="/images/arch.svg" class="topbarLogo" />
+    </div>
+    <div class="topbarTitle">Range</div>
+  </div>
+  <div class="unauthenticated">
+    <p>Welcome to Range Chrome Sync. <a
+        href="https://chrome.google.com/webstore/detail/range-for-chrome/mbnkiifdpdcimfcdhmioinhcbjngjebo"
+        target="_blank">Learn more</a>.</p>
+    <a id="login" href="https://range.co/login" target="_blank">Sign in to Range</a>
+  </div>
+  <div class="authenticated">
+    <div id="check-in">Check-in</div>
+    <button class="accordion" id="record">Add stuff</button>
+    <div class="panel">Add</div>
+    <button class="accordion" id="activity">Previously recorded stuff</button>
+    <div class="panel">Recorded</div>
+    <button class="accordion" id="settings">Settings</button>
+    <div class="panel">Settings</div>
+  </div>
+
+  <script src="deps/fastdom.js"></script>
+  <script src="deps/fastdom-promised.js"></script>
+  <script src="popup.js"></script>
+</body>
+
 </html>

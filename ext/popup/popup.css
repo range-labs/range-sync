@@ -1,0 +1,57 @@
+body {
+  width: 350px;
+  margin: 0px !important;
+
+  font-family: 'Open Sans', sans-serif;
+}
+
+.topbar {
+  display: flex;
+
+  background: #596e79;
+
+  padding: 10px 10px 5px 10px;
+
+  font-style: normal;
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 24px;
+  color: #ffffff;
+}
+
+.topbarLogoContainer {
+  margin-right: 15px;
+}
+
+.topbarLogo {
+  height: 20px;
+  width: auto;
+}
+
+.unauthenticated {
+  display: none;
+  flex-direction: column;
+  justify-content: left;
+  padding: 10px 0px 10px 15px;
+
+  font-size: 14px;
+}
+
+#login {
+  display: inline-block;
+  background: #00bfd8;
+
+  width: 140px;
+  height: 30px;
+  border-radius: 3px;
+  border: 0;
+
+  padding: 12px 0px 0px 20px;
+
+  text-decoration: none;
+  font-size: 16px;
+  color: #ffffff;
+}
+.authenticated {
+  display: none;
+}

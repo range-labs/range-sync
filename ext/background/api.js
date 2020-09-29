@@ -2,10 +2,39 @@
 
 const manifest = chrome.runtime.getManifest();
 
-let _sessionCache = {};
+let sessionCache = {};
 
-// Returns a list of org slugs which the user is logged into.
-function listOrgs() {
+function* currentSessions() {
+  for (const k in sessionCache) {
+    console.log('yielding');
+    yield sessionCache[k];
+  }
+}
+
+function refreshAllSessions() {
+  sessionCache = {};
+  orgsFromCookies()
+    .then((slugs) => Promise.all(slugs.map(refreshSession)))
+    .then(() => {
+      console.log(sessionCache);
+      chrome.storage.local.set({ sessions: sessionCache });
+    });
+}
+
+// Returns session information, includes information about the user, org, and
+// a short-lived session token for making API requests.
+function refreshSession(orgSlug, opt_force) {
+  if (sessionCache[orgSlug] && !opt_force) {
+    return sessionCache[orgSlug];
+  }
+
+  return request(`/v1/auth/login/${orgSlug}`).then((resp) => {
+    sessionCache[orgSlug] = resp;
+  });
+}
+
+// Returns a list of authenticated org slugs from Range cookies
+function orgsFromCookies() {
   return new Promise((resolve, reject) => {
     chrome.cookies.getAll({ domain: CONFIG.cookie_host || CONFIG.api_host }, (cookies) => {
       if (cookies === null) reject(chrome.runtime.lastError.message);
@@ -18,19 +47,6 @@ function listOrgs() {
 // the suggestion object it will be deduped.
 function recordInteraction(interaction, params) {
   return post(`/v1/activity`, interaction, params);
-}
-
-// Returns session information, includes information about the user, org, and
-// a short-lived session token for making API requests.
-function getSession(orgSlug, opt_force) {
-  if (_sessionCache[orgSlug] && !opt_force) {
-    return _sessionCache[orgSlug];
-  }
-
-  return request(`/v1/auth/login/${orgSlug}`).then((resp) => {
-    _sessionCache[orgSlug] = resp;
-    return resp;
-  });
 }
 
 // Builds a request params object with the appropriate headers to make an
@@ -84,14 +100,14 @@ function request(path, params = {}) {
       return resp.json();
     })
     .catch((e) => {
-      _sessionCache = {};
+      refreshAllSessions();
       throw new Error(`Network error, status: ${statusCode},  ${statusText} (${String(e)})`);
     })
     .then((resp) => {
       if (statusCode !== 200) {
         if (resp.code === 16 || resp.code === 7) {
           console.warn('no longer authenticated, clearing sessions...');
-          _sessionCache = {};
+          refreshAllSessions();
         }
         throw resp;
       }

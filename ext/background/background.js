@@ -3,6 +3,12 @@
 const DEFAULT_TYPE = 'LINK';
 const DEFAULT_SUBTYPE = 'NONE';
 
+// Initialize the sessions
+refreshAllSessions();
+
+// If cookies change, refresh sessions
+chrome.cookies.onChanged.addListener(() => refreshAllSessions);
+
 chrome.tabs.onUpdated.addListener((_tabId, _info, tab) => {
   // no-op unless done loading
   if (!tab.status || !tab.status.localeCompare('complete') == 0) return;
@@ -32,26 +38,20 @@ chrome.runtime.onMessage.addListener((request, _sender, _response) => {
 function attemptRecordInteraction(tab, force) {
   if (!tab || !tab.id) return;
 
-  listOrgs()
-    .then((slugs) => Promise.all(slugs.map(getSession)))
-    .then((sessions) =>
-      Promise.all(
-        sessions.map((s) => {
-          const a = attachment(s, tab, force);
-          if (!a) return Promise.resolve();
+  for (const s of currentSessions()) {
+    console.log(s);
+    const a = attachment(s, tab, force);
+    if (!a) return Promise.resolve();
 
-          return recordInteraction(
-            {
-              interaction_type: (_) => 'VIEWED',
-              idempotency_key: `${tab.id}::${tab.title}`,
-              attachment: a,
-            },
-            authorize(s)
-          );
-        })
-      )
-    )
-    .catch(console.log);
+    recordInteraction(
+      {
+        interaction_type: (_) => 'VIEWED',
+        idempotency_key: `${tab.id}::${tab.title}`,
+        attachment: a,
+      },
+      authorize(s)
+    ).catch(console.error);
+  }
 }
 
 function attachment(session, tab, force) {
