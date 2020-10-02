@@ -6,7 +6,6 @@ let sessionCache = {};
 
 function* currentSessions() {
   for (const k in sessionCache) {
-    console.log('yielding');
     yield sessionCache[k];
   }
 }

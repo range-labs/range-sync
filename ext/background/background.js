@@ -7,7 +7,7 @@ const DEFAULT_SUBTYPE = 'NONE';
 refreshAllSessions();
 
 // If cookies change, refresh sessions
-chrome.cookies.onChanged.addListener(() => refreshAllSessions);
+chrome.cookies.onChanged.addListener(refreshAllSessions);
 
 chrome.tabs.onUpdated.addListener((_tabId, _info, tab) => {
   // no-op unless done loading
@@ -39,7 +39,6 @@ function attemptRecordInteraction(tab, force) {
   if (!tab || !tab.id) return;
 
   for (const s of currentSessions()) {
-    console.log(s);
     const a = attachment(s, tab, force);
     if (!a) return Promise.resolve();
 

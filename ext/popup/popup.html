@@ -2,14 +2,13 @@
 <html>
 
 <head>
-  <link rel="stylesheet" href="accordion.css" />
   <link rel="stylesheet" href="popup.css" />
 </head>
 
 <body>
   <div class="topbar">
     <div class="topbarLogoContainer">
-      <img src="/images/arch.svg" class="topbarLogo" />
+      <img class="topbarLogo" src="/images/arch.svg" />
     </div>
     <div class="topbarTitle">Range</div>
   </div>
@@ -17,20 +16,49 @@
     <p>Welcome to Range Chrome Sync. <a
         href="https://chrome.google.com/webstore/detail/range-for-chrome/mbnkiifdpdcimfcdhmioinhcbjngjebo"
         target="_blank">Learn more</a>.</p>
-    <a id="login" href="https://range.co/login" target="_blank">Sign in to Range</a>
+    <a class="large-button" href="https://range.co/login" target="_blank">Sign in to Range</a>
   </div>
   <div class="authenticated">
-    <div id="check-in">Check-in</div>
-    <button class="accordion" id="record">Add stuff</button>
-    <div class="panel">Add</div>
-    <button class="accordion" id="activity">Previously recorded stuff</button>
-    <div class="panel">Recorded</div>
-    <button class="accordion" id="settings">Settings</button>
-    <div class="panel">Settings</div>
+    <div id="check-in-status">
+      <img id="check-in-logo" src="/images/check-in.png" />
+      <div>Last Check-in: Yesterday</div>
+      <a id="check-in-button" href="https://range.co/_/compose" target="_blank">Check-in</a>
+    </div>
+    <button class="accordion" id="record">
+      <img class="indicator" src="/images/accordion-indicator.png" />
+      <div class="title">Add page to Check-in</div>
+    </button>
+    <div class="panel">
+      <div id="check-in-picker">
+        Add to:
+        <span class="check-in-type active" id="check-in-what">What happened</span> |
+        <span class="check-in-type" id="check-in-plan">Plan</span> |
+        <span class="check-in-type" id="check-in-backlog">Backlog</span>
+      </div>
+      <textarea id="check-in-text" type="text" placeholder="What progress did you make?"></textarea>
+      <div id="check-in-attachment">
+        <div id="attachment-icon-wrapper"><img id="attachment-icon" src="/images/arch.svg" /></div>
+        <div id="attachment-data">
+          <div id="attachment-title">List of fallacies - Wikipedia</div>
+          <div id="attachment-subtitle">wikipedia.com - Viewed</div>
+        </div>
+      </div>
+      <button class="large-button">Add to next Check-in</button>
+    </div>
+    <button class="accordion" id="activity">
+      <img class="indicator" src="/images/accordion-indicator.png" />
+      <div class="title">Activity</div>
+    </button>
+    <div class="panel">Recorded placeholder</div>
+    <button class="accordion" id="settings">
+      <img class="indicator" src="/images/accordion-indicator.png" />
+      <div class="title">Sync settings</div>
+      <div class="subtitle">Integration - OFF</div>
+    </button>
+    <div class="panel">Settings placeholder</div>
   </div>
 
-  <script src="deps/fastdom.js"></script>
-  <script src="deps/fastdom-promised.js"></script>
+  <script src="macos-fix.js"></script>
   <script src="popup.js"></script>
 </body>
 

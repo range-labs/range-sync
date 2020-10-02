@@ -3,6 +3,7 @@ body {
   margin: 0px !important;
 
   font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
 }
 
 .topbar {
@@ -28,30 +29,168 @@ body {
   width: auto;
 }
 
+.accordion {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+
+  background: #657d8a;
+  color: #ffffff;
+
+  width: 100%;
+  box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.2);
+  border: none;
+  outline: none;
+
+  padding: 12px;
+}
+
+.indicator {
+  margin-right: 15px;
+  transition: transform ease-in-out 100ms;
+}
+
+.accordion.active > .indicator  {
+  transform: rotate(180deg);
+}
+
+.accordion.active + .panel {
+  display: flex;
+}
+
+.accordion > .subtitle {
+  margin-left: auto;
+  opacity: 50%;
+}
+
+.panel {
+  display: none;
+  flex-direction: column;
+  padding: 12px;
+}
+
 .unauthenticated {
   display: none;
   flex-direction: column;
   justify-content: left;
   padding: 10px 0px 10px 15px;
-
-  font-size: 14px;
 }
 
-#login {
-  display: inline-block;
-  background: #00bfd8;
+.large-button {
+  margin-right: auto;
+  padding: 10px;
 
-  width: 140px;
-  height: 30px;
   border-radius: 3px;
   border: 0;
 
-  padding: 12px 0px 0px 20px;
-
   text-decoration: none;
-  font-size: 16px;
+  font-size: 14px;
+  font-weight: 700;
+  background: #00bfd8;
   color: #ffffff;
 }
+
 .authenticated {
   display: none;
+}
+
+#check-in-status {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  background: #657d8a;
+  color: #ffffff;
+}
+
+#check-in-logo {
+  align-items: center;
+  margin-left: 10px;
+  margin-right: 12px;
+  width: 16px;
+  height: auto;
+}
+
+#check-in-button {
+  margin-left: auto;
+  padding: 9px;
+
+  background: #009aaa;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+#check-in-picker {
+  flex-direction: row;
+  margin-bottom: 15px;
+}
+
+.check-in-type {
+  font-weight: 700;
+  color: #00bfd8;
+  padding: 0 0.5em;
+}
+
+.check-in-type.active {
+  color: #000000;
+}
+
+#check-in-text {
+  padding: 8px;
+  margin-bottom: 15px;
+
+  border: 1px solid #d1d7db;
+  border-radius: 3px;
+
+  width: 310px;
+  height: 90px;
+  resize: vertical;
+
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+}
+
+::placeholder {
+  opacity: 50%;
+
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+}
+
+#check-in-attachment {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  margin-bottom: 15px;
+  width: 318px;
+}
+
+#attachment-icon-wrapper {
+  display: flex;
+  justify-content: center;
+
+  width: 32px;
+  margin-right: 12px;
+
+  border-radius: 3px;
+  background-color: #d1d7db;
+}
+
+#attachment-icon {
+  width: 24px;
+  height: auto;
+}
+
+#attachment-data {
+  flex-direction: column;
+}
+
+#attachment-title {
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+
+#attachment-subtitle {
+  opacity: 50%;
+  font-size: 12px;
 }
