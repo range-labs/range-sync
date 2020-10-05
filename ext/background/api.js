@@ -10,6 +10,14 @@ function* currentSessions() {
   }
 }
 
+function sessionUserId(s) {
+  if (!s || !s.user || !s.user.user_id) {
+    return null;
+  }
+
+  return s.user.user_id;
+}
+
 function refreshAllSessions() {
   sessionCache = {};
   orgsFromCookies()
@@ -46,6 +54,11 @@ function orgsFromCookies() {
 // the suggestion object it will be deduped.
 function recordInteraction(interaction, params) {
   return post(`/v1/activity`, interaction, params);
+}
+
+// Posts a new snippet to a Check-in.
+function addSnippet(userId, snippet, params) {
+  return post(`/v1/users/${userId}/snippets`, snippet, params);
 }
 
 // Builds a request params object with the appropriate headers to make an

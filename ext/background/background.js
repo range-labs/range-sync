@@ -2,6 +2,11 @@
 
 const DEFAULT_TYPE = 'LINK';
 const DEFAULT_SUBTYPE = 'NONE';
+const SNIPPET_TYPES = {
+  PAST: 1,
+  FUTURE: 2,
+  BACKLOG: 4,
+};
 
 // Initialize the sessions
 refreshAllSessions();
@@ -24,33 +29,81 @@ chrome.tabs.onUpdated.addListener((_tabId, _info, tab) => {
   // no-op if the title has not actually loaded yet
   if (tab.url.localeCompare(tab.title) == 0) return;
 
-  attemptRecordInteraction(tab, false);
+  for (const s of currentSessions()) {
+    attemptRecordInteraction(tab, s, false).catch(console.error);
+  }
 });
 
-chrome.runtime.onMessage.addListener((request, _sender, _response) => {
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
+  const promises = [];
+
   switch (request.action) {
     case 'INTERACTION':
-      attemptRecordInteraction(request.tab, true);
+      for (const s of currentSessions()) {
+        promises.push(attemptRecordInteraction(request.tab, s, true));
+      }
       break;
+    case 'ADD_SNIPPET':
+      for (const s of currentSessions()) {
+        // Since recording and interaction is idempotent we do it first to
+        // ensure that the attachment exists.
+        promises.push(
+          attemptRecordInteraction(request.tab, s, true).then((r) =>
+            attemptAddSnippet(s, SNIPPET_TYPES[request.snippet_type], request.text, r.attachment_id)
+          )
+        );
+        break;
+      }
   }
+
+  Promise.all(promises)
+    .then(() => sendResponse(true))
+    .catch((err) => {
+      console.error(err);
+      sendResponse(false);
+    });
 });
 
-function attemptRecordInteraction(tab, force) {
-  if (!tab || !tab.id) return;
-
-  for (const s of currentSessions()) {
-    const a = attachment(s, tab, force);
-    if (!a) return Promise.resolve();
-
-    recordInteraction(
-      {
-        interaction_type: (_) => 'VIEWED',
-        idempotency_key: `${tab.id}::${tab.title}`,
-        attachment: a,
-      },
-      authorize(s)
-    ).catch(console.error);
+function attemptRecordInteraction(tab, session, force) {
+  if (!tab || !tab.id) {
+    console.log('invalid tab sent to record interaction');
+    console.log(tab);
+    return Promise.reject('invalid tab sent to record interaction');
   }
+
+  const a = attachment(session, tab, force);
+  if (!a) {
+    if (force) {
+      console.log(session);
+      console.log(tab);
+      return Promise.reject('could not create attachment for interaction');
+    }
+    return Promise.resolve();
+  }
+
+  return recordInteraction(
+    {
+      interaction_type: (_) => 'VIEWED',
+      idempotency_key: `${tab.id}::${tab.title}`,
+      attachment: a,
+    },
+    authorize(session)
+  ).catch(console.error);
+}
+
+function attemptAddSnippet(session, snippetType, text, attachmentId) {
+  const userId = sessionUserId(session);
+  return addSnippet(
+    userId,
+    {
+      user_id: userId,
+      snippet_type: snippetType,
+      content: text,
+      attachment_id: attachmentId,
+      dedupe_strategy: 4,
+    },
+    authorize(session)
+  ).catch(console.error);
 }
 
 function attachment(session, tab, force) {
@@ -117,7 +170,7 @@ function providerInfo(url, title, force) {
   return {
     name: title,
     // i.e. 'subdomain.nytimes.com' -> 'chromeext_nytimes'
-    provider: `chromeext_${hostParts[hostParts.length - 2]}`,
+    provider: `chromeext_${hostParts[hostParts.length - 2].replace(/[\W-]/, '')}`,
     // i.e. 'subdomain.nytimes.com' -> 'nytimes.com (via Range Sync)'
     provider_name: `${hostParts[hostParts.length - 2]}.${
       hostParts[hostParts.length - 1]

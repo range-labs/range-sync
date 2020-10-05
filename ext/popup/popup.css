@@ -1,23 +1,19 @@
 body {
-  width: 350px;
-  margin: 0px !important;
-
   font-family: 'Open Sans', sans-serif;
   font-size: 14px;
+  margin: 0px !important;
+  width: 350px;
 }
 
 .topbar {
-  display: flex;
-
   background: #596e79;
-
-  padding: 10px 10px 5px 10px;
-
+  color: #ffffff;
+  display: flex;
+  font-size: 16px;
   font-style: normal;
   font-weight: bold;
-  font-size: 16px;
   line-height: 24px;
-  color: #ffffff;
+  padding: 10px 10px 5px 10px;
 }
 
 .topbarLogoContainer {
@@ -30,19 +26,16 @@ body {
 }
 
 .accordion {
+  align-items: center;
+  background: #657d8a;
+  border: none;
+  box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.2);
+  color: #ffffff;
   display: flex;
   justify-content: flex-start;
-  align-items: center;
-
-  background: #657d8a;
-  color: #ffffff;
-
-  width: 100%;
-  box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.2);
-  border: none;
   outline: none;
-
   padding: 12px;
+  width: 100%;
 }
 
 .indicator {
@@ -50,7 +43,7 @@ body {
   transition: transform ease-in-out 100ms;
 }
 
-.accordion.active > .indicator  {
+.accordion.active > .indicator {
   transform: rotate(180deg);
 }
 
@@ -77,46 +70,62 @@ body {
 }
 
 .large-button {
-  margin-right: auto;
-  padding: 10px;
-
-  border-radius: 3px;
+  background: #00bfd8;
   border: 0;
-
-  text-decoration: none;
+  border-radius: 3px;
+  color: #ffffff;
   font-size: 14px;
   font-weight: 700;
-  background: #00bfd8;
-  color: #ffffff;
+  margin-right: auto;
+  padding: 10px;
+  text-decoration: none;
 }
 
 .authenticated {
   display: none;
 }
 
-#check-in-status {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+#check-in-container {
+  display: none;
+}
 
+#check-in-container.active {
+  display: block;
+}
+
+#check-in-success {
+  background-color: #cee4cb;
+  border-radius: 3px;
+  color: #508b46;
+  display: none;
+  padding: 9px;
+}
+
+#check-in-success.active {
+  display: block;
+}
+
+#check-in-status {
+  align-items: center;
   background: #657d8a;
   color: #ffffff;
+  display: flex;
+  flex-direction: row;
 }
 
 #check-in-logo {
   align-items: center;
+  height: auto;
   margin-left: 10px;
   margin-right: 12px;
   width: 16px;
-  height: auto;
 }
 
 #check-in-button {
-  margin-left: auto;
-  padding: 9px;
-
   background: #009aaa;
   color: #ffffff;
+  margin-left: auto;
+  padding: 9px;
   text-decoration: none;
 }
 
@@ -126,9 +135,10 @@ body {
 }
 
 .check-in-type {
-  font-weight: 700;
   color: #00bfd8;
+  font-weight: 700;
   padding: 0 0.5em;
+  user-select: none;
 }
 
 .check-in-type.active {
@@ -136,49 +146,43 @@ body {
 }
 
 #check-in-text {
-  padding: 8px;
-  margin-bottom: 15px;
-
   border: 1px solid #d1d7db;
   border-radius: 3px;
-
-  width: 310px;
-  height: 90px;
-  resize: vertical;
-
   font-family: 'Open Sans', sans-serif;
   font-size: 14px;
+  height: 90px;
+  margin-bottom: 15px;
+  padding: 8px;
+  resize: vertical;
+  width: 310px;
 }
 
 ::placeholder {
-  opacity: 50%;
-
   font-family: 'Open Sans', sans-serif;
   font-size: 14px;
+  opacity: 50%;
 }
 
 #check-in-attachment {
+  align-items: stretch;
   display: flex;
   flex-direction: row;
-  align-items: stretch;
   margin-bottom: 15px;
   width: 318px;
 }
 
 #attachment-icon-wrapper {
+  background-color: #d1d7db;
+  border-radius: 3px;
   display: flex;
   justify-content: center;
-
-  width: 32px;
   margin-right: 12px;
-
-  border-radius: 3px;
-  background-color: #d1d7db;
+  width: 32px;
 }
 
 #attachment-icon {
-  width: 24px;
   height: auto;
+  width: 24px;
 }
 
 #attachment-data {
@@ -186,11 +190,12 @@ body {
 }
 
 #attachment-title {
-  margin-bottom: 4px;
   font-weight: 700;
+  margin-bottom: 4px;
 }
 
 #attachment-subtitle {
-  opacity: 50%;
   font-size: 12px;
+  opacity: 50%;
 }
+

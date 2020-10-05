@@ -24,38 +24,41 @@
       <div>Last Check-in: Yesterday</div>
       <a id="check-in-button" href="https://range.co/_/compose" target="_blank">Check-in</a>
     </div>
-    <button class="accordion" id="record">
+    <button class="accordion">
       <img class="indicator" src="/images/accordion-indicator.png" />
       <div class="title">Add page to Check-in</div>
     </button>
     <div class="panel">
-      <div id="check-in-picker">
-        Add to:
-        <span class="check-in-type active" id="check-in-what">What happened</span> |
-        <span class="check-in-type" id="check-in-plan">Plan</span> |
-        <span class="check-in-type" id="check-in-backlog">Backlog</span>
-      </div>
-      <textarea id="check-in-text" type="text" placeholder="What progress did you make?"></textarea>
-      <div id="check-in-attachment">
-        <div id="attachment-icon-wrapper"><img id="attachment-icon" src="/images/arch.svg" /></div>
-        <div id="attachment-data">
-          <div id="attachment-title">List of fallacies - Wikipedia</div>
-          <div id="attachment-subtitle">wikipedia.com - Viewed</div>
+      <div class="active" id="check-in-container">
+        <div id="check-in-picker">
+          Add to:
+          <span class="check-in-type active" id="check-in-past">What happened</span> |
+          <span class="check-in-type" id="check-in-future">Plan</span> |
+          <span class="check-in-type" id="check-in-backlog">Backlog</span>
         </div>
+        <textarea id="check-in-text" type="text" placeholder="What progress did you make?"></textarea>
+        <div id="check-in-attachment">
+          <div id="attachment-icon-wrapper"><img id="attachment-icon" src="/images/arch.svg" /></div>
+          <div id="attachment-data">
+            <div id="attachment-title">List of fallacies - Wikipedia</div>
+            <div id="attachment-subtitle">wikipedia.com - Viewed</div>
+          </div>
+        </div>
+        <button class="large-button" id="add-to-check-in-button">Add to next Check-in</button>
       </div>
-      <button class="large-button">Add to next Check-in</button>
+      <div id="check-in-success">Item added to your next Check-in</div>
     </div>
     <button class="accordion" id="activity">
       <img class="indicator" src="/images/accordion-indicator.png" />
       <div class="title">Activity</div>
     </button>
-    <div class="panel">Recorded placeholder</div>
+    <div class="panel">Coming Soon!</div>
     <button class="accordion" id="settings">
       <img class="indicator" src="/images/accordion-indicator.png" />
       <div class="title">Sync settings</div>
       <div class="subtitle">Integration - OFF</div>
     </button>
-    <div class="panel">Settings placeholder</div>
+    <div class="panel">Coming Soon!</div>
   </div>
 
   <script src="macos-fix.js"></script>
