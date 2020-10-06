@@ -1,5 +1,7 @@
 'use strict';
 
+// This is currently disabled. Reenable it by adding the file to
+// background.scripts in manifest.json
 registerFilter({
   url_regex: [/mail\.google\.com/],
   provider: 'gmail',
