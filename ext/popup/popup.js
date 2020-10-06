@@ -12,6 +12,9 @@ const checkInSuccess = document.getElementById('check-in-success');
 const checkInTypes = document.getElementsByClassName('check-in-type');
 const checkInText = document.getElementById('check-in-text');
 const checkInButton = document.getElementById('add-to-check-in-button');
+const attachmentTitle = document.getElementById('attachment-title');
+const attachmentSubtitle = document.getElementById('attachment-subtitle');
+const attachmentIcon = document.getElementById('attachment-icon');
 
 function currentCheckInType() {
   for (const t of checkInTypes) {
@@ -23,12 +26,23 @@ function currentCheckInType() {
   return SNIPPET_TYPES['check-in-past'];
 }
 
-checkInButton.onclick = () => {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    sendInteraction(tabs[0]);
-    sendCheckIn(currentCheckInType(), tabs[0], checkInText.value);
-  });
-};
+chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+  const currentTab = tabs[0];
+
+  checkInButton.onclick = () => {
+    sendInteraction(currentTab);
+    sendCheckIn(currentCheckInType(), currentTab, checkInText.value);
+  };
+
+  const tabUrl = new URL(currentTab.url);
+  attachmentTitle.innerText = currentTab.title;
+  attachmentSubtitle.innerText = `${tabUrl.hostname} - Viewed`;
+  if (!!currentTab.favIconUrl) {
+    attachmentIcon.src = currentTab.favIconUrl;
+  } else {
+    attachmentIcon.src = `chrome://favicon/size/24/${tabUrl.hostname + tabUrl.pathname}`;
+  }
+});
 
 chrome.storage.local.get(['sessions'], (r) => {
   if (!r || !r.sessions || Object.keys(r.sessions).length < 1) {

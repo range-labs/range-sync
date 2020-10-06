@@ -172,16 +172,18 @@ body {
 }
 
 #attachment-icon-wrapper {
+  align-items: center;
   background-color: #d1d7db;
   border-radius: 3px;
   display: flex;
   justify-content: center;
   margin-right: 12px;
+  padding: 4px;
   width: 32px;
 }
 
 #attachment-icon {
-  height: auto;
+  height: 24px;
   width: 24px;
 }
 
@@ -198,4 +200,3 @@ body {
   font-size: 12px;
   opacity: 50%;
 }
-
