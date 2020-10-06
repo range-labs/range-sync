@@ -121,12 +121,42 @@ body {
   width: 16px;
 }
 
+#check-in-time {
+  color: #ffffff;
+}
+
+#check-in-time.check-in-today {
+  opacity: 50%;
+}
+
+#check-in-time.check-in-long {
+  color: #ffea00;
+}
+
 #check-in-button {
   background: #009aaa;
   color: #ffffff;
+  display: none;
   margin-left: auto;
   padding: 9px;
   text-decoration: none;
+}
+
+#check-in-button.active {
+  display: flex;
+}
+
+#view-check-in-button {
+  color: #ffffff;
+  display: none;
+  margin-left: auto;
+  opacity: 50%;
+  padding: 9px;
+  text-decoration-line: underline;
+}
+
+#view-check-in-button.active {
+  display: flex;
 }
 
 #check-in-picker {

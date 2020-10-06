@@ -35,33 +35,39 @@ chrome.tabs.onUpdated.addListener((_tabId, _info, tab) => {
 });
 
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
-  const promises = [];
+  const handleErr = (err) => {
+    console.log(err);
+    sendResponse(false);
+  };
 
-  switch (request.action) {
-    case 'INTERACTION':
-      for (const s of currentSessions()) {
-        promises.push(attemptRecordInteraction(request.tab, s, true));
-      }
-      break;
-    case 'ADD_SNIPPET':
-      for (const s of currentSessions()) {
+  for (const s of currentSessions()) {
+    switch (request.action) {
+      case 'INTERACTION':
+        attemptRecordInteraction(request.tab, s, true).then(sendResponse).catch(handleErr);
+        break;
+      case 'ADD_SNIPPET':
         // Since recording and interaction is idempotent we do it first to
         // ensure that the attachment exists.
-        promises.push(
-          attemptRecordInteraction(request.tab, s, true).then((r) =>
+        attemptRecordInteraction(request.tab, s, true)
+          .then((r) =>
             attemptAddSnippet(s, SNIPPET_TYPES[request.snippet_type], request.text, r.attachment_id)
           )
-        );
+          .then(sendResponse)
+          .catch(handleErr);
         break;
-      }
+      case 'USER_STATS':
+        const userId = sessionUserId(s);
+        userStats(userId, authorize(s))
+          .then((r) => {
+            r.user_id = userId;
+            sendResponse(r);
+          })
+          .catch(handleErr);
+        break;
+    }
   }
 
-  Promise.all(promises)
-    .then(() => sendResponse(true))
-    .catch((err) => {
-      console.error(err);
-      sendResponse(false);
-    });
+  return true;
 });
 
 function attemptRecordInteraction(tab, session, force) {

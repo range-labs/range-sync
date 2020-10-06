@@ -20,9 +20,10 @@
   </div>
   <div class="authenticated">
     <div id="check-in-status">
-      <img id="check-in-logo" src="/images/check-in.png" />
-      <div>Last Check-in: Yesterday</div>
+      <img id="check-in-logo" src="/images/check-in-yesterday.png" />
+      <div id="check-in-time" class="check-in-yesterday">Last Check-in: Yesterday</div>
       <a id="check-in-button" href="https://range.co/_/compose" target="_blank">Check-in</a>
+      <a id="view-check-in-button" target="_blank">View Check-in</a>
     </div>
     <button class="accordion">
       <img class="indicator" src="/images/accordion-indicator.png" />
@@ -61,7 +62,8 @@
     <div class="panel">Coming Soon!</div>
   </div>
 
-  <script src="macos-fix.js"></script>
+  <script src="deps/macos-fix.js"></script>
+  <script src="deps/moment.js"></script>
   <script src="popup.js"></script>
 </body>
 

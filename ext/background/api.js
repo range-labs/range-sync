@@ -61,6 +61,10 @@ function addSnippet(userId, snippet, params) {
   return post(`/v1/users/${userId}/snippets`, snippet, params);
 }
 
+function userStats(userId, params) {
+  return get(`/v1/users/${userId}/stats`, params);
+}
+
 // Builds a request params object with the appropriate headers to make an
 // authenticated request.
 function authorize(session) {
