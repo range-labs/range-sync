@@ -9,6 +9,7 @@
       "background/api.js",
       "background/conf/prod.js",
       "background/background.js",
+      "background/deps/moment.js",
       "background/filter/filter.js",
       "background/filter/asana.js",
       "background/filter/confluence.js",

@@ -12,7 +12,9 @@ registerFilter({
         return reMatch(url.pathname, rePath, 0);
       },
       // i.e. 'username - Stack Overflow' -> 'username'
-      title_processor: (t) => t.split(' - ')[0].trim(),
+      title_processor: (t) => {
+        return trimLastPart(t, ' - ');
+      },
     },
     // Question
     {
@@ -20,8 +22,18 @@ registerFilter({
         const rePath = /questions\/([\d]+)/;
         return reMatch(url.pathname, rePath, 0);
       },
+      // i.e. 'my questions - Stack Overflow' -> 'my questions'
       // i.e. 'html - my questions - Stack Overflow' -> 'my questions'
-      title_processor: (t) => t.split(' - ')[1].trim(),
+      title_processor: (t) => {
+        const reTitle = / - /g;
+        const count = (t.match(reTitle) || []).length;
+        if (count == 1) {
+          return trimLastPart(t, reTitle);
+        } else {
+          return t.split(reTitle)[1].trim();
+        }
+      },
     },
   ],
+  block_list: { title: [/^Stack Overflow$/] },
 });

@@ -41,9 +41,7 @@ registerFilter({
       },
       // i.e. 'Document Title - Google Docs' -> 'Document Title'
       title_processor: (t) => {
-        const parts = t.split(' - ');
-        parts.pop();
-        return parts.join(' - ');
+        return trimLastPart(t, ' - ');
       },
     },
   ],

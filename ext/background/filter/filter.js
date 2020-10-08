@@ -15,3 +15,9 @@ function reMatch(str, re, index) {
   const match = str.match(re);
   return match ? match[index] : null;
 }
+
+function trimLastPart(str, match) {
+  const parts = str.split(match);
+  if (parts.length > 1) parts.pop();
+  return parts.join(match);
+}

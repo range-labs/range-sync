@@ -90,7 +90,7 @@ function attemptRecordInteraction(tab, session, force) {
   return recordInteraction(
     {
       interaction_type: (_) => 'VIEWED',
-      idempotency_key: `${tab.id}::${tab.title}`,
+      idempotency_key: `${moment().startOf('day')}::${tab.title}`,
       attachment: a,
     },
     authorize(session)
