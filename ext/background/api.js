@@ -2,12 +2,10 @@
 
 const manifest = chrome.runtime.getManifest();
 
-let sessionCache = {};
+let _sessionCache = {};
 
-function* currentSessions() {
-  for (const k in sessionCache) {
-    yield sessionCache[k];
-  }
+function isAuthenticated() {
+  return Object.keys(_sessionCache).length > 0;
 }
 
 function sessionUserId(s) {
@@ -18,25 +16,16 @@ function sessionUserId(s) {
   return s.user.user_id;
 }
 
-function refreshAllSessions() {
-  sessionCache = {};
-  orgsFromCookies()
-    .then((slugs) => Promise.all(slugs.map(refreshSession)))
-    .then(() => {
-      console.log(sessionCache);
-      chrome.storage.local.set({ sessions: sessionCache });
-    });
-}
-
-// Returns session information, includes information about the user, org, and
-// a short-lived session token for making API requests.
-function refreshSession(orgSlug, opt_force) {
-  if (sessionCache[orgSlug] && !opt_force) {
-    return sessionCache[orgSlug];
+// Returns session information from cache. If it doesn't exist then reaches out
+// to Range for authentication.
+function getSession(orgSlug) {
+  if (!!_sessionCache[orgSlug]) {
+    return _sessionCache[orgSlug];
   }
 
-  return request(`/v1/auth/login/${orgSlug}`).then((resp) => {
-    sessionCache[orgSlug] = resp;
+  return rangeLogin(orgSlug).then((resp) => {
+    _sessionCache[orgSlug] = resp;
+    return resp;
   });
 }
 
@@ -63,6 +52,10 @@ function addSnippet(userId, snippet, params) {
 
 function userStats(userId, params) {
   return get(`/v1/users/${userId}/stats`, params);
+}
+
+function rangeLogin(orgSlug) {
+  return request(`/v1/auth/login/${orgSlug}`);
 }
 
 // Builds a request params object with the appropriate headers to make an
@@ -116,14 +109,13 @@ function request(path, params = {}) {
       return resp.json();
     })
     .catch((e) => {
-      refreshAllSessions();
-      throw new Error(`Network error, status: ${statusCode},  ${statusText} (${String(e)})`);
+      console.warn(`Network error, status: ${statusCode},  ${statusText} (${String(e)})`);
     })
     .then((resp) => {
       if (statusCode !== 200) {
         if (resp.code === 16 || resp.code === 7) {
           console.warn('no longer authenticated, clearing sessions...');
-          refreshAllSessions();
+          _sessionCache = {};
         }
         throw resp;
       }

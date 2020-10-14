@@ -2,17 +2,25 @@
 
 const DEFAULT_TYPE = 'LINK';
 const DEFAULT_SUBTYPE = 'NONE';
+
 const SNIPPET_TYPES = {
   PAST: 1,
   FUTURE: 2,
   BACKLOG: 4,
 };
 
-// Initialize the sessions
-refreshAllSessions();
+// These are also used in popup.js. Be sure to update there as well!
+const MESSAGE_TYPES = {
+  IS_AUTHENTICATED: 'IS_AUTHENTICATED',
+  INTERACTION: 'INTERACTION',
+  ADD_SNIPPET: 'ADD_SNIPPET',
+  USER_STATS: 'USER_STATS',
+};
 
-// If cookies change, refresh sessions
-chrome.cookies.onChanged.addListener(refreshAllSessions);
+// Initialize the sessions
+orgsFromCookies()
+  .then((orgs) => Promise.all(orgs.map(getSession)))
+  .catch(console.log);
 
 chrome.tabs.onUpdated.addListener((_tabId, _info, tab) => {
   // no-op unless done loading
@@ -29,9 +37,14 @@ chrome.tabs.onUpdated.addListener((_tabId, _info, tab) => {
   // no-op if the title has not actually loaded yet
   if (tab.url.localeCompare(tab.title) == 0) return;
 
-  for (const s of currentSessions()) {
-    attemptRecordInteraction(tab, s, false).catch(console.error);
-  }
+  orgsFromCookies()
+    .then((orgs) => Promise.all(orgs.map(getSession)))
+    .then((sessions) => {
+      for (const s of sessions) {
+        attemptRecordInteraction(tab, s, false).catch(console.log);
+      }
+    })
+    .catch(console.log);
 });
 
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
@@ -40,32 +53,49 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     sendResponse(false);
   };
 
-  for (const s of currentSessions()) {
-    switch (request.action) {
-      case 'INTERACTION':
-        attemptRecordInteraction(request.tab, s, true).then(sendResponse).catch(handleErr);
-        break;
-      case 'ADD_SNIPPET':
-        // Since recording and interaction is idempotent we do it first to
-        // ensure that the attachment exists.
-        attemptRecordInteraction(request.tab, s, true)
-          .then((r) =>
-            attemptAddSnippet(s, SNIPPET_TYPES[request.snippet_type], request.text, r.attachment_id)
-          )
-          .then(sendResponse)
-          .catch(handleErr);
-        break;
-      case 'USER_STATS':
-        const userId = sessionUserId(s);
-        userStats(userId, authorize(s))
-          .then((r) => {
-            r.user_id = userId;
-            sendResponse(r);
-          })
-          .catch(handleErr);
-        break;
-    }
+  // Just check the cache. This is needed for rendering the popup so we want a
+  // quick response.
+  if (request.action === MESSAGE_TYPES.IS_AUTHENTICATED) {
+    sendResponse(isAuthenticated());
+    return;
   }
+
+  orgsFromCookies()
+    .then((orgs) => Promise.all(orgs.map(getSession)))
+    .then((sessions) =>
+      sessions.forEach((s) => {
+        switch (request.action) {
+          case MESSAGE_TYPES.INTERACTION:
+            attemptRecordInteraction(request.tab, s, true).then(sendResponse).catch(handleErr);
+            break;
+          case MESSAGE_TYPES.ADD_SNIPPET:
+            // Since recording and interaction is idempotent we do it first to
+            // ensure that the attachment exists.
+            attemptRecordInteraction(request.tab, s, true)
+              .then((r) =>
+                attemptAddSnippet(
+                  s,
+                  SNIPPET_TYPES[request.snippet_type],
+                  request.text,
+                  r.attachment_id
+                )
+              )
+              .then(sendResponse)
+              .catch(handleErr);
+            break;
+          case MESSAGE_TYPES.USER_STATS:
+            const userId = sessionUserId(s);
+            userStats(userId, authorize(s))
+              .then((r) => {
+                r.user_id = userId;
+                sendResponse(r);
+              })
+              .catch(handleErr);
+            break;
+        }
+      })
+    )
+    .catch(console.log);
 
   return true;
 });
@@ -94,7 +124,7 @@ function attemptRecordInteraction(tab, session, force) {
       attachment: a,
     },
     authorize(session)
-  ).catch(console.error);
+  );
 }
 
 function attemptAddSnippet(session, snippetType, text, attachmentId) {
@@ -109,7 +139,7 @@ function attemptAddSnippet(session, snippetType, text, attachmentId) {
       dedupe_strategy: 4,
     },
     authorize(session)
-  ).catch(console.error);
+  );
 }
 
 function attachment(session, tab, force) {

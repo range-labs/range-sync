@@ -6,6 +6,14 @@ const SNIPPET_TYPES = {
   'check-in-backlog': 'BACKLOG',
 };
 
+// These are also used in background.js. Be sure to update there as well!
+const MESSAGE_TYPES = {
+  IS_AUTHENTICATED: 'IS_AUTHENTICATED',
+  INTERACTION: 'INTERACTION',
+  ADD_SNIPPET: 'ADD_SNIPPET',
+  USER_STATS: 'USER_STATS',
+};
+
 const accordions = document.getElementsByClassName('accordion');
 const checkInContainer = document.getElementById('check-in-container');
 const checkInSuccess = document.getElementById('check-in-success');
@@ -30,7 +38,7 @@ function currentCheckInType() {
   return SNIPPET_TYPES['check-in-past'];
 }
 
-chrome.runtime.sendMessage({ action: 'USER_STATS' }, (resp) => {
+chrome.runtime.sendMessage({ action: MESSAGE_TYPES.USER_STATS }, (resp) => {
   const userId = resp.user_id;
   const updateCount = resp.update_count;
   const lastUpdate = moment(resp.last_update_at);
@@ -46,6 +54,7 @@ chrome.runtime.sendMessage({ action: 'USER_STATS' }, (resp) => {
     checkInLogo.src = '/images/check-in-today.png';
     checkInTime.classList.add('check-in-today');
     checkInTime.innerText = 'Checked in today';
+    checkInButton.classList.remove('active');
     viewCheckInButton.classList.add('active');
     viewCheckInButton.href = `https://range.co/_/checkins?user=${userId}`;
   } else if (dayDiff == 1) {
@@ -71,7 +80,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
 
   addToCheckInButton.onclick = () => {
     sendInteraction(currentTab);
-    sendCheckIn(currentCheckInType(), currentTab, checkInText.value);
+    sendSnippet(currentCheckInType(), currentTab, checkInText.value);
   };
 
   const tabUrl = new URL(currentTab.url);
@@ -84,18 +93,18 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
   }
 });
 
-chrome.storage.local.get(['sessions'], (r) => {
-  if (!r || !r.sessions || Object.keys(r.sessions).length < 1) {
-    // If the user is not authenticated with Range, show login button
-    const unauthElements = document.getElementsByClassName('unauthenticated');
-    for (const e of unauthElements) {
-      e.style.display = 'flex';
-    }
-  } else {
+chrome.runtime.sendMessage({ action: MESSAGE_TYPES.IS_AUTHENTICATED }, (r) => {
+  if (!!r) {
     // If authentication has been confirmed, show accordion
     const authElements = document.getElementsByClassName('authenticated');
     for (const e of authElements) {
       e.style.display = 'block';
+    }
+  } else {
+    // If the user is not authenticated with Range, show login button
+    const unauthElements = document.getElementsByClassName('unauthenticated');
+    for (const e of unauthElements) {
+      e.style.display = 'flex';
     }
   }
 });
@@ -147,12 +156,12 @@ for (const t of checkInTypes) {
 }
 
 function sendInteraction(tab) {
-  chrome.runtime.sendMessage({ action: 'INTERACTION', tab: tab });
+  chrome.runtime.sendMessage({ action: MESSAGE_TYPES.INTERACTION, tab: tab });
 }
 
-function sendCheckIn(type, tab, text) {
+function sendSnippet(type, tab, text) {
   chrome.runtime.sendMessage(
-    { action: 'ADD_SNIPPET', snippet_type: type, tab: tab, text: text },
+    { action: MESSAGE_TYPES.ADD_SNIPPET, snippet_type: type, tab: tab, text: text },
     () => {
       checkInContainer.classList.remove('active');
       checkInSuccess.classList.add('active');
