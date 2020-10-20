@@ -100,14 +100,14 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   return true;
 });
 
-function attemptRecordInteraction(tab, session, force) {
+async function attemptRecordInteraction(tab, session, force) {
   if (!tab || !tab.id) {
     console.log('invalid tab sent to record interaction');
     console.log(tab);
     return Promise.reject('invalid tab sent to record interaction');
   }
 
-  const a = attachment(session, tab, force);
+  const a = await attachment(session, tab, force);
   if (!a) {
     if (force) {
       console.log(session);
@@ -142,13 +142,13 @@ function attemptAddSnippet(session, snippetType, text, attachmentId) {
   );
 }
 
-function attachment(session, tab, force) {
+async function attachment(session, tab, force) {
   const url = new URL(tab.url);
 
   // To avoid spam, do not automatically track domains without paths
-  if (url.pathname.length <= 1) return null;
+  if (url.pathname.length <= 1 && !force) return null;
 
-  const provider = providerInfo(url, tab.title, force);
+  const provider = await providerInfo(url, tab.title, force);
   if (!provider) return null;
 
   return {
@@ -162,61 +162,63 @@ function providerInfo(url, title, force) {
   // For consistency, remove trailing forward slashes
   const base = url.hostname + url.pathname.replace(/\/+$/, '');
   // Loop through the known providers and check if the current URL matches one
-  for (const filter of FILTERS) {
-    let sourceId = '';
-    for (const reUrl of filter.url_regex) {
-      if (!reUrl.test(base)) continue;
-      if (blocked(filter.block_list, url, title)) return null;
+  return enabledFilters(force).then((filters) => {
+    for (const filter of filters) {
+      let sourceId = '';
+      for (const reUrl of filter.url_regex) {
+        if (!reUrl.test(base)) continue;
+        if (blocked(filter.block_list, url, title) &&  !force) return null;
 
-      for (const processor of filter.processors) {
-        sourceId = processor.source_id_processor(url);
-        if (!!sourceId) {
-          return {
-            name: processor.title_processor(title),
-            provider: filter.provider,
-            provider_name: filter.provider_name(url),
-            source_id: sourceId,
-            type: !!filter.type ? filter.type(url) : DEFAULT_TYPE,
-            subtype: !!filter.subtype ? filter.subtype(url) : DEFAULT_SUBTYPE,
-          };
+        for (const processor of filter.processors) {
+          sourceId = processor.source_id_processor(url);
+          if (!!sourceId) {
+            return {
+              name: processor.title_processor(title),
+              provider: filter.provider,
+              provider_name: filter.provider_name(url),
+              source_id: sourceId,
+              type: !!filter.type ? filter.type(url) : DEFAULT_TYPE,
+              subtype: !!filter.subtype ? filter.subtype(url) : DEFAULT_SUBTYPE,
+            };
+          }
         }
+
+        // No processor found for a recognized domain; return to avoid spam
+        if (!force) return null;
+
+        return {
+          name: title,
+          provider: filter.provider,
+          provider_name: filter.provider_name(url),
+          // prefixing 'chromeext_' will make it easier to find out what pages
+          // to add next
+          source_id: `chromeext_${base}`,
+          type: DEFAULT_TYPE,
+          subtype: DEFAULT_SUBTYPE,
+        };
       }
-
-      // No processor found for a recognized domain; return to avoid spam
-      if (!force) return null;
-
-      return {
-        name: title,
-        provider: filter.provider,
-        provider_name: filter.provider_name(url),
-        // suffixing 'chromeext_' will make it easier to find out what pages to
-        // add next
-        source_id: `chromeext_${base}`,
-        type: DEFAULT_TYPE,
-        subtype: DEFAULT_SUBTYPE,
-      };
     }
-  }
 
-  // No processor found for any domain; return null to avoid spam
-  if (!force) return null;
+    // No processor found for any domain; return null to avoid spam
+    if (!force) return null;
 
-  // If there's no known provider, generate one based on the URL
-  const hostParts = url.hostname.split('.');
-  return {
-    name: title,
-    // i.e. 'subdomain.nytimes.com' -> 'chromeext_nytimes'
-    provider: `chromeext_${hostParts[hostParts.length - 2].replace(/[\W-]/, '')}`,
-    // i.e. 'subdomain.nytimes.com' -> 'nytimes.com (via Range Sync)'
-    provider_name: `${hostParts[hostParts.length - 2]}.${
-      hostParts[hostParts.length - 1]
-    } (via Range Sync)`,
-    // suffixing 'chromeext_' will make it easier to find out what providers to
-    // add next
-    source_id: `chromeext_${base}`,
-    type: DEFAULT_TYPE,
-    subtype: DEFAULT_SUBTYPE,
-  };
+    // If there's no known provider, generate one based on the URL
+    const hostParts = url.hostname.split('.');
+    const tld = hostParts[hostParts.length - 1];
+    const domain = hostParts[hostParts.length - 2];
+    return {
+      name: title,
+      // i.e. 'subdomain.nytimes.com' -> 'chromeext_nytimes'
+      provider: `chromeext_${domain.replace(/[\W-]/, '')}`,
+      // i.e. 'subdomain.nytimes.com' -> 'nytimes.com (via Range Sync)'
+      provider_name: `${domain}.${tld} (via Range Sync)`,
+      // prefixing 'chromeext_' will make it easier to find out what providers
+      // to add next
+      source_id: `chromeext_${base}`,
+      type: DEFAULT_TYPE,
+      subtype: DEFAULT_SUBTYPE,
+    };
+  });
 }
 
 function blocked(blockList, url, title) {

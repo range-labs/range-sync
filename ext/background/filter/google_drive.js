@@ -4,6 +4,8 @@ registerFilter({
   url_regex: [/docs\.google\.com/],
   provider: 'drive',
   provider_name: (url) => {
+    if (!url) return 'Google Drive';
+
     const reDocType = /(document|spreadsheets|presentation)/;
     const type = reMatch(url.pathname, reDocType, 0);
     switch (type) {

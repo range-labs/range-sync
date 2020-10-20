@@ -14,7 +14,7 @@ registerFilter({
         return reMatch(url.pathname, rePath, 0);
       },
       // i.e. 'Project Name – Figma' -> 'Project Name'
-      title_processor: (t) => `${t.split('–')[0].trim()} (Project)`,
+      title_processor: (t) => `${t.split('–')[0].trim()}`,
     },
     // Document
     {
@@ -23,7 +23,7 @@ registerFilter({
         return reMatch(url.pathname, rePath, 0);
       },
       // i.e. 'File Name – Figma' -> 'File Name'
-      title_processor: (t) => `${t.split('–')[0].trim()} (File)`,
+      title_processor: (t) => `${t.split('–')[0].trim()}`,
     },
   ],
 });
