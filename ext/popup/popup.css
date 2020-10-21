@@ -5,6 +5,10 @@ body {
   width: 350px;
 }
 
+a {
+  white-space: nowrap;
+}
+
 .topbar {
   background: #596e79;
   color: #ffffff;
@@ -69,7 +73,7 @@ body {
   padding: 10px 0px 10px 15px;
 }
 
-.large-button {
+.largeButton {
   background: #00bfd8;
   border: 0;
   border-radius: 3px;
@@ -85,15 +89,15 @@ body {
   display: none;
 }
 
-#check-in-container {
+#checkInContainer {
   display: none;
 }
 
-#check-in-container.active {
+#checkInContainer.active {
   display: block;
 }
 
-#check-in-success {
+#checkInSuccess {
   background-color: #cee4cb;
   border-radius: 3px;
   color: #508b46;
@@ -101,11 +105,11 @@ body {
   padding: 9px;
 }
 
-#check-in-success.active {
+#checkInSuccess.active {
   display: block;
 }
 
-#check-in-status {
+#checkInStatus {
   align-items: center;
   background: #657d8a;
   color: #ffffff;
@@ -113,7 +117,7 @@ body {
   flex-direction: row;
 }
 
-#check-in-logo {
+#checkInLogo {
   align-items: center;
   height: auto;
   margin-left: 10px;
@@ -121,19 +125,19 @@ body {
   width: 16px;
 }
 
-#check-in-time {
+#checkInTime {
   color: #ffffff;
 }
 
-#check-in-time.check-in-today {
+#checkInTime.checkInToday {
   opacity: 50%;
 }
 
-#check-in-time.check-in-long {
+#checkInTime.checkInLong {
   color: #ffea00;
 }
 
-#check-in-button {
+#checkInButton {
   background: #009aaa;
   color: #ffffff;
   display: none;
@@ -142,11 +146,11 @@ body {
   text-decoration: none;
 }
 
-#check-in-button.active {
+#checkInButton.active {
   display: flex;
 }
 
-#view-check-in-button {
+#viewCheckInButton {
   color: #ffffff;
   display: none;
   margin-left: auto;
@@ -155,27 +159,27 @@ body {
   text-decoration-line: underline;
 }
 
-#view-check-in-button.active {
+#viewCheckInButton.active {
   display: flex;
 }
 
-#check-in-picker {
+#checkInPicker {
   flex-direction: row;
   margin-bottom: 15px;
 }
 
-.check-in-type {
+.checkInType {
   color: #00bfd8;
   font-weight: 700;
   padding: 0 0.5em;
   user-select: none;
 }
 
-.check-in-type.active {
+.checkInType.active {
   color: #000000;
 }
 
-#check-in-text {
+#checkInText {
   border: 1px solid #d1d7db;
   border-radius: 3px;
   font-family: 'Open Sans', sans-serif;
@@ -193,7 +197,7 @@ body {
   opacity: 50%;
 }
 
-#check-in-attachment {
+#checkInAttachment {
   align-items: stretch;
   display: flex;
   flex-direction: row;
@@ -201,7 +205,7 @@ body {
   width: 318px;
 }
 
-#attachment-icon-wrapper {
+#attachmentIconWrapper {
   align-items: center;
   background-color: #d1d7db;
   border-radius: 3px;
@@ -212,21 +216,21 @@ body {
   width: 32px;
 }
 
-#attachment-icon {
+#attachmentIcon {
   height: 24px;
   width: 24px;
 }
 
-#attachment-data {
+#attachmentData {
   flex-direction: column;
 }
 
-#attachment-title {
+#attachmentTitle {
   font-weight: 700;
   margin-bottom: 4px;
 }
 
-#attachment-subtitle {
+#attachmentSubtitle {
   font-size: 12px;
   opacity: 50%;
 }

@@ -1,9 +1,9 @@
 'use strict';
 
 const SNIPPET_TYPES = {
-  'check-in-past': 'PAST',
-  'check-in-future': 'FUTURE',
-  'check-in-backlog': 'BACKLOG',
+  checkInPast: 'PAST',
+  checkInFuture: 'FUTURE',
+  checkInBacklog: 'BACKLOG',
 };
 
 // These are also used in background.js. Be sure to update there as well!
@@ -15,18 +15,18 @@ const MESSAGE_TYPES = {
 };
 
 const accordions = document.getElementsByClassName('accordion');
-const checkInContainer = document.getElementById('check-in-container');
-const checkInSuccess = document.getElementById('check-in-success');
-const checkInTypes = document.getElementsByClassName('check-in-type');
-const checkInText = document.getElementById('check-in-text');
-const addToCheckInButton = document.getElementById('add-to-check-in-button');
-const attachmentTitle = document.getElementById('attachment-title');
-const attachmentSubtitle = document.getElementById('attachment-subtitle');
-const attachmentIcon = document.getElementById('attachment-icon');
-const checkInLogo = document.getElementById('check-in-logo');
-const checkInTime = document.getElementById('check-in-time');
-const checkInButton = document.getElementById('check-in-button');
-const viewCheckInButton = document.getElementById('view-check-in-button');
+const checkInContainer = document.getElementById('checkInContainer');
+const checkInSuccess = document.getElementById('checkInSuccess');
+const checkInTypes = document.getElementsByClassName('checkInType');
+const checkInText = document.getElementById('checkInText');
+const addToCheckInButton = document.getElementById('addToCheckInButton');
+const attachmentTitle = document.getElementById('attachmentTitle');
+const attachmentSubtitle = document.getElementById('attachmentSubtitle');
+const attachmentIcon = document.getElementById('attachmentIcon');
+const checkInLogo = document.getElementById('checkInLogo');
+const checkInTime = document.getElementById('checkInTime');
+const checkInButton = document.getElementById('checkInButton');
+const viewCheckInButton = document.getElementById('viewCheckInButton');
 
 function currentCheckInType() {
   for (const t of checkInTypes) {
@@ -35,7 +35,7 @@ function currentCheckInType() {
     }
   }
 
-  return SNIPPET_TYPES['check-in-past'];
+  return SNIPPET_TYPES['checkInPast'];
 }
 
 chrome.runtime.sendMessage({ action: MESSAGE_TYPES.USER_STATS }, (resp) => {
@@ -47,29 +47,29 @@ chrome.runtime.sendMessage({ action: MESSAGE_TYPES.USER_STATS }, (resp) => {
   checkInTime.className = '';
   if (updateCount < 1) {
     checkInLogo.src = '/images/check-in-yesterday.png';
-    checkInTime.classList.add('check-in-yesterday');
+    checkInTime.classList.add('checkInYesterday');
     checkInTime.innerText = 'Share your first Check-in!';
     checkInButton.classList.add('active');
   } else if (dayDiff < 1) {
     checkInLogo.src = '/images/check-in-today.png';
-    checkInTime.classList.add('check-in-today');
+    checkInTime.classList.add('checkInToday');
     checkInTime.innerText = 'Checked in today';
     checkInButton.classList.remove('active');
     viewCheckInButton.classList.add('active');
     viewCheckInButton.href = `https://range.co/_/checkins?user=${userId}`;
   } else if (dayDiff == 1) {
     checkInLogo.src = '/images/check-in-yesterday.png';
-    checkInTime.classList.add('check-in-yesterday');
+    checkInTime.classList.add('checkInYesterday');
     checkInTime.innerText = 'Last Check-in: Yesterday';
     checkInButton.classList.add('active');
   } else if (lastUpdate.isSame(moment(), 'week')) {
     checkInLogo.src = '/images/check-in-long.png';
-    checkInTime.classList.add('check-in-long');
+    checkInTime.classList.add('checkInLong');
     checkInTime.innerText = `Last Check-in: ${lastUpdate.format('dddd')}`;
     checkInButton.classList.add('active');
   } else {
     checkInLogo.src = '/images/check-in-long.png';
-    checkInTime.classList.add('check-in-long');
+    checkInTime.classList.add('checkInLong');
     checkInTime.innerText = `Last Check-in: ${dayDiff} days ago`;
     checkInButton.classList.add('active');
   }
@@ -135,17 +135,17 @@ for (const t of checkInTypes) {
     t.classList.add('active');
 
     switch (t.id) {
-      case 'check-in-future':
+      case 'checkInFuture':
         checkInText.placeholder = 'What do you want to accomplish?';
         addToCheckInButton.innerText = 'Add to next Check-in';
         checkInSuccess.innerText = 'Item added to your next Check-in';
         break;
-      case 'check-in-backlog':
+      case 'checkInBacklog':
         checkInText.placeholder = 'Why is this going to the backlog?';
         addToCheckInButton.innerText = 'Add to Backlog';
         checkInSuccess.innerText = 'Item added to your Backlog';
         break;
-      case 'check-in-past':
+      case 'checkInPast':
       default:
         checkInText.placeholder = 'What progress did you make?';
         addToCheckInButton.innerText = 'Add to next Check-in';
