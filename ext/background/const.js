@@ -1,0 +1,26 @@
+'use strict';
+
+const BLOCK_LIST = { title: [/^chrome:\/\//, /^Range/] };
+
+const GUID_REGEX =
+  '({){0,1}[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(}){0,1}';
+
+var INTEGRATION_STATUSES = {
+  ENABLED: 'ENABLED',
+  DISABLED: 'DISABLED',
+  NOT_IMPLEMENTED: 'NOT_IMPLEMENTED',
+};
+
+var MESSAGE_TYPES = {
+  IS_AUTHENTICATED: 'IS_AUTHENTICATED',
+  INTERACTION: 'INTERACTION',
+  ADD_SNIPPET: 'ADD_SNIPPET',
+  USER_STATS: 'USER_STATS',
+  INTEGRATION_STATUS: 'INTEGRATION_STATUS',
+};
+
+var SNIPPET_TYPES = {
+  PAST: 1,
+  FUTURE: 2,
+  BACKLOG: 4,
+};

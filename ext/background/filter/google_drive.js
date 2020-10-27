@@ -1,7 +1,7 @@
 'use strict';
 
 registerFilter({
-  url_regex: [/docs\.google\.com/],
+  url_regex: [/docs\.google\.com/, /drive\.google\.com/],
   provider: 'drive',
   provider_name: (url) => {
     if (!url) return 'Google Drive';

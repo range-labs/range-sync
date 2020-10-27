@@ -1,4 +1,5 @@
 body {
+  color: #222222;
   font-family: 'Open Sans', sans-serif;
   font-size: 14px;
   margin: 0px !important;
@@ -6,7 +7,14 @@ body {
 }
 
 a {
+  cursor: pointer;
   white-space: nowrap;
+}
+
+hr {
+  border: 1px solid #d1d7db;
+  border-bottom: 0;
+  margin: 0;
 }
 
 .topbar {
@@ -55,9 +63,12 @@ a {
   display: flex;
 }
 
+.fade {
+  opacity: 50%;
+}
+
 .accordion > .subtitle {
   margin-left: auto;
-  opacity: 50%;
 }
 
 .panel {
@@ -78,6 +89,7 @@ a {
   border: 0;
   border-radius: 3px;
   color: #ffffff;
+  cursor: pointer;
   font-size: 14px;
   font-weight: 700;
   margin-right: auto;
@@ -170,6 +182,7 @@ a {
 
 .checkInType {
   color: #00bfd8;
+  cursor: pointer;
   font-weight: 700;
   padding: 0 0.5em;
   user-select: none;
@@ -233,4 +246,67 @@ a {
 #attachmentSubtitle {
   font-size: 12px;
   opacity: 50%;
+}
+
+#settingsContainer {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.6;
+}
+
+#settingsContainer > * {
+  margin-bottom: 8px;
+}
+
+#settingsContainer a {
+  text-decoration: underline;
+}
+
+.integrationStatus {
+  display: none;
+}
+
+.integrationStatus.active {
+  display: block;
+}
+
+#integrationOn {
+  color: #5d9c52;
+  display: none;
+}
+
+#enableIntegrationLink,
+#disableIntegrationLink {
+  display: none;
+  user-select: none;
+}
+
+#integrationOff {
+  display: none;
+}
+
+#enableIntegrationLink.active,
+#disableIntegrationLink.active,
+#integrationOn.active,
+#integrationOff.active {
+  display: inline-block;
+}
+
+#integrationDisabled > *,
+#integrationNotSupported > * {
+  margin-bottom: 14px;
+}
+
+#settingsContainer a.integrationButton {
+  text-decoration: none;
+}
+
+#settingsOther {
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+}
+
+#settingsOther hr {
+  margin-bottom: 8px;
 }

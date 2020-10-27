@@ -3,20 +3,6 @@
 const DEFAULT_TYPE = 'LINK';
 const DEFAULT_SUBTYPE = 'NONE';
 
-const SNIPPET_TYPES = {
-  PAST: 1,
-  FUTURE: 2,
-  BACKLOG: 4,
-};
-
-// These are also used in popup.js. Be sure to update there as well!
-const MESSAGE_TYPES = {
-  IS_AUTHENTICATED: 'IS_AUTHENTICATED',
-  INTERACTION: 'INTERACTION',
-  ADD_SNIPPET: 'ADD_SNIPPET',
-  USER_STATS: 'USER_STATS',
-};
-
 // Initialize the sessions
 orgsFromCookies()
   .then((orgs) => Promise.all(orgs.map(getSession)))
@@ -53,13 +39,17 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     sendResponse(false);
   };
 
-  // Just check the cache. This is needed for rendering the popup so we want a
-  // quick response.
-  if (request.action === MESSAGE_TYPES.IS_AUTHENTICATED) {
-    sendResponse(isAuthenticated());
-    return;
+  // Responses that don't need to use the session
+  switch (request.action) {
+    case MESSAGE_TYPES.IS_AUTHENTICATED:
+      sendResponse(isAuthenticated());
+      return;
+    case MESSAGE_TYPES.INTEGRATION_STATUS:
+      tabHasFilter(request.tab).then(sendResponse).catch(handleErr);
+      return true;
   }
 
+  // Responses that require sessions
   orgsFromCookies()
     .then((orgs) => Promise.all(orgs.map(getSession)))
     .then((sessions) =>
@@ -167,7 +157,7 @@ function providerInfo(url, title, force) {
       let sourceId = '';
       for (const reUrl of filter.url_regex) {
         if (!reUrl.test(base)) continue;
-        if (blocked(filter.block_list, url, title) &&  !force) return null;
+        if (blocked(filter.block_list, url, title) && !force) return null;
 
         for (const processor of filter.processors) {
           sourceId = processor.source_id_processor(url);

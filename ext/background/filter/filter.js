@@ -1,20 +1,15 @@
 'use strict';
 
-const DEFAULT_PROVIDERS = ['confluence', 'drive', 'dropbox_paper', 'stackoverflow'];
 
-const GUID_REGEX =
-  '({){0,1}[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(}){0,1}';
-
-const BLOCK_LIST = { title: [/^chrome:\/\//, /^Range/] };
 
 // We store the cache here rather than using chrome.storage because we cannot
 // save objects with their methods in chrome.storage.
 const _filters = [];
 
-// This isn't super elegant yet. It is reset every time the extension is
-// reinstalled. This will be integrated with Chrome history in the future.
+// This will be integrated with Chrome history in the future to inform
+// integration suggestions
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.local.set({ active_providers: DEFAULT_PROVIDERS });
+  chrome.runtime.openOptionsPage();
 });
 
 function enabledFilters(userRequested) {
@@ -44,6 +39,36 @@ function registerFilter(filter) {
   chrome.storage.local.set({ filters: toStore });
 }
 
+async function tabHasFilter(tab) {
+  const _enabledFilters = await enabledFilters();
+  const provider = await providerInfo(new URL(tab.url), tab.title, true);
+
+  const resp = {
+    provider: provider.provider,
+    provider_name: provider.provider_name,
+    enabled_count: _enabledFilters.length,
+  };
+
+  for (const f of _enabledFilters) {
+    if (f.provider === provider.provider) {
+      return {
+        ...resp,
+        status: INTEGRATION_STATUSES.ENABLED,
+      };
+    }
+  }
+  if (provider.provider.includes('chromeext_')) {
+    return {
+      ...resp,
+      status: INTEGRATION_STATUSES.NOT_IMPLEMENTED,
+    };
+  } else {
+    return {
+      ...resp,
+      status: INTEGRATION_STATUSES.DISABLED,
+    };
+  }
+}
 
 // We cannot store objects with their methods to chrome.storage. If we need
 // access to that field when reading the filter from chrome.storage, we need to

@@ -39,10 +39,10 @@
         </div>
         <textarea id="checkInText" type="text" placeholder="What progress did you make?"></textarea>
         <div id="checkInAttachment">
-          <div id="attachmentIconWrapper"><img id="attachmentIcon" src="/images/range.svg" /></div>
+          <div id="attachmentIconWrapper"><img id="attachmentIcon" /></div>
           <div id="attachmentData">
-            <div id="attachmentTitle">List of fallacies - Wikipedia</div>
-            <div id="attachmentSubtitle">wikipedia.com - Viewed</div>
+            <div id="attachmentTitle"></div>
+            <div id="attachmentSubtitle"></div>
           </div>
         </div>
         <button class="largeButton" id="addToCheckInButton">Add to next Check-in</button>
@@ -57,9 +57,44 @@
     <button class="accordion" id="settings">
       <img class="indicator" src="/images/accordion-indicator.png" />
       <div class="title">Sync settings</div>
-      <div class="subtitle">Integration - OFF</div>
+      <div class="subtitle fade">
+        <span class="providerName"></span> - <span id="integrationIndicator"></span>
+      </div>
     </button>
-    <div class="panel">Coming Soon!</div>
+    <div class="panel">
+      <div id="settingsContainer">
+        <span><b class="providerName"></b><span class="fade"> - <span class="hostname"></span></span></span>
+        <span class="integrationStatus" id="integrationEnabled">
+          Chrome Sync:
+          <span class="active" id="integrationOn">ON</span>
+          <span id="integrationOff">OFF</span> -
+          <a class="active" id="disableIntegrationLink">Turn off</a>
+          <a id="enableIntegrationLink">Turn on</a>
+        </span>
+        <div class="integrationStatus" id="integrationDisabled">
+          <div>
+            Import pages you view in <span class="providerName"></span> to Range, so that you can
+            easily add them to your Check-in. You choose what to share. <a class="settingsLink">Learn more</a>
+          </div>
+          <a class="largeButton integrationButton" id="enableIntegrationButton">
+            Sync activity from <span class="providerName"></span>
+          </a>
+        </div>
+        <div class="integrationStatus" id="integrationNotSupported">
+          <div>
+            Range does not yet support syncing activity from <span class="hostname"></span>. But you
+            can request a new integration easily.
+          </div>
+          <a class="largeButton integrationButton" id="requestIntegrationButton" href="https://forms.gle/nWrVyRF7tXKTYXWC9" target="_blank">Request Integration</a>
+        </div>
+        <div id="settingsOther">
+          <hr>
+          <b>Other apps</b>
+          <span>Range Sync is currently enabled for <span class="enabledCount"></span> apps.</span>
+          <a class="settingsLink">Settings</a>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="deps/macos-fix.js"></script>
