@@ -45,6 +45,17 @@ function recordInteraction(interaction, params) {
   return post(`/v1/activity`, interaction, params);
 }
 
+function recentActivity(providers, params) {
+  if (providers.length < 1) return;
+
+  let repeatedProviders = '';
+  providers.forEach((p) => (repeatedProviders += `include_attachment_providers=${p}&`));
+  return get(
+    `/v1/activity?collation=ATTACHMENT&attachment_visibility=NEW&include_dismissed=true&${repeatedProviders}include_refs=true&limit=100`,
+    params
+  );
+}
+
 // Posts a new snippet to a Check-in.
 function addSnippet(userId, snippet, params) {
   return post(`/v1/users/${userId}/snippets`, snippet, params);

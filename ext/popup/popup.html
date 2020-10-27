@@ -13,9 +13,11 @@
     <div class="topbarTitle">Range</div>
   </div>
   <div class="unauthenticated">
-    <p>Welcome to Range Chrome Sync. <a
-        href="https://chrome.google.com/webstore/detail/range-for-chrome/mbnkiifdpdcimfcdhmioinhcbjngjebo"
-        target="_blank">Learn more</a>.</p>
+    <p>
+      Welcome to Range Chrome Sync.
+      <a href="https://chrome.google.com/webstore/detail/range-for-chrome/mbnkiifdpdcimfcdhmioinhcbjngjebo"
+        target="_blank">Learn more</a>.
+    </p>
     <a class="largeButton" href="https://range.co/login" target="_blank">Sign in to Range</a>
   </div>
   <div class="authenticated">
@@ -39,10 +41,12 @@
         </div>
         <textarea id="checkInText" type="text" placeholder="What progress did you make?"></textarea>
         <div id="checkInAttachment">
-          <div id="attachmentIconWrapper"><img id="attachmentIcon" /></div>
-          <div id="attachmentData">
-            <div id="attachmentTitle"></div>
-            <div id="attachmentSubtitle"></div>
+          <div id="attachmentIconWrapper" class="attachmentIconWrapper">
+            <img id="attachmentIcon" class="attachmentIcon" src="/images/range.svg" />
+          </div>
+          <div id="attachmentData" class="attachmentData">
+            <div id="attachmentTitle" class="attachmentTitle">List of fallacies - Wikipedia</div>
+            <div id="attachmentSubtitle" class="attachmentSubtitle">wikipedia.com - Viewed</div>
           </div>
         </div>
         <button class="largeButton" id="addToCheckInButton">Add to next Check-in</button>
@@ -53,7 +57,9 @@
       <img class="indicator" src="/images/accordion-indicator.png" />
       <div class="title">Activity</div>
     </button>
-    <div class="panel">Coming Soon!</div>
+    <div class="panel">
+      <div id="activityList">No activity is currently being synced</div>
+    </div>
     <button class="accordion" id="settings">
       <img class="indicator" src="/images/accordion-indicator.png" />
       <div class="title">Sync settings</div>
@@ -85,7 +91,8 @@
             Range does not yet support syncing activity from <span class="hostname"></span>. But you
             can request a new integration easily.
           </div>
-          <a class="largeButton integrationButton" id="requestIntegrationButton" href="https://forms.gle/nWrVyRF7tXKTYXWC9" target="_blank">Request Integration</a>
+          <a class="largeButton integrationButton" id="requestIntegrationButton"
+            href="https://forms.gle/nWrVyRF7tXKTYXWC9" target="_blank">Request Integration</a>
         </div>
         <div id="settingsOther">
           <hr>

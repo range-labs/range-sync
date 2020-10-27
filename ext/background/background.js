@@ -2,7 +2,6 @@
 
 const DEFAULT_TYPE = 'LINK';
 const DEFAULT_SUBTYPE = 'NONE';
-
 // Initialize the sessions
 orgsFromCookies()
   .then((orgs) => Promise.all(orgs.map(getSession)))
@@ -82,6 +81,9 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
               })
               .catch(handleErr);
             break;
+          case MESSAGE_TYPES.RECENT_ACTIVITY:
+            attemptRecentActivity(s).then(sendResponse).catch(handleErr);
+            break;
         }
       })
     )
@@ -89,6 +91,12 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 
   return true;
 });
+
+function attemptRecentActivity(session) {
+  return new Promise((resolve) =>
+    chrome.storage.local.get(['active_providers'], (r) => resolve(r.active_providers))
+  ).then((providers) => recentActivity(providers, authorize(session)));
+}
 
 async function attemptRecordInteraction(tab, session, force) {
   if (!tab || !tab.id) {

@@ -29,6 +29,7 @@ const checkInLogo = document.getElementById('checkInLogo');
 const checkInTime = document.getElementById('checkInTime');
 const checkInButton = document.getElementById('checkInButton');
 const viewCheckInButton = document.getElementById('viewCheckInButton');
+const activityList = document.getElementById('activityList');
 const settingsLinks = document.getElementsByClassName('settingsLink');
 const hostnames = document.getElementsByClassName('hostname');
 const providerNames = document.getElementsByClassName('providerName');
@@ -167,6 +168,39 @@ const enabledCounts = document.getElementsByClassName('enabledCount');
         c.textContent = r.enabled_count;
       }
     });
+  });
+
+  chrome.runtime.sendMessage({ action: MESSAGE_TYPES.RECENT_ACTIVITY }, (response) => {
+    let interactionsByAttachmentId = {};
+    response.interactions?.forEach(
+      (interaction) =>
+        (interactionsByAttachmentId = {
+          ...interactionsByAttachmentId,
+          [interaction.attachment_id]: interaction,
+        })
+    );
+    if (response.attachments.length > 0) {
+      activityList.innerText = '';
+      response.attachments.forEach((attachment) => {
+        const activityItem = document.createElement('a');
+        activityItem.classList.add('activityItem');
+        activityItem.classList.add('link');
+        activityItem.href = attachment.html_url;
+        activityItem.target = '_blank';
+        activityItem.innerHTML = `<div class="attachmentIconWrapper">
+        <img class="attachmentIcon" src="/images/providers/${attachment.provider}.png" />
+      </div>
+      <div class="attachmentData">
+        <div class="attachmentTitle">${attachment.name}</div>
+        <div class="attachmentSubtitle">${
+          interactionsByAttachmentId[attachment.id].interaction_type !== 'UNSET'
+            ? interactionsByAttachmentId[attachment.id].interaction_type.toLowerCase()
+            : 'Viewed'
+        }</div>
+      </div>`;
+        activityList.appendChild(activityItem);
+      });
+    }
   });
 
   chrome.runtime.sendMessage({ action: MESSAGE_TYPES.IS_AUTHENTICATED }, (r) => {

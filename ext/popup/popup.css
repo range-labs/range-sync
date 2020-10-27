@@ -218,7 +218,7 @@ hr {
   width: 318px;
 }
 
-#attachmentIconWrapper {
+.attachmentIconWrapper {
   align-items: center;
   background-color: #d1d7db;
   border-radius: 3px;
@@ -229,23 +229,49 @@ hr {
   width: 32px;
 }
 
-#attachmentIcon {
+.attachmentIcon {
   height: 24px;
   width: 24px;
 }
 
-#attachmentData {
+.attachmentData {
   flex-direction: column;
 }
 
-#attachmentTitle {
+.attachmentTitle {
   font-weight: 700;
   margin-bottom: 4px;
 }
 
-#attachmentSubtitle {
+.attachmentSubtitle {
   font-size: 12px;
   opacity: 50%;
+}
+
+#activityList {
+  display: flex;
+  max-height: 266px;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.activityItem {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.activityItem .attachmentIconWrapper {
+  background-color: transparent;
+}
+.activityItem .attachmentSubtitle {
+  text-transform: capitalize;
+}
+.activityItem .attachmentTitle {
+  font-weight: normal;
+}
+.link {
+  text-decoration: inherit;
+  color: inherit;
+  white-space: inherit;
 }
 
 #settingsContainer {
