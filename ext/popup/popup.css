@@ -292,8 +292,8 @@ hr {
   display: inline-block;
 }
 
-#integrationDisabled > *,
-#integrationNotSupported > * {
+#integrationDisabled *,
+#integrationNotSupported * {
   margin-bottom: 14px;
 }
 
