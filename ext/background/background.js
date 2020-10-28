@@ -2,6 +2,7 @@
 
 const DEFAULT_TYPE = 'LINK';
 const DEFAULT_SUBTYPE = 'NONE';
+
 // Initialize the sessions
 orgsFromCookies()
   .then((orgs) => Promise.all(orgs.map(getSession)))

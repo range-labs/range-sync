@@ -1,7 +1,5 @@
 'use strict';
 
-
-
 // We store the cache here rather than using chrome.storage because we cannot
 // save objects with their methods in chrome.storage.
 const _filters = [];
@@ -9,7 +7,9 @@ const _filters = [];
 // This will be integrated with Chrome history in the future to inform
 // integration suggestions
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.runtime.openOptionsPage();
+  chrome.storage.local.set({ active_providers: [] }, () => {
+    chrome.runtime.openOptionsPage();
+  });
 });
 
 function enabledFilters(userRequested) {

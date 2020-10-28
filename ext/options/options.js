@@ -5,7 +5,8 @@ const toggleContainer = document.getElementById('toggleContent');
 const moreContainer = document.getElementById('moreContainer');
 
 chrome.storage.local.get(['active_providers', 'filters'], (resp) => {
-  if (!resp || !resp.active_providers || !resp.filters) return;
+  if (!resp || !resp.filters) return;
+  if (!resp.active_providers) resp.active_providers = [];
 
   const active = [];
   const inactive = [];
