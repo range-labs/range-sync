@@ -245,17 +245,17 @@ const enabledCounts = document.getElementsByClassName('enabledCount');
       t.classList.add('active');
 
       switch (t.id) {
-        case 'checkInFuture':
+        case 'FUTURE':
           checkInText.placeholder = 'What do you want to accomplish?';
           addToCheckInButton.textContent = 'Add to next Check-in';
           checkInSuccess.textContent = 'Item added to your next Check-in';
           break;
-        case 'checkInBacklog':
+        case 'BACKLOG':
           checkInText.placeholder = 'Why is this going to the backlog?';
           addToCheckInButton.textContent = 'Add to Backlog';
           checkInSuccess.textContent = 'Item added to your Backlog';
           break;
-        case 'checkInPast':
+        case 'PAST':
         default:
           checkInText.placeholder = 'What progress did you make?';
           addToCheckInButton.textContent = 'Add to next Check-in';
@@ -277,7 +277,7 @@ function currentCheckInType() {
     }
   }
 
-  return SNIPPET_TYPES['checkInPast'];
+  return SNIPPET_TYPES['PAST'];
 }
 
 function enableProvider(providerName) {

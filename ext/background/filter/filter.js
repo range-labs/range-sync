@@ -7,8 +7,11 @@ const _filters = [];
 // This will be integrated with Chrome history in the future to inform
 // integration suggestions
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.local.set({ active_providers: [] }, () => {
-    chrome.runtime.openOptionsPage();
+  chrome.storage.local.get(['active_providers'], (r) => {
+    const p = !!r.active_providers ? r.active_providers : [];
+    chrome.storage.local.set({ active_providers: p }, () => {
+      chrome.runtime.openOptionsPage();
+    });
   });
 });
 

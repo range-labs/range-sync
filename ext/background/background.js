@@ -63,12 +63,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
             // ensure that the attachment exists.
             attemptRecordInteraction(request.tab, s, true)
               .then((r) =>
-                attemptAddSnippet(
-                  s,
-                  SNIPPET_TYPES[request.snippet_type],
-                  request.text,
-                  r.attachment_id
-                )
+                attemptAddSnippet(s, request.snippet_type, request.text, r.attachment_id)
               )
               .then(sendResponse)
               .catch(handleErr);
