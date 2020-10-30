@@ -26,12 +26,14 @@
           <div class="title">
             <b>Sync activity from your apps</b>
           </div>
-          <div class="subtext">Showing apps available for syncing via Google Chrome</div>
+          <div class="subtext">
+            Showing apps visited in the last 90 days, and apps with sync enabled
+          </div>
         </div>
         <div class="providerContent">
-          <div id="toggleContent">
+          <div class="toggleContent" id="relevantToggles">
             <hr>
-            <template id="toggle-template">
+            <template id="toggleTemplate">
               <div class="toggleContainer">
                 <div class="provider">
                   <img class="providerIcon" src="">
@@ -61,7 +63,33 @@
         </div>
       </div>
     </div>
-    <a class="subtext" id="disableAll">Disable sync for all apps</a>
+    <div class="buttonContainer">
+      <button class="largeButton" id="enableVisited">Sync all above apps</button>
+      <button class="largeButton secondary" id="disableAll">Disable sync for all apps</button>
+    </div>
+    <img class="containerIcon" src="../images/supported-list.svg" />
+    <div class="syncContainer">
+      <div class="providerContainer" id="activeProviders">
+        <div class="titleContainer">
+          <div class="title">
+            <b><span class="supportedCount"></span> other supported apps</b>
+          </div>
+          <a class="subtext active" id="showIrrelevant">Show more apps</a>
+        </div>
+        <div class="providerContent inactive" id="irrelevantContent">
+          <div class="toggleContent" id="irrelevantToggles">
+            <hr>
+          </div>
+          <div class="syncExplanation">
+            <div class="subtext">If you don't find the app that you are looking for, be sure to
+              <span id="learnMore">
+                <a href="https://forms.gle/nWrVyRF7tXKTYXWC9" target="_blank">request it</a>.
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   <script src="options.js"></script>
 </body>

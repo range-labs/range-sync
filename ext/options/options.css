@@ -74,24 +74,25 @@ hr {
 .syncContainer {
   display: flex;
   flex-direction: row;
+  width: 100%;
 }
 
 .providerContainer {
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
 }
 
 .providerContainer .subtext {
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 .providerContent {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
 }
 
-#toggleContent {
+.toggleContent {
   width: 60%;
   max-width: 500px;
 }
@@ -198,6 +199,8 @@ a {
   color: #495a63;
   display: flex;
   flex-direction: column;
+  margin-left: 15%;
+  max-width: 250px;
   padding-left: 16px;
   width: 30%;
 }
@@ -211,6 +214,44 @@ a {
   margin-bottom: 0;
 }
 
+#showIrrelevant.inactive {
+  display: none;
+}
+
+#irrelevantContent {
+  margin-top: 16px;
+}
+
+#irrelevantContent.inactive {
+  display: none;
+}
+
 #disableAll {
-  margin-top: 50px;
+  margin-top: 16px;
+  margin-bottom: 32px;
+}
+
+.buttonContainer {
+  margin-top: 24px;
+  margin-bottom: 48px;
+}
+
+.largeButton {
+  background: #00bfd8;
+  border: 0;
+  border-radius: 3px;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  margin-right: 16px;
+  padding: 10px;
+  text-decoration: none;
+}
+
+.largeButton.secondary {
+  background: #cfe6ed;
+  border: 1px solid #aecfda;
+  color: #495a63;
+  font-weight: 400;
 }

@@ -13,7 +13,10 @@ registerFilter({
         return reMatch(url.pathname, rePath, 0);
       },
       // i.e. 'Customers - Planning - Draft slides - Asana' -> 'Draft slides'
-      title_processor: (t) => t.split(' - ')[2].trim(),
+      title_processor: (t) => {
+        const parts = t.split(' - ');
+        return parts[parts.length - 2].trim();
+      },
     },
   ],
 });

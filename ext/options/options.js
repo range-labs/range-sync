@@ -1,43 +1,109 @@
 'use strict';
 
-const toggleTemplate = document.getElementById('toggle-template');
-const toggleContainer = document.getElementById('toggleContent');
-const moreContainer = document.getElementById('moreContainer');
+let MESSAGE_TYPES;
 
-chrome.storage.local.get(['active_providers', 'filters'], (resp) => {
-  if (!resp || !resp.filters) return;
-  if (!resp.active_providers) resp.active_providers = [];
+const init = new Promise((resolve) => {
+  chrome.runtime.getBackgroundPage((bg) => {
+    MESSAGE_TYPES = bg.MESSAGE_TYPES;
+    resolve();
+  });
+});
 
-  const active = [];
-  const inactive = [];
+const enableVisited = document.getElementById('enableVisited');
+const toggleTemplate = document.getElementById('toggleTemplate');
+const relevantToggles = document.getElementById('relevantToggles');
+const irrelevantContent = document.getElementById('irrelevantContent');
+const irrelevantToggles = document.getElementById('irrelevantToggles');
+const showIrrelevant = document.getElementById('showIrrelevant');
+const supportedCounts = document.getElementsByClassName('supportedCount');
 
-  for (const f of Object.values(resp.filters)) {
-    const inst = toggleTemplate.content.cloneNode(true);
-    inst.querySelector('.providerIcon').src = `../images/providers/${f.provider}.png`;
-    const name = inst.querySelector('.providerName');
-    name.textContent = f.provider_name;
-    name.id = f.provider;
-    const desc = inst.querySelector('.switchDescription');
+(async () => {
+  await init;
 
-    if (resp.active_providers.includes(f.provider)) {
-      desc.textContent = 'Sync ON';
-      desc.classList.add('active');
-      inst.querySelector('.toggle').checked = true;
-      active.push(inst);
-    } else {
-      desc.textContent = 'Sync OFF';
-      inst.querySelector('.toggle').checked = false;
-      inactive.push(inst);
+  chrome.storage.local.get(['active_providers', 'filters'], (resp) => {
+    if (!resp || !resp.filters) return;
+    if (!resp.active_providers) resp.active_providers = [];
+
+    const active = [];
+    const inactive = [];
+    const providerNameMap = {};
+
+    for (const f of Object.values(resp.filters)) {
+      providerNameMap[f.provider_name] = f.provider;
+      const inst = toggleTemplate.content.cloneNode(true);
+      inst.querySelector('.providerIcon').src = `../images/providers/${f.provider}.png`;
+      const name = inst.querySelector('.providerName');
+      name.textContent = f.provider_name;
+      name.id = f.provider;
+      const desc = inst.querySelector('.switchDescription');
+
+      if (resp.active_providers.includes(f.provider)) {
+        desc.textContent = 'Sync ON';
+        desc.classList.add('active');
+        inst.querySelector('.toggle').checked = true;
+        active.push(inst);
+      } else {
+        desc.textContent = 'Sync OFF';
+        inst.querySelector('.toggle').checked = false;
+        inactive.push(inst);
+      }
+    }
+
+    active.sort(sortProvider);
+    active.forEach((e) => relevantToggles.appendChild(e));
+
+    getRelevantHistory()
+      .then((history) => {
+        const sortRelevant = (a, b) => {
+          const providerA = providerNameMap[a.querySelector('.providerName').textContent];
+          const providerB = providerNameMap[b.querySelector('.providerName').textContent];
+          const scoreA = history[providerA] || 0;
+          const scoreB = history[providerB] || 0;
+
+          if (scoreA == scoreB) {
+            return sortProvider(a, b);
+          } else {
+            return scoreB - scoreA;
+          }
+        };
+
+        let irrelevantCount = 0;
+        inactive.sort(sortRelevant);
+        inactive.forEach((e) => {
+          if (!!history[providerNameMap[e.querySelector('.providerName').textContent]]) {
+            relevantToggles.appendChild(e);
+          } else {
+            irrelevantCount++;
+            irrelevantToggles.appendChild(e);
+          }
+        });
+
+        for (const c of supportedCounts) {
+          c.textContent = irrelevantCount;
+        }
+      })
+      .then(addToggleListeners)
+      .catch(console.log);
+  });
+})();
+
+enableVisited.addEventListener('click', async () => {
+  const toggles = relevantToggles.querySelectorAll('.toggleContainer');
+  for (const t of toggles) {
+    const desc = t.querySelector('.switchDescription');
+    const checkbox = t.querySelector('.toggle');
+    const name = t.querySelector('.providerName');
+
+    if (!desc.classList.contains('active')) {
+      enableToggle(desc, checkbox);
+      await toggleStoredProvider(name.id, true);
     }
   }
+});
 
-  active.sort(sortProvider);
-  inactive.sort(sortProvider);
-
-  active.forEach((e) => toggleContainer.appendChild(e));
-  inactive.forEach((e) => toggleContainer.appendChild(e));
-
-  addToggleListeners();
+showIrrelevant.addEventListener('click', () => {
+  showIrrelevant.classList.add('inactive');
+  irrelevantContent.classList.remove('inactive');
 });
 
 function sortProvider(a, b) {
@@ -57,10 +123,8 @@ async function addToggleListeners() {
       const checkbox = t.querySelector('.toggle');
       const name = t.querySelector('.providerName');
 
-      if (desc.classList.contains('active')) {
-        disableToggle(desc, checkbox);
-        await toggleStoredProvider(name.id, false);
-      }
+      disableToggle(desc, checkbox);
+      await toggleStoredProvider(name.id, false);
     }
   });
 
@@ -112,5 +176,11 @@ function toggleStoredProvider(provider, active) {
 
       chrome.storage.local.set({ active_providers: providers }, resolve);
     });
+  });
+}
+
+function getRelevantHistory() {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({ action: MESSAGE_TYPES.RELEVANT_HISTORY }, resolve);
   });
 }

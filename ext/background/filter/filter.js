@@ -4,10 +4,9 @@
 // save objects with their methods in chrome.storage.
 const _filters = [];
 
-// This will be integrated with Chrome history in the future to inform
-// integration suggestions
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.get(['active_providers'], (r) => {
+    // Carry over active providers from previous install
     const p = !!r.active_providers ? r.active_providers : [];
     chrome.storage.local.set({ active_providers: p }, () => {
       chrome.runtime.openOptionsPage();

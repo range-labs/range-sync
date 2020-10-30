@@ -47,6 +47,9 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     case MESSAGE_TYPES.INTEGRATION_STATUS:
       tabHasFilter(request.tab).then(sendResponse).catch(handleErr);
       return true;
+    case MESSAGE_TYPES.RELEVANT_HISTORY:
+      searchRelevantHistory().then(sendResponse).catch(handleErr);
+      return true;
   }
 
   // Responses that require sessions
@@ -87,6 +90,37 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 
   return true;
 });
+
+function searchRelevantHistory() {
+  const relevantHistory = {};
+  return new Promise((resolve) => {
+    chrome.history.search(
+      { text: '', startTime: moment().subtract(90, 'd').unix() * 1000, maxResults: 10000 },
+      (history) => {
+        Promise.all(
+          history.map(async (h) => {
+            if (!h.url || !h.title) return;
+
+            try {
+              const info = await providerInfo(new URL(h.url), h.title, true);
+              if (!info || !info.provider || info.provider.includes('chromeext_')) return;
+
+              if (!relevantHistory[info.provider]) {
+                relevantHistory[info.provider] = 1;
+              } else {
+                relevantHistory[info.provider]++;
+              }
+            } catch (err) {
+              return;
+            }
+          })
+        ).then((h) => {
+          resolve(relevantHistory);
+        });
+      }
+    );
+  });
+}
 
 function attemptRecentActivity(session) {
   return new Promise((resolve) =>

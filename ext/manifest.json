@@ -2,7 +2,7 @@
   "name": "Range Sync",
   "version": "1.0",
   "description": "The Range Chrome extension, rearchitected to be lighter-weight and flexible",
-  "permissions": ["tabs", "cookies", "storage", "https://*.range.co/*"],
+  "permissions": ["cookies", "history", "storage", "tabs", "https://*.range.co/*"],
   "options_page": "options/options.html",
   "background": {
     "scripts": [

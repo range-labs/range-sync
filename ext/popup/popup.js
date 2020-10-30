@@ -9,9 +9,6 @@ const init = new Promise((resolve) => {
     SNIPPET_TYPES = bg.SNIPPET_TYPES;
     INTEGRATION_STATUSES = bg.INTEGRATION_STATUSES;
     MESSAGE_TYPES = bg.MESSAGE_TYPES;
-    console.log(SNIPPET_TYPES);
-    console.log(INTEGRATION_STATUSES);
-    console.log(MESSAGE_TYPES);
     resolve();
   });
 });
