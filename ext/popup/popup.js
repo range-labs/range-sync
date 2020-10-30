@@ -57,13 +57,14 @@ const enabledCounts = document.getElementsByClassName('enabledCount');
       checkInTime.classList.add('checkInYesterday');
       checkInTime.textContent = 'Share your first Check-in!';
       checkInButton.classList.add('active');
+      checkInButton.href = `https://range.co/${resp.org_slug}/compose`;
     } else if (sameDay) {
       checkInLogo.src = '/images/check-in-today.png';
       checkInTime.classList.add('checkInToday');
       checkInTime.textContent = 'Checked in today';
       checkInButton.classList.remove('active');
       viewCheckInButton.classList.add('active');
-      viewCheckInButton.href = `https://range.co/_/checkins?user=${userId}`;
+      viewCheckInButton.href = `https://range.co/${resp.org_slug}/checkins?user=${userId}`;
     } else if (dayDiff == 0 || dayDiff == 1) {
       checkInLogo.src = '/images/check-in-yesterday.png';
       checkInTime.classList.add('checkInYesterday');

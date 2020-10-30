@@ -76,6 +76,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
             userStats(userId, authorize(s))
               .then((r) => {
                 r.user_id = userId;
+                r.org_slug = s.org.slug;
                 sendResponse(r);
               })
               .catch(handleErr);
