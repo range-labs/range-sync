@@ -44,10 +44,11 @@ const enabledCounts = document.getElementsByClassName('enabledCount');
 (async () => {
   await init;
 
-  chrome.runtime.sendMessage({ action: MESSAGE_TYPES.USER_STATS }, (resp) => {
+  chrome.runtime.sendMessage({ action: MESSAGE_TYPES.USER_STATS }, async (resp) => {
     const userId = resp.user_id;
     const updateCount = resp.update_count;
     const lastUpdate = moment(resp.last_update_at);
+    const sameDay = lastUpdate.isSame(moment(), 'day');
     const dayDiff = lastUpdate.diff(moment(), 'days');
 
     checkInTime.className = '';
@@ -56,28 +57,31 @@ const enabledCounts = document.getElementsByClassName('enabledCount');
       checkInTime.classList.add('checkInYesterday');
       checkInTime.textContent = 'Share your first Check-in!';
       checkInButton.classList.add('active');
-    } else if (dayDiff < 1) {
+    } else if (sameDay) {
       checkInLogo.src = '/images/check-in-today.png';
       checkInTime.classList.add('checkInToday');
       checkInTime.textContent = 'Checked in today';
       checkInButton.classList.remove('active');
       viewCheckInButton.classList.add('active');
       viewCheckInButton.href = `https://range.co/_/checkins?user=${userId}`;
-    } else if (dayDiff == 1) {
+    } else if (dayDiff == 0 || dayDiff == 1) {
       checkInLogo.src = '/images/check-in-yesterday.png';
       checkInTime.classList.add('checkInYesterday');
       checkInTime.textContent = 'Last Check-in: Yesterday';
       checkInButton.classList.add('active');
+      viewCheckInButton.classList.remove('active');
     } else if (lastUpdate.isSame(moment(), 'week')) {
       checkInLogo.src = '/images/check-in-long.png';
       checkInTime.classList.add('checkInLong');
       checkInTime.textContent = `Last Check-in: ${lastUpdate.format('dddd')}`;
       checkInButton.classList.add('active');
+      viewCheckInButton.classList.remove('active');
     } else {
       checkInLogo.src = '/images/check-in-long.png';
       checkInTime.classList.add('checkInLong');
       checkInTime.textContent = `Last Check-in: ${dayDiff} days ago`;
       checkInButton.classList.add('active');
+      viewCheckInButton.classList.remove('active');
     }
   });
 
