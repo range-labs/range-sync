@@ -36,6 +36,7 @@ function registerFilter(filter) {
   _filters.push(filter);
   const toStore = {};
   for (const f of _filters) {
+    if (f.no_sync) continue;
     toStore[f.provider] = staticFilter(f);
   }
   chrome.storage.local.set({ filters: toStore });

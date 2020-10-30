@@ -30,4 +30,5 @@ registerFilter({
     ],
     url: [/inbox$/, /sent$/, /starred$/, /snoozed$/, /drafts$/, /important$/],
   },
+  no_sync: true,
 });

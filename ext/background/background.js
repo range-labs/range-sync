@@ -192,10 +192,12 @@ function providerInfo(url, title, force) {
   // Loop through the known providers and check if the current URL matches one
   return enabledFilters(force).then((filters) => {
     for (const filter of filters) {
+      if (filter.no_sync && !force) continue;
+
       let sourceId = '';
       for (const reUrl of filter.url_regex) {
-        if (!reUrl.test(base)) continue;
         if (blocked(filter.block_list, url, title) && !force) return null;
+        if (!reUrl.test(base)) continue;
 
         for (const processor of filter.processors) {
           sourceId = processor.source_id_processor(url);
