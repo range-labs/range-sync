@@ -2,6 +2,7 @@
 
 const DEFAULT_TYPE = 'LINK';
 const DEFAULT_SUBTYPE = 'NONE';
+const ATTACHMENT_ORIGIN = 1;
 
 // Initialize the sessions
 orgsFromCookies()
@@ -184,6 +185,7 @@ async function attachment(session, tab, force) {
     ...provider,
     html_url: url.href,
     org_id: session.org.org_id,
+    origin: ATTACHMENT_ORIGIN,
   };
 }
 
