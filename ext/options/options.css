@@ -60,6 +60,56 @@ hr {
   font-size: 16px;
 }
 
+#workspaceSelector {
+  align-self: center;
+  cursor: pointer;
+  display: none;
+  flex-direction: column;
+  margin-left: auto;
+}
+
+#workspaceSelector.active {
+  display: flex;
+}
+
+#workspaceButton {
+  margin: 0;
+  outline: none;
+}
+
+#workspaceIndicator {
+  margin-left: 10px;
+  transition: transform ease-in-out 100ms;
+}
+
+#workspaceSelector.open #workspaceIndicator {
+  transform: rotate(180deg);
+}
+
+#workspaceContent {
+  display: none;
+  flex-direction: column;
+}
+
+#workspaceSelector.open #workspaceContent {
+  display: flex;
+}
+
+#workspaceList {
+  background: #c7e2ea;
+  position: absolute;
+  width: 169px;
+}
+
+.workspaceOption {
+  color: #495a63;
+  padding: 8px;
+}
+
+.workspaceOption.active {
+  font-weight: 700;
+}
+
 .settingsContainer {
   align-items: flex-start;
   display: flex;

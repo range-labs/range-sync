@@ -7,7 +7,7 @@ const _filters = [];
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.get(['active_providers'], (r) => {
     // Carry over active providers from previous install
-    const p = !!r.active_providers ? r.active_providers : [];
+    const p = r.active_providers || [];
     chrome.storage.local.set({ active_providers: p }, () => {
       chrome.runtime.openOptionsPage();
     });
@@ -24,7 +24,7 @@ function enabledFilters(userRequested) {
 
       const activeFilters = [];
       for (const f of _filters) {
-        if (resp.active_providers.includes(f.provider)) activeFilters.push(f);
+        if (resp.active_providers?.includes(f.provider)) activeFilters.push(f);
       }
 
       resolve(activeFilters);

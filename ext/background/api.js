@@ -46,7 +46,7 @@ function recordInteraction(interaction, params) {
 }
 
 function recentActivity(providers, params) {
-  if (providers.length < 1) return;
+  if (providers.length < 1) return Promise.resolve([]);
 
   let repeatedProviders = '';
   providers.forEach((p) => (repeatedProviders += `include_attachment_providers=${p}&`));

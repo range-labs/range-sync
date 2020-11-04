@@ -49,7 +49,7 @@ const enabledCounts = document.getElementsByClassName('enabledCount');
     const updateCount = resp.update_count;
     const lastUpdate = moment(resp.last_update_at);
     const sameDay = lastUpdate.isSame(moment(), 'day');
-    const dayDiff = lastUpdate.diff(moment(), 'days');
+    const dayDiff = moment().diff(lastUpdate, 'days');
 
     checkInTime.className = '';
     if (updateCount < 1) {
@@ -65,7 +65,7 @@ const enabledCounts = document.getElementsByClassName('enabledCount');
       checkInButton.classList.remove('active');
       viewCheckInButton.classList.add('active');
       viewCheckInButton.href = `https://range.co/${resp.org_slug}/checkins?user=${userId}`;
-    } else if (dayDiff == 0 || dayDiff == 1) {
+    } else if (dayDiff < 2) {
       checkInLogo.src = '/images/check-in-yesterday.png';
       checkInTime.classList.add('checkInYesterday');
       checkInTime.textContent = 'Last Check-in: Yesterday';
@@ -181,7 +181,7 @@ const enabledCounts = document.getElementsByClassName('enabledCount');
           [interaction.attachment_id]: interaction,
         })
     );
-    if (response.attachments.length > 0) {
+    if (response.attachments?.length > 0) {
       activityList.innerText = '';
       response.attachments.forEach((attachment) => {
         const activityItem = document.createElement('a');

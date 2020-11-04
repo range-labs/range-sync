@@ -5,9 +5,7 @@ const DEFAULT_SUBTYPE = 'NONE';
 const ATTACHMENT_ORIGIN = 1;
 
 // Initialize the sessions
-orgsFromCookies()
-  .then((orgs) => Promise.all(orgs.map(getSession)))
-  .catch(console.log);
+currentSession();
 
 chrome.tabs.onUpdated.addListener((_tabId, _info, tab) => {
   // no-op unless done loading
@@ -40,8 +38,8 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     sendResponse(false);
   };
 
-  // Responses that don't need to use the session
   switch (request.action) {
+    // Responses that don't need to use the session
     case MESSAGE_TYPES.IS_AUTHENTICATED:
       sendResponse(isAuthenticated());
       return;
@@ -51,44 +49,68 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     case MESSAGE_TYPES.RELEVANT_HISTORY:
       searchRelevantHistory().then(sendResponse).catch(handleErr);
       return true;
+    // Responses that require the current session
+    case MESSAGE_TYPES.INTERACTION:
+      currentSession().then((s) => {
+        attemptRecordInteraction(request.tab, s, true).then(sendResponse).catch(handleErr);
+      });
+      break;
+    case MESSAGE_TYPES.ADD_SNIPPET:
+      // Since recording and interaction is idempotent we do it first to
+      // ensure that the attachment exists.
+      currentSession().then((s) => {
+        attemptRecordInteraction(request.tab, s, true)
+          .then((r) => attemptAddSnippet(s, request.snippet_type, request.text, r.attachment_id))
+          .then(sendResponse)
+          .catch(handleErr);
+      });
+      break;
+    case MESSAGE_TYPES.USER_STATS:
+      currentSession().then((s) => {
+        const userId = sessionUserId(s);
+        userStats(userId, authorize(s))
+          .then((r) => {
+            r.user_id = userId;
+            r.org_slug = s.org.slug;
+            sendResponse(r);
+          })
+          .catch(handleErr);
+      });
+      break;
+    case MESSAGE_TYPES.RECENT_ACTIVITY:
+      currentSession().then((s) => {
+        attemptRecentActivity(s).then(sendResponse).catch(handleErr);
+      });
+      break;
+    // Responses that require all sessions
+    case MESSAGE_TYPES.SESSIONS:
+      orgsFromCookies()
+        .then((orgs) => Promise.all(orgs.map(getSession)))
+        .then((sessions) => {
+          currentSession().then((c) => {
+            for (const s of sessions) {
+              if (s.org.slug == c.org.slug) {
+                s.active = true;
+                break;
+              }
+            }
+            sendResponse(sessions);
+          });
+        })
+        .catch(handleErr);
+      break;
+    case MESSAGE_TYPES.SET_SESSION:
+      orgsFromCookies()
+        .then((orgs) => Promise.all(orgs.map(getSession)))
+        .then((sessions) => {
+          const s = sessions.filter((s) => {
+            s.org.slug == request.org_slug;
+          })[0];
+          setActiveOrg(s.org.slug).then(sendResponse);
+        })
+        .catch(handleErr);
+      break;
   }
-
-  // Responses that require sessions
-  orgsFromCookies()
-    .then((orgs) => Promise.all(orgs.map(getSession)))
-    .then((sessions) =>
-      sessions.forEach((s) => {
-        switch (request.action) {
-          case MESSAGE_TYPES.INTERACTION:
-            attemptRecordInteraction(request.tab, s, true).then(sendResponse).catch(handleErr);
-            break;
-          case MESSAGE_TYPES.ADD_SNIPPET:
-            // Since recording and interaction is idempotent we do it first to
-            // ensure that the attachment exists.
-            attemptRecordInteraction(request.tab, s, true)
-              .then((r) =>
-                attemptAddSnippet(s, request.snippet_type, request.text, r.attachment_id)
-              )
-              .then(sendResponse)
-              .catch(handleErr);
-            break;
-          case MESSAGE_TYPES.USER_STATS:
-            const userId = sessionUserId(s);
-            userStats(userId, authorize(s))
-              .then((r) => {
-                r.user_id = userId;
-                r.org_slug = s.org.slug;
-                sendResponse(r);
-              })
-              .catch(handleErr);
-            break;
-          case MESSAGE_TYPES.RECENT_ACTIVITY:
-            attemptRecentActivity(s).then(sendResponse).catch(handleErr);
-            break;
-        }
-      })
-    )
-    .catch(console.log);
 
   return true;
 });
@@ -126,7 +148,7 @@ function searchRelevantHistory() {
 
 function attemptRecentActivity(session) {
   return new Promise((resolve) =>
-    chrome.storage.local.get(['active_providers'], (r) => resolve(r.active_providers))
+    chrome.storage.local.get(['active_providers'], (r) => resolve(r.active_providers || []))
   ).then((providers) => recentActivity(providers, authorize(session)));
 }
 
@@ -268,4 +290,27 @@ function blocked(blockList, url, title) {
       if (r.test(url.href)) return true;
     }
   }
+}
+
+function currentSession() {
+  return new Promise((resolve) => {
+    orgsFromCookies()
+      .then((orgs) => Promise.all(orgs.map(getSession)))
+      .then((sessions) => {
+        chrome.storage.local.get(['active_org'], (resp) => {
+          const slug = resp.active_org || sessions[0].org.slug;
+          const session = sessions.find((s) => s.org.slug == slug);
+          setActiveOrg(session.org.slug).then(() => {
+            resolve(session);
+          });
+        });
+      })
+      .catch(console.log);
+  });
+}
+
+function setActiveOrg(slug) {
+  return new Promise((resolve) => {
+    chrome.storage.local.set({ active_org: slug }, resolve);
+  });
 }

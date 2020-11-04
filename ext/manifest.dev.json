@@ -8,7 +8,7 @@
     "scripts": [
       "background/deps/moment.js",
       "background/const.js",
-      "background/conf/prod.js",
+      "background/conf/dev.js",
       "background/api.js",
       "background/background.js",
       "background/filter/filter.js",

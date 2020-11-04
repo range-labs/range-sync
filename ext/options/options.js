@@ -9,6 +9,8 @@ const init = new Promise((resolve) => {
   });
 });
 
+const workspaceContent = document.getElementById('workspaceContent');
+const workspaceList = document.getElementById('workspaceList');
 const enableVisited = document.getElementById('enableVisited');
 const toggleTemplate = document.getElementById('toggleTemplate');
 const relevantToggles = document.getElementById('relevantToggles');
@@ -84,6 +86,28 @@ const supportedCounts = document.getElementsByClassName('supportedCount');
       })
       .then(addToggleListeners)
       .catch(console.log);
+
+    getSessions().then((sessions) => {
+      // if (sessions.length < 2) return;
+
+      workspaceSelector.addEventListener('click', () => {
+        workspaceSelector.classList.toggle('open');
+      });
+      workspaceSelector.classList.add('active');
+
+      for (const s of sessions) {
+        const isActive = s.active ? 'active' : '';
+        const option = document.createElement('div');
+        option.className = `workspaceOption ${isActive}`;
+        option.textContent = s.org.name;
+        option.addEventListener('click', () => {
+          setActiveOrg(e.id).then(() => {
+            location.reload();
+          });
+        });
+        workspaceList.appendChild(option);
+      }
+    });
   });
 })();
 
@@ -182,5 +206,17 @@ function toggleStoredProvider(provider, active) {
 function getRelevantHistory() {
   return new Promise((resolve) => {
     chrome.runtime.sendMessage({ action: MESSAGE_TYPES.RELEVANT_HISTORY }, resolve);
+  });
+}
+
+function getSessions() {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({ action: MESSAGE_TYPES.SESSIONS }, resolve);
+  });
+}
+
+function setActiveOrg(orgSlug) {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({ action: MESSAGE_TYPES.SET_SESSION, org_slug: orgSlug }, resolve);
   });
 }
