@@ -31,17 +31,16 @@
   "browser_action": {
     "default_popup": "popup/popup.html",
     "default_icon": {
-      "16": "images/icon16.png",
-      "32": "images/icon32.png",
-      "48": "images/icon48.png",
-      "128": "images/icon128.png"
+      "16": "images/favicons/browser-action16.png",
+      "32": "images/favicons/browser-action32.png",
+      "48": "images/favicons/browser-action48.png",
+      "128": "images/favicons/browser-action128.png"
     }
   },
   "icons": {
-    "16": "images/icon16.png",
-    "32": "images/icon32.png",
-    "48": "images/icon48.png",
-    "128": "images/icon128.png"
+    "16": "images/favicons/store16.png",
+    "48": "images/favicons/store48.png",
+    "128": "images/favicons/store128.png"
   },
   "manifest_version": 2
 }
