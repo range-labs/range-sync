@@ -46,7 +46,7 @@ hr {
   display: flex;
   justify-content: flex-start;
   outline: none;
-  padding: 12px;
+  padding: 6px;
   width: 100%;
 }
 
@@ -245,15 +245,65 @@ hr {
 
 .attachmentSubtitle {
   font-size: 12px;
-  opacity: 50%;
+  color: #999999;
 }
 
 #activityList {
   display: flex;
-  max-height: 266px;
+  max-height: 240px;
   flex-direction: column;
   overflow-y: auto;
 }
+
+#activityDropdown {
+  display: flex;
+  flex-direction: column;
+  margin: 5px 10px 15px 0;
+  position: relative;
+}
+.activityDropdownContent {
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
+  display: none;
+  text-align: start;
+}
+.activityDropdownItem {
+  align-items: center;
+  display: flex;
+  padding: 5px 0 5px 15px;
+}
+.activityDropdownItem:hover {
+  background-color: #b9c6cc;
+}
+#activityDropdownButton {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #b9c6cc;
+  border-radius: 3px;
+  display: flex;
+  font-size: 14px;
+  font-weight: 700;
+  justify-content: space-between;
+  outline: none;
+  padding: 5px 10px;
+}
+
+#activityDropdownButton > .indicator {
+  fill: black;
+  margin-right: 0;
+}
+
+#activityDropdown.active .activityDropdownContent {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 36px;
+  width: 100%;
+}
+#activityDropdown.active .indicator {
+  transform: rotate(180deg);
+}
+
 .activityItem {
   display: flex;
   margin-bottom: 15px;
@@ -261,6 +311,7 @@ hr {
 
 .activityItem .attachmentIconWrapper {
   background-color: transparent;
+  width: auto;
 }
 .activityItem .attachmentSubtitle {
   text-transform: capitalize;

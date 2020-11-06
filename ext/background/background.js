@@ -26,7 +26,7 @@ chrome.tabs.onUpdated.addListener((_tabId, _info, tab) => {
     .then((orgs) => Promise.all(orgs.map(getSession)))
     .then((sessions) => {
       for (const s of sessions) {
-        attemptRecordInteraction(tab, s, false).catch(console.log);
+        attemptRecordInteraction(tab, s, false);
       }
     })
     .catch(console.log);
@@ -79,7 +79,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       break;
     case MESSAGE_TYPES.RECENT_ACTIVITY:
       currentSession().then((s) => {
-        attemptRecentActivity(s).then(sendResponse).catch(handleErr);
+        recentActivity(authorize(s)).then(sendResponse).catch(handleErr);
       });
       break;
     // Responses that require all sessions
@@ -111,7 +111,6 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
         .catch(handleErr);
       break;
   }
-
   return true;
 });
 
@@ -146,10 +145,16 @@ function searchRelevantHistory() {
   });
 }
 
-function attemptRecentActivity(session) {
-  return new Promise((resolve) =>
-    chrome.storage.local.get(['active_providers'], (r) => resolve(r.active_providers || []))
-  ).then((providers) => recentActivity(providers, authorize(session)));
+function setChromeActivity(attachment, tab) {
+  chrome.storage.local.get(['recent_activity'], (resp) => {
+    const recentActivity =
+      resp.recent_activity?.filter((activity) => activity.source_id !== attachment.source_id) || [];
+    if (recentActivity.length > 99) recentActivity.pop();
+    const activity = { ...attachment, favIconUrl: tab.favIconUrl };
+
+    recentActivity.unshift(activity);
+    chrome.storage.local.set({ recent_activity: recentActivity });
+  });
 }
 
 async function attemptRecordInteraction(tab, session, force) {
@@ -168,7 +173,7 @@ async function attemptRecordInteraction(tab, session, force) {
     }
     return Promise.resolve();
   }
-
+  setChromeActivity(a, tab);
   return recordInteraction(
     {
       interaction_type: (_) => 'VIEWED',

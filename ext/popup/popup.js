@@ -27,6 +27,10 @@ const checkInTime = document.getElementById('checkInTime');
 const checkInButton = document.getElementById('checkInButton');
 const viewCheckInButton = document.getElementById('viewCheckInButton');
 const activityList = document.getElementById('activityList');
+const activityItemTemplate = document.getElementById('activityItemTemplate');
+const activityDropdown = document.getElementById('activityDropdown');
+const activityDropdownButton = document.getElementById('activityDropdownButton');
+const activityDropdownItems = document.getElementsByClassName('activityDropdownItem');
 const settingsLinks = document.getElementsByClassName('settingsLink');
 const hostnames = document.getElementsByClassName('hostname');
 const providerNames = document.getElementsByClassName('providerName');
@@ -172,38 +176,7 @@ const enabledCounts = document.getElementsByClassName('enabledCount');
     });
   });
 
-  chrome.runtime.sendMessage({ action: MESSAGE_TYPES.RECENT_ACTIVITY }, (response) => {
-    let interactionsByAttachmentId = {};
-    response.interactions?.forEach(
-      (interaction) =>
-        (interactionsByAttachmentId = {
-          ...interactionsByAttachmentId,
-          [interaction.attachment_id]: interaction,
-        })
-    );
-    if (response.attachments?.length > 0) {
-      activityList.innerText = '';
-      response.attachments.forEach((attachment) => {
-        const activityItem = document.createElement('a');
-        activityItem.classList.add('activityItem');
-        activityItem.classList.add('link');
-        activityItem.href = attachment.html_url;
-        activityItem.target = '_blank';
-        activityItem.innerHTML = `<div class="attachmentIconWrapper">
-        <img class="attachmentIcon" src="/images/providers/${attachment.provider}.png" />
-      </div>
-      <div class="attachmentData">
-        <div class="attachmentTitle">${attachment.name}</div>
-        <div class="attachmentSubtitle">${
-          interactionsByAttachmentId[attachment.id].interaction_type !== 'UNSET'
-            ? interactionsByAttachmentId[attachment.id].interaction_type.toLowerCase()
-            : 'Viewed'
-        }</div>
-      </div>`;
-        activityList.appendChild(activityItem);
-      });
-    }
-  });
+  chrome.runtime.sendMessage({ action: MESSAGE_TYPES.RECENT_ACTIVITY }, recentActivityHandler);
 
   chrome.runtime.sendMessage({ action: MESSAGE_TYPES.IS_AUTHENTICATED }, (r) => {
     if (!!r) {
@@ -263,6 +236,46 @@ const enabledCounts = document.getElementsByClassName('enabledCount');
           addToCheckInButton.textContent = 'Add to next Check-in';
           checkInSuccess.textContent = 'Item added to your next Check-in';
           break;
+      }
+    });
+  }
+
+  activityDropdown.addEventListener('click', () => {
+    if (activityDropdown.classList.contains('active')) activityDropdown.classList.remove('active');
+    else activityDropdown.classList.add('active');
+  });
+
+  for (const filterOption of activityDropdownItems) {
+    filterOption.addEventListener('click', () => {
+      activityDropdownButton.querySelector('#activityDropdownLabel').innerText =
+        filterOption.innerText;
+
+      if (filterOption.id === 'allActivityFilter') {
+        chrome.runtime.sendMessage(
+          { action: MESSAGE_TYPES.RECENT_ACTIVITY },
+          recentActivityHandler
+        );
+      } else {
+        chrome.storage.local.get(['filters', 'recent_activity'], (resp) => {
+          activityList.innerHTML = '';
+          const filters = resp.filters;
+          const recentActivity = resp.recent_activity;
+          if (recentActivity?.length > 0) {
+            recentActivity.forEach((attachment) => {
+              const activityItem = activityItemTemplate.content.cloneNode(true);
+              activityItem.querySelector('.activityItem.link').href = attachment.html_url;
+              activityItem.querySelector('.activityItem.link').target = '_blank';
+              activityItem.querySelector('.attachmentIcon').src = filters[attachment.provider]
+                ? `/images/providers/${attachment.provider}.png`
+                : attachment.favIconUrl;
+              activityItem.querySelector('.attachmentTitle').innerText = attachment.name;
+              activityItem.querySelector('.attachmentSubtitle').innerText = 'Viewed';
+              activityList.appendChild(activityItem);
+            });
+          } else {
+            activityList.innerText = 'No activity yet';
+          }
+        });
       }
     });
   }
@@ -331,4 +344,49 @@ function sendSnippet(type, tab, text) {
       checkInSuccess.classList.add('active');
     }
   );
+}
+function recentActivityHandler(response) {
+  chrome.storage.local.get(['filters', 'recent_activity'], (r) => {
+    const filters = r.filters;
+    const recentActivity = r.recent_activity;
+
+    let interactionsByAttachmentId = {};
+    response.interactions?.forEach(
+      (interaction) =>
+        (interactionsByAttachmentId = {
+          ...interactionsByAttachmentId,
+          [interaction.attachment_id]: interaction,
+        })
+    );
+    if (response.attachments.length > 0) {
+      activityList.innerText = '';
+      response.attachments.forEach((attachment) => {
+        let provider = attachment.provider;
+        if (provider.startsWith('chromeext_')) provider = provider.slice(10);
+
+        let attachmentIcon = '';
+        if (!filters[provider])
+          attachmentIcon = recentActivity?.find(
+            (activity) => activity.provider === attachment.provider
+          )?.favIconUrl;
+
+        const activityItem = activityItemTemplate.content.cloneNode(true);
+        activityItem.querySelector('.activityItem.link').href = attachment.html_url;
+        activityItem.querySelector('.activityItem.link').target = '_blank';
+        activityItem.querySelector('.attachmentIcon').src = attachmentIcon
+          ? attachmentIcon
+          : `/images/providers/${provider}.png`;
+        activityItem.querySelector('.attachmentTitle').innerText = attachment.name;
+        activityItem.querySelector('.attachmentTitle').innerText = attachment.name;
+        activityItem.querySelector('.attachmentSubtitle').innerText =
+          interactionsByAttachmentId[attachment.id].interaction_type !== 'UNSET'
+            ? interactionsByAttachmentId[attachment.id].interaction_type.toLowerCase()
+            : 'Viewed';
+
+        activityList.prepend(activityItem);
+      });
+    } else {
+      activityList.innerText = 'No activity yet';
+    }
+  });
 }
