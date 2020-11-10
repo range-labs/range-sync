@@ -185,6 +185,7 @@ const enabledCounts = document.getElementsByClassName('enabledCount');
       for (const e of authElements) {
         e.style.display = 'block';
       }
+      checkInText.focus();
     } else {
       // If the user is not authenticated with Range, show login button
       const unauthElements = document.getElementsByClassName('unauthenticated');
@@ -206,6 +207,7 @@ const enabledCounts = document.getElementsByClassName('enabledCount');
       if (!isActive) {
         a.classList.add('active');
       }
+      checkInText.focus();
     });
   }
 
@@ -218,6 +220,8 @@ const enabledCounts = document.getElementsByClassName('enabledCount');
       }
 
       t.classList.add('active');
+
+      checkInText.focus();
 
       switch (t.id) {
         case 'FUTURE':
