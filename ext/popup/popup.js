@@ -99,6 +99,13 @@ const enabledCounts = document.getElementsByClassName('enabledCount');
       sendSnippet(currentCheckInType(), tab, checkInText.value);
     };
 
+    checkInText.addEventListener('keydown', (e) => {
+      if (e.metaKey && e.keyCode === 13) {
+        sendInteraction(tab);
+        sendSnippet(currentCheckInType(), tab, checkInText.value);
+      }
+    });
+
     const tabUrl = new URL(tab.url);
     attachmentTitle.textContent = tab.title;
     attachmentSubtitle.textContent = `${tabUrl.hostname} - Viewed`;
