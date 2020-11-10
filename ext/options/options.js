@@ -88,7 +88,7 @@ const supportedCounts = document.getElementsByClassName('supportedCount');
       .catch(console.log);
 
     getSessions().then((sessions) => {
-      // if (sessions.length < 2) return;
+      if (sessions.length < 2) return;
 
       workspaceSelector.addEventListener('click', () => {
         workspaceSelector.classList.toggle('open');
@@ -101,7 +101,7 @@ const supportedCounts = document.getElementsByClassName('supportedCount');
         option.className = `workspaceOption ${isActive}`;
         option.textContent = s.org.name;
         option.addEventListener('click', () => {
-          setActiveOrg(e.id).then(() => {
+          setActiveOrg(s.org.slug).then(() => {
             location.reload();
           });
         });

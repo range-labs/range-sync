@@ -61,6 +61,7 @@ const enabledCounts = document.getElementsByClassName('enabledCount');
       checkInTime.classList.add('checkInYesterday');
       checkInTime.textContent = 'Share your first Check-in!';
       checkInButton.classList.add('active');
+      viewCheckInButton.classList.remove('active');
       checkInButton.href = `https://range.co/${resp.org_slug}/compose`;
     } else if (sameDay) {
       checkInLogo.src = '/images/check-in-today.png';

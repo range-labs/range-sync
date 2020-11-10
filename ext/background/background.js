@@ -88,12 +88,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
         .then((orgs) => Promise.all(orgs.map(getSession)))
         .then((sessions) => {
           currentSession().then((c) => {
-            for (const s of sessions) {
-              if (s.org.slug == c.org.slug) {
-                s.active = true;
-                break;
-              }
-            }
+            sessions.forEach((s) => (s.active = s.org.slug == c.org.slug));
             sendResponse(sessions);
           });
         })
@@ -103,9 +98,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       orgsFromCookies()
         .then((orgs) => Promise.all(orgs.map(getSession)))
         .then((sessions) => {
-          const s = sessions.filter((s) => {
-            s.org.slug == request.org_slug;
-          })[0];
+          const s = sessions.filter((s) => s.org.slug == request.org_slug)[0];
           setActiveOrg(s.org.slug).then(sendResponse);
         })
         .catch(handleErr);
