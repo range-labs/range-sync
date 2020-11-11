@@ -28,3 +28,9 @@ var SNIPPET_TYPES = {
   FUTURE: 2,
   BACKLOG: 4,
 };
+
+var USER_ACTIONS = {
+  FIRST_LOGIN: 'extension_first_login',
+  FIRST_INTERACTION: 'extension_first_interaction_recorded',
+  FIRST_SNIPPET: 'extension_first_snippet',
+};

@@ -23,10 +23,15 @@ function getSession(orgSlug) {
     return _sessionCache[orgSlug];
   }
 
-  return rangeLogin(orgSlug).then((resp) => {
-    _sessionCache[orgSlug] = resp;
-    return resp;
-  });
+  return rangeLogin(orgSlug)
+    .then((resp) => {
+      _sessionCache[orgSlug] = resp;
+      return resp;
+    })
+    .then((r) => {
+      reportFirstAction(USER_ACTIONS.FIRST_LOGIN, r);
+      return r;
+    });
 }
 
 // Returns a list of authenticated org slugs from Range cookies
@@ -63,6 +68,18 @@ function userStats(userId, params) {
 
 function rangeLogin(orgSlug) {
   return request(`/v1/auth/login/${orgSlug}`);
+}
+
+function reportAction(action, params) {
+  return post(
+    '/v1/actions',
+    {
+      name: action,
+      reportedAt: new Date(),
+      sessionId: Date.now() + '.' + hashCode(navigator.userAgent),
+    },
+    params
+  );
 }
 
 // Builds a request params object with the appropriate headers to make an
@@ -128,4 +145,16 @@ function request(path, params = {}) {
       }
       return resp;
     });
+}
+
+// Implementation of Java's String.hashCode. Not secure.
+function hashCode(str) {
+  let hash = 0;
+  if (!str || str.length === 0) return hash;
+  for (let i = 0; i < str.length; i++) {
+    let char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash;
+  }
+  return hash;
 }

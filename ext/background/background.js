@@ -52,7 +52,10 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     // Responses that require the current session
     case MESSAGE_TYPES.INTERACTION:
       currentSession().then((s) => {
-        attemptRecordInteraction(request.tab, s, true).then(sendResponse).catch(handleErr);
+        attemptRecordInteraction(request.tab, s, true)
+          .then(sendResponse)
+          .then(() => reportFirstAction(USER_ACTIONS.FIRST_INTERACTION, s))
+          .catch(handleErr);
       });
       break;
     case MESSAGE_TYPES.ADD_SNIPPET:
@@ -62,6 +65,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
         attemptRecordInteraction(request.tab, s, true)
           .then((r) => attemptAddSnippet(s, request.snippet_type, request.text, r.attachment_id))
           .then(sendResponse)
+          .then(() => reportFirstAction(USER_ACTIONS.FIRST_SNIPPET, s))
           .catch(handleErr);
       });
       break;
@@ -310,5 +314,26 @@ function currentSession() {
 function setActiveOrg(slug) {
   return new Promise((resolve) => {
     chrome.storage.local.set({ active_org: slug }, resolve);
+  });
+}
+
+// Only reports the first instance of a given action. Used in Intercom for targeting how far
+// someone has gotten into extension usage.
+function reportFirstAction(action, session) {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get(['reported_actions'], (resp) => {
+      const reportedActions = resp.reported_actions || {};
+      if (reportedActions[action]) {
+        resolve();
+        return;
+      }
+
+      reportAction(action, authorize(session))
+        .then((r) => {
+          reportedActions[action] = true;
+          chrome.storage.sync.set({ reported_actions: reportedActions }, resolve);
+        })
+        .catch(console.log);
+    });
   });
 }
