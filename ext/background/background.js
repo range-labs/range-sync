@@ -4,9 +4,6 @@ const DEFAULT_TYPE = 'LINK';
 const DEFAULT_SUBTYPE = 'NONE';
 const ATTACHMENT_ORIGIN = 1;
 
-// Initialize the sessions
-currentSession();
-
 chrome.tabs.onUpdated.addListener((_tabId, _info, tab) => {
   // no-op unless done loading
   if (!tab.status || !tab.status.localeCompare('complete') == 0) return;
@@ -41,14 +38,14 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   switch (request.action) {
     // Responses that don't need to use the session
     case MESSAGE_TYPES.IS_AUTHENTICATED:
-      sendResponse(isAuthenticated());
-      return;
+      isAuthenticated().then(sendResponse);
+      break;
     case MESSAGE_TYPES.INTEGRATION_STATUS:
       tabHasFilter(request.tab).then(sendResponse).catch(handleErr);
-      return true;
+      break;
     case MESSAGE_TYPES.RELEVANT_HISTORY:
       searchRelevantHistory().then(sendResponse).catch(handleErr);
-      return true;
+      break;
     // Responses that require the current session
     case MESSAGE_TYPES.INTERACTION:
       currentSession().then((s) => {
@@ -329,7 +326,7 @@ function reportFirstAction(action, session) {
       }
 
       reportAction(action, authorize(session))
-        .then((r) => {
+        .then(() => {
           reportedActions[action] = true;
           chrome.storage.sync.set({ reported_actions: reportedActions }, resolve);
         })

@@ -2,9 +2,18 @@
 
 const manifest = chrome.runtime.getManifest();
 
+// 30 seconds
+const sessionCheckInterval = 30 * 1000;
+// 30 minutes
+const sessionExpiryThreshold = 30 * 60 * 1000;
+
 let _sessionCache = {};
 
-function isAuthenticated() {
+setInterval(refreshSessions, sessionCheckInterval);
+
+async function isAuthenticated() {
+  if (Object.keys(_sessionCache).length > 0) return true;
+  await refreshSessions();
   return Object.keys(_sessionCache).length > 0;
 }
 
@@ -16,6 +25,29 @@ function sessionUserId(s) {
   return s.user.user_id;
 }
 
+async function refreshSessions() {
+  // Check for new Range workspace cookies
+  const cookieSlugs = await orgsFromCookies();
+  for (const s of cookieSlugs) {
+    if (!_sessionCache[s]) _sessionCache[s] = { from_cookie: true };
+  }
+
+  for (const slug in _sessionCache) {
+    // Check for removed Range workspace cookies
+    if (!cookieSlugs.includes(slug)) {
+      delete _sessionCache[slug];
+      continue;
+    }
+
+    const session = _sessionCache[slug];
+    // If session newly initialized or if close to expiring, refresh session
+    if (session.from_cookie || session.session_expires_at - Date.now() < sessionExpiryThreshold) {
+      delete _sessionCache[slug];
+      _sessionCache[slug] = await getSession(slug);
+    }
+  }
+}
+
 // Returns session information from cache. If it doesn't exist then reaches out
 // to Range for authentication.
 function getSession(orgSlug) {
@@ -23,15 +55,11 @@ function getSession(orgSlug) {
     return _sessionCache[orgSlug];
   }
 
-  return rangeLogin(orgSlug)
-    .then((resp) => {
-      _sessionCache[orgSlug] = resp;
-      return resp;
-    })
-    .then((r) => {
-      reportFirstAction(USER_ACTIONS.FIRST_LOGIN, r);
-      return r;
-    });
+  return rangeLogin(orgSlug).then((resp) => {
+    _sessionCache[orgSlug] = resp;
+    reportFirstAction(USER_ACTIONS.FIRST_LOGIN, resp);
+    return resp;
+  });
 }
 
 // Returns a list of authenticated org slugs from Range cookies
@@ -133,13 +161,13 @@ function request(path, params = {}) {
       return resp.json();
     })
     .catch((e) => {
-      console.warn(`Network error, status: ${statusCode},  ${statusText} (${String(e)})`);
+      console.log(`Network error, status: ${statusCode},  ${statusText} (${String(e)})`);
     })
     .then((resp) => {
       if (statusCode !== 200) {
-        if (resp.code === 16 || resp.code === 7) {
-          console.warn('no longer authenticated, clearing sessions...');
-          _sessionCache = {};
+        if (resp?.code === 16 || resp?.code === 7) {
+          console.log('no longer authenticated, refreshing sessions...');
+          refreshSessions();
         }
         throw resp;
       }
