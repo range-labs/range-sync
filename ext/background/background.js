@@ -298,7 +298,7 @@ function currentSession() {
       .then((sessions) => {
         chrome.storage.local.get(['active_org'], (resp) => {
           const slug = resp.active_org || sessions[0].org.slug;
-          const session = sessions.find((s) => s.org.slug == slug);
+          const session = sessions.find((s) => s.org.slug == slug) || sessions[0];
           setActiveOrg(session.org.slug).then(() => {
             resolve(session);
           });
