@@ -19,12 +19,9 @@ chrome.tabs.onUpdated.addListener((_tabId, _info, tab) => {
   // no-op if the title has not actually loaded yet
   if (tab.url.localeCompare(tab.title) == 0) return;
 
-  orgsFromCookies()
-    .then((orgs) => Promise.all(orgs.map(getSession)))
-    .then((sessions) => {
-      for (const s of sessions) {
-        attemptRecordInteraction(tab, s, false);
-      }
+  currentSession()
+    .then((s) => {
+      attemptRecordInteraction(tab, s, false);
     })
     .catch(console.log);
 });
@@ -89,8 +86,10 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
         .then((orgs) => Promise.all(orgs.map(getSession)))
         .then((sessions) => {
           currentSession().then((c) => {
-            sessions.forEach((s) => (s.active = s.org.slug == c.org.slug));
-            sendResponse(sessions);
+            sessions.forEach((s) => {
+              if (s) s.active = s?.org.slug == c.org.slug;
+            });
+            sendResponse(sessions.filter((s) => s));
           });
         })
         .catch(handleErr);
@@ -99,7 +98,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       orgsFromCookies()
         .then((orgs) => Promise.all(orgs.map(getSession)))
         .then((sessions) => {
-          const s = sessions.filter((s) => s.org.slug == request.org_slug)[0];
+          const s = sessions.filter((s) => s && s.org.slug == request.org_slug)[0];
           setActiveOrg(s.org.slug).then(sendResponse);
         })
         .catch(handleErr);
@@ -298,7 +297,7 @@ function currentSession() {
       .then((sessions) => {
         chrome.storage.local.get(['active_org'], (resp) => {
           const slug = resp.active_org || sessions[0].org.slug;
-          const session = sessions.find((s) => s.org.slug == slug) || sessions[0];
+          const session = sessions.find((s) => s?.org.slug == slug) || sessions[0];
           setActiveOrg(session.org.slug).then(() => {
             resolve(session);
           });
