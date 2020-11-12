@@ -25,7 +25,9 @@ function sessionUserId(s) {
   return s.user.user_id;
 }
 
-async function refreshSessions() {
+async function refreshSessions(force) {
+  if (force) _sessionCache = {};
+
   // Check for new Range workspace cookies
   const cookieSlugs = await orgsFromCookies();
   for (const s of cookieSlugs) {
@@ -40,8 +42,11 @@ async function refreshSessions() {
     }
 
     const session = _sessionCache[slug];
-    // If session newly initialized or if close to expiring, refresh session
-    if (session.from_cookie || session.session_expires_at - Date.now() < sessionExpiryThreshold) {
+    // If session newly initialized or close to expiring, refresh session
+    if (
+      session.from_cookie ||
+      moment(session.session_expires_at) - moment() < sessionExpiryThreshold
+    ) {
       delete _sessionCache[slug];
       _sessionCache[slug] = await getSession(slug);
     }
@@ -167,7 +172,7 @@ function request(path, params = {}) {
       if (statusCode !== 200) {
         if (resp?.code === 16 || resp?.code === 7) {
           console.log('no longer authenticated, refreshing sessions...');
-          refreshSessions();
+          refreshSessions(true);
         }
         throw resp;
       }
