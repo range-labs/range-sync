@@ -21,7 +21,9 @@ chrome.tabs.onUpdated.addListener((_tabId, _info, tab) => {
 
   currentSession()
     .then((s) => {
-      attemptRecordInteraction(tab, s, false);
+      attemptRecordInteraction(tab, s, false).then(() => {
+        reportFirstAction(USER_ACTIONS.FIRST_INTERACTION, s);
+      });
     })
     .catch(console.log);
 });
@@ -47,8 +49,10 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     case MESSAGE_TYPES.INTERACTION:
       currentSession().then((s) => {
         attemptRecordInteraction(request.tab, s, true)
-          .then(sendResponse)
-          .then(() => reportFirstAction(USER_ACTIONS.FIRST_INTERACTION, s))
+          .then(() => {
+            reportFirstAction(USER_ACTIONS.FIRST_INTERACTION, s);
+            sendResponse();
+          })
           .catch(handleErr);
       });
       break;
@@ -58,8 +62,10 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       currentSession().then((s) => {
         attemptRecordInteraction(request.tab, s, true)
           .then((r) => attemptAddSnippet(s, request.snippet_type, request.text, r.attachment_id))
-          .then(sendResponse)
-          .then(() => reportFirstAction(USER_ACTIONS.FIRST_SNIPPET, s))
+          .then(() => {
+            reportFirstAction(USER_ACTIONS.FIRST_SNIPPET, s);
+            sendResponse();
+          })
           .catch(handleErr);
       });
       break;
@@ -316,17 +322,18 @@ function setActiveOrg(slug) {
 // Only reports the first instance of a given action. Used in Intercom for targeting how far
 // someone has gotten into extension usage.
 function reportFirstAction(action, session) {
+  const actionSlug = `${action}.${session.user.user_id}`;
   return new Promise((resolve) => {
     chrome.storage.sync.get(['reported_actions'], (resp) => {
       const reportedActions = resp.reported_actions || {};
-      if (reportedActions[action]) {
+      if (reportedActions[actionSlug]) {
         resolve();
         return;
       }
 
       reportAction(action, authorize(session))
         .then(() => {
-          reportedActions[action] = true;
+          reportedActions[actionSlug] = true;
           chrome.storage.sync.set({ reported_actions: reportedActions }, resolve);
         })
         .catch(console.log);

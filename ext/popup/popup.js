@@ -357,6 +357,7 @@ function sendSnippet(type, tab, text) {
     }
   );
 }
+
 function recentActivityHandler(response) {
   chrome.storage.local.get(['filters', 'recent_activity'], (r) => {
     const filters = r.filters;
