@@ -1,7 +1,7 @@
 {
-  "name": "[STAGING] Range Sync",
+  "name": "[STAGING] Range Sync for Chrome",
   "version": "2.0.0",
-  "description": "[STAGING] The Range Chrome extension, rearchitected to be lighter-weight and flexible",
+  "description": "[STAGING] Capture work from your browser based tools and share progress with your team",
   "permissions": ["cookies", "history", "storage", "tabs", "https://*.habitat.team/*"],
   "options_page": "options/options.html",
   "background": {

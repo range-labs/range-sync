@@ -1,7 +1,5 @@
 'use strict';
 
-// This is currently disabled. Reenable it by adding the file to
-// background.scripts in manifest.json
 registerFilter({
   url_regex: [/github\.com\/.+/],
   provider: 'github',

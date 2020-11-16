@@ -1,7 +1,7 @@
 {
-  "name": "Range Sync",
+  "name": "Range Sync for Chrome",
   "version": "2.0.0",
-  "description": "The Range Chrome extension, rearchitected to be lighter-weight and flexible",
+  "description": "Capture work from your browser based tools and share progress with your team",
   "permissions": ["cookies", "history", "storage", "tabs", "https://*.range.co/*"],
   "options_page": "options/options.html",
   "background": {
