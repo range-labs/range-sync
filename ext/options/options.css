@@ -1,0 +1,307 @@
+body {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+a {
+  white-space: nowrap;
+}
+
+hr {
+  border: 1px solid #d1d7db;
+  border-bottom: 0;
+  margin: 0;
+}
+
+.topbar {
+  display: flex;
+  flex-direction: row;
+  font-size: 14px;
+  font-style: normal;
+  padding: 25px;
+}
+
+.logoContainer {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-right: 50px;
+}
+
+.logoContainer > div {
+  display: flex;
+  font-weight: 800;
+}
+
+.logo {
+  height: auto;
+  width: 70px;
+}
+
+.titleContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.subtext {
+  font-weight: 300;
+}
+
+.topbar .subtext {
+  font-size: 16px;
+}
+
+#workspaceSelector {
+  align-self: center;
+  cursor: pointer;
+  display: none;
+  flex-direction: column;
+  margin-left: auto;
+}
+
+#workspaceSelector.active {
+  display: flex;
+}
+
+#workspaceButton {
+  margin: 0;
+  outline: none;
+}
+
+#workspaceIndicator {
+  margin-left: 10px;
+  transition: transform ease-in-out 100ms;
+}
+
+#workspaceSelector.open #workspaceIndicator {
+  transform: rotate(180deg);
+}
+
+#workspaceContent {
+  display: none;
+  flex-direction: column;
+}
+
+#workspaceSelector.open #workspaceContent {
+  display: flex;
+}
+
+#workspaceList {
+  background: #c7e2ea;
+  position: absolute;
+  width: 169px;
+}
+
+.workspaceOption {
+  color: #495a63;
+  padding: 8px;
+}
+
+.workspaceOption.active {
+  font-weight: 700;
+}
+
+.settingsContainer {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  padding: 50px 20% 50px 145px;
+}
+
+.containerIcon {
+  margin-bottom: 32px;
+}
+
+.syncContainer {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.providerContainer {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.providerContainer .subtext {
+  margin-bottom: 24px;
+}
+
+.providerContent {
+  display: flex;
+  flex-direction: row;
+}
+
+.toggleContent {
+  width: 60%;
+  max-width: 500px;
+}
+
+.toggleContainer {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  user-select: none;
+}
+
+.toggleContainer:hover {
+  background: #f8f8f8;
+}
+
+.provider {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.providerIcon {
+  height: auto;
+  margin-right: 14px;
+  width: 26px;
+}
+
+.providerName {
+  font-weight: 800;
+}
+
+.switchContainer {
+  display: flex;
+  flex-direction: row;
+  margin-left: auto;
+}
+
+.switch {
+  display: inline-block;
+  height: 20px;
+  position: relative;
+  width: 40px;
+}
+
+.switch input {
+  height: 0;
+  opacity: 0;
+  width: 0;
+}
+
+.slider {
+  background: #efefef;
+  border-radius: 34px;
+  bottom: 0;
+  box-shadow: inset 0px 2px 4px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: 0.2s;
+}
+
+.slider:before {
+  background: #657d8a;
+  border-radius: 50%;
+  bottom: 2px;
+  content: '';
+  height: 16px;
+  left: 2px;
+  position: absolute;
+  transition: 0.2s;
+  width: 16px;
+}
+
+input:checked + .slider:before {
+  background: #5d9c52;
+  transform: translateX(20px);
+}
+
+.switchDescription {
+  color: #b3bec5;
+  margin-left: 10px;
+  width: 64px;
+}
+
+.switchDescription.active {
+  color: #5d9c52;
+}
+
+.subtext {
+  color: #495a63;
+  font-size: 14px;
+}
+
+a {
+  cursor: pointer;
+  text-decoration-line: underline;
+}
+
+.syncExplanation {
+  align-self: start;
+  border-left: 3px solid #b9c6cc;
+  color: #495a63;
+  display: flex;
+  flex-direction: column;
+  margin-left: 15%;
+  max-width: 250px;
+  padding-left: 16px;
+  width: 30%;
+}
+
+.syncExplanation .title {
+  font-size: 14px;
+}
+
+.syncExplanation .subtext {
+  text-decoration: none;
+  margin-bottom: 0;
+}
+
+#showIrrelevant.inactive {
+  display: none;
+}
+
+#irrelevantContent {
+  margin-top: 16px;
+}
+
+#irrelevantContent.inactive {
+  display: none;
+}
+
+#disableAll {
+  margin-top: 16px;
+  margin-bottom: 32px;
+}
+
+.buttonContainer {
+  margin-top: 24px;
+  margin-bottom: 48px;
+}
+
+.largeButton {
+  background: #00bfd8;
+  border: 0;
+  border-radius: 3px;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  margin-right: 16px;
+  padding: 10px;
+  text-decoration: none;
+}
+
+.largeButton.secondary {
+  background: #cfe6ed;
+  border: 1px solid #aecfda;
+  color: #495a63;
+  font-weight: 400;
+}

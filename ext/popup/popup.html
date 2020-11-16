@@ -1,36 +1,139 @@
 <!DOCTYPE html>
 <html>
-  <head></head>
+
+<head>
   <link rel="stylesheet" href="popup.css" />
-  <body>
-    <div id="canvas" class="ok">
-      <div class="topbar">
-        <img src="/assets/images/arch.png" class="topbarLogo" />
-        <div class="topbarInfo">Recent suggestions:</div>
-      </div>
-      <div id="main">
-        <div id="alert"></div>
-      </div>
-      <div class="bottombar">
-        <div class="bottombarInfo">Syncing to...</div>
-        <div id="accounts"></div>
-      </div>
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="topbarLogoContainer">
+      <img class="topbarLogo" src="/images/range.svg" />
     </div>
-    <template id="account-template">
-      <div class="account">
-        <img class="account__photo" src="" />
-        <span class="account__org slotOrgName"></span>
+    <div class="topbarTitle">Range</div>
+  </div>
+  <div class="unauthenticated">
+    <p>
+      Welcome to Range Chrome Sync.
+      <a href="https://chrome.google.com/webstore/detail/range-for-chrome/mbnkiifdpdcimfcdhmioinhcbjngjebo"
+        target="_blank">Learn more</a>.
+    </p>
+    <a class="largeButton" href="https://range.co/login" target="_blank">Sign in to Range</a>
+  </div>
+  <div class="authenticated">
+    <div id="checkInStatus">
+      <img id="checkInLogo" src="/images/check-in-today.png" />
+      <div id="checkInTime" class="checkInToday">Checked in today</div>
+      <a id="checkInButton" href="https://range.co/_/compose" target="_blank">Check-in</a>
+      <a id="viewCheckInButton" class="active" target="_blank">View Check-in</a>
+    </div>
+    <button class="accordion active">
+      <img class="indicator" src="/images/accordion-indicator.svg" />
+      <div class="title">Add page to Check-in</div>
+    </button>
+    <div class="panel">
+      <div class="active" id="checkInContainer">
+        <div id="checkInPicker">
+          Add to:
+          <span class="checkInType active" id="PAST">What happened</span> |
+          <span class="checkInType" id="FUTURE">Plan</span> |
+          <span class="checkInType" id="BACKLOG">Backlog</span>
+        </div>
+        <textarea id="checkInText" type="text" placeholder="What progress did you make?"></textarea>
+        <div id="checkInAttachment">
+          <div id="attachmentIconWrapper" class="attachmentIconWrapper">
+            <img id="attachmentIcon" class="attachmentIcon" src="/images/range.svg" />
+          </div>
+          <div id="attachmentData" class="attachmentData">
+            <div id="attachmentTitle" class="attachmentTitle">List of fallacies - Wikipedia</div>
+            <div id="attachmentSubtitle" class="attachmentSubtitle">wikipedia.com - Viewed</div>
+          </div>
+        </div>
+        <button class="largeButton" id="addToCheckInButton">Add to next Check-in</button>
       </div>
-    </template>
-    <template id="attachment-template">
-      <div class="attachment">
-        <div class="attachment__name slotName"></div>
-        <div class="attachment__meta">
-          <span class="slotProvider"></span>
-          <span class="slotTime"></span>
+      <div id="checkInSuccess">Item added to your next Check-in</div>
+    </div>
+    <button class="accordion" id="activity">
+      <img class="indicator" src="/images/accordion-indicator.svg" />
+      <div class="title">Activity</div>
+    </button>
+    <div class="panel">
+      <div id="activityDropdown">
+        <button id="activityDropdownButton">
+          <span id="activityDropdownLabel">All activity</span><svg class="indicator" height="24" viewBox="0 0 24 24"
+            width="24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" />
+            <path d="M0-.75h24v24H0z" fill="none" />
+          </svg>
+        </button>
+        <div class="activityDropdownContent">
+          <div class="activityDropdownItem" id="allActivityFilter">All activity</div>
+          <div class="activityDropdownItem" id="chromeActivityFilter">Chrome activity</div>
         </div>
       </div>
-    </template>
-    <script type="text/javascript" src="popup.js"></script>
-  </body>
+      <div id="activityList">
+        Loading...
+        <template id="activityItemTemplate">
+          <a class="activityItem link">
+            <div class="attachmentIconWrapper">
+              <img class="attachmentIcon" />
+            </div>
+            <div class="attachmentData">
+              <div class="attachmentTitle"></div>
+              <div class="attachmentSubtitle"></div>
+            </div>
+          </a>
+        </template>
+      </div>
+    </div>
+    <button class="accordion" id="settings">
+      <img class="indicator" src="/images/accordion-indicator.svg" />
+      <div class="title">Sync settings</div>
+      <div class="subtitle fade">
+        <span class="providerName"></span> - <span id="integrationIndicator"></span>
+      </div>
+    </button>
+    <div class="panel">
+      <div id="settingsContainer">
+        <span><b class="providerName"></b><span class="fade"> - <span class="hostname"></span></span></span>
+        <span class="integrationStatus" id="integrationEnabled">
+          Chrome Sync:
+          <span class="active" id="integrationOn">ON</span>
+          <span id="integrationOff">OFF</span> -
+          <a class="active" id="disableIntegrationLink">Turn off</a>
+          <a id="enableIntegrationLink">Turn on</a>
+        </span>
+        <div class="integrationStatus" id="integrationDisabled">
+          <div>
+            Import pages you view in <span class="providerName"></span> to Range, so that you can
+            easily add them to your Check-in. You choose what to share.
+            <a class="settingsLink">Learn more</a>
+          </div>
+          <a class="largeButton integrationButton" id="enableIntegrationButton">
+            Sync activity from <span class="providerName"></span>
+          </a>
+        </div>
+        <div class="integrationStatus" id="integrationNotSupported">
+          <div>
+            Range does not yet support syncing activity from <span class="hostname"></span>. But
+            you can request a new integration easily.
+          </div>
+          <a class="largeButton integrationButton" id="requestIntegrationButton"
+            href="https://forms.gle/nWrVyRF7tXKTYXWC9" target="_blank">Request Integration</a>
+        </div>
+        <div id="settingsOther">
+          <hr />
+          <b>Other apps</b>
+          <span>Range Sync is currently enabled for <span class="enabledCount"></span> apps.</span>
+          <a class="settingsLink">Settings</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="deps/macos-fix.js"></script>
+  <script src="deps/moment.js"></script>
+  <script src="popup.js"></script>
+</body>
+
 </html>

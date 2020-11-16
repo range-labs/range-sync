@@ -1,133 +1,389 @@
 body {
-  background-color: #fff;
-  color: #555;
+  color: #222222;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  margin: 0px !important;
   width: 350px;
-  margin: 0px;
-  padding: 0px;
 }
 
-#canvas {
-  display: flex;
-  flex-direction: column;
+a {
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+hr {
+  border: 1px solid #d1d7db;
+  border-bottom: 0;
+  margin: 0;
 }
 
 .topbar {
-  position: relative;
-  background-color: #f6f6f6;
-  box-shadow: 0px 1px 5px #ddd;
-  height: 45px;
+  background: #596e79;
+  color: #ffffff;
+  display: flex;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: bold;
+  line-height: 24px;
+  padding: 10px 10px 5px 10px;
 }
+
+.topbarLogoContainer {
+  margin-right: 15px;
+}
+
 .topbarLogo {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 35px;
-  height: 35px;
-  margin: 4px;
-  border: 1px solid #eee;
-  border-radius: 100px;
+  height: 20px;
+  width: auto;
 }
-.topbarInfo {
+
+.accordion {
+  align-items: center;
+  background: #657d8a;
+  border: none;
+  box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  display: flex;
+  justify-content: flex-start;
+  outline: none;
+  padding: 6px;
+  width: 100%;
+}
+
+.indicator {
+  margin-right: 15px;
+  transition: transform ease-in-out 100ms;
+}
+
+.accordion.active > .indicator {
+  transform: rotate(180deg);
+}
+
+.accordion.active + .panel {
+  display: flex;
+}
+
+.fade {
+  opacity: 50%;
+}
+
+.accordion > .subtitle {
+  margin-left: auto;
+}
+
+.panel {
   display: none;
-  position: absolute;
-  bottom: 5px;
-  font-style: italic;
-  padding-left: 12px;
+  flex-direction: column;
+  padding: 12px;
 }
-.ok .topbarInfo {
+
+.unauthenticated {
+  display: none;
+  flex-direction: column;
+  justify-content: left;
+  padding: 10px 0px 10px 15px;
+}
+
+.largeButton {
+  background: #00bfd8;
+  border: 0;
+  border-radius: 3px;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  margin-right: auto;
+  padding: 10px;
+  text-decoration: none;
+}
+
+.authenticated {
+  display: none;
+}
+
+#checkInContainer {
+  display: none;
+}
+
+#checkInContainer.active {
   display: block;
 }
 
-#main {
-  height: 250px;
-  overflow: auto;
-}
-#alert {
-  display: none;
-  padding: 5px;
-  margin: 10px;
-  text-align: center;
+#checkInSuccess {
+  background-color: #cee4cb;
   border-radius: 3px;
-  background-color: #eee;
-  border: 1px solid #ddd;
+  color: #508b46;
+  display: none;
+  padding: 9px;
 }
-.alert--link {
+
+#checkInSuccess.active {
+  display: block;
+}
+
+#checkInStatus {
+  align-items: center;
+  background: #657d8a;
+  color: #ffffff;
+  display: flex;
+  flex-direction: row;
+}
+
+#checkInLogo {
+  align-items: center;
+  height: auto;
+  margin-left: 10px;
+  margin-right: 12px;
+  width: 16px;
+}
+
+#checkInTime {
+  color: #ffffff;
+}
+
+#checkInTime.checkInToday {
+  opacity: 50%;
+}
+
+#checkInTime.checkInLong {
+  color: #ffea00;
+}
+
+#checkInButton {
+  background: #009aaa;
+  color: #ffffff;
+  display: none;
+  margin-left: auto;
+  padding: 9px;
+  text-decoration: none;
+}
+
+#checkInButton.active {
+  display: flex;
+}
+
+#viewCheckInButton {
+  color: #ffffff;
+  display: none;
+  margin-left: auto;
+  opacity: 50%;
+  padding: 9px;
+  text-decoration-line: underline;
+}
+
+#viewCheckInButton.active {
+  display: flex;
+}
+
+#checkInPicker {
+  flex-direction: row;
+  margin-bottom: 15px;
+}
+
+.checkInType {
+  color: #00bfd8;
   cursor: pointer;
+  font-weight: 700;
+  padding: 0 0.5em;
+  user-select: none;
+}
+
+.checkInType.active {
+  color: #000000;
+}
+
+#checkInText {
+  border: 1px solid #d1d7db;
+  border-radius: 3px;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  height: 90px;
+  margin-bottom: 15px;
+  padding: 8px;
+  resize: vertical;
+  width: 310px;
+}
+
+::placeholder {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  opacity: 50%;
+}
+
+#checkInAttachment {
+  align-items: stretch;
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 15px;
+  width: 318px;
+}
+
+.attachmentIconWrapper {
+  align-items: center;
+  background-color: #d1d7db;
+  border-radius: 3px;
+  display: flex;
+  justify-content: center;
+  margin-right: 12px;
+  padding: 4px;
+  width: 32px;
+}
+
+.attachmentIcon {
+  height: 24px;
+  width: 24px;
+}
+
+.attachmentData {
+  flex-direction: column;
+}
+
+.attachmentTitle {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.attachmentSubtitle {
+  font-size: 12px;
+  color: #999999;
+}
+
+#activityList {
+  display: flex;
+  max-height: 240px;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+#activityDropdown {
+  display: flex;
+  flex-direction: column;
+  margin: 5px 10px 15px 0;
+  position: relative;
+}
+.activityDropdownContent {
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
+  display: none;
+  text-align: start;
+}
+.activityDropdownItem {
+  align-items: center;
+  display: flex;
+  padding: 5px 0 5px 15px;
+}
+.activityDropdownItem:hover {
+  background-color: #b9c6cc;
+}
+#activityDropdownButton {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #b9c6cc;
+  border-radius: 3px;
+  display: flex;
+  font-size: 14px;
+  font-weight: 700;
+  justify-content: space-between;
+  outline: none;
+  padding: 5px 10px;
+}
+
+#activityDropdownButton > .indicator {
+  fill: black;
+  margin-right: 0;
+}
+
+#activityDropdown.active .activityDropdownContent {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 36px;
+  width: 100%;
+}
+#activityDropdown.active .indicator {
+  transform: rotate(180deg);
+}
+
+.activityItem {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.activityItem .attachmentIconWrapper {
+  background-color: transparent;
+  width: auto;
+}
+.activityItem .attachmentSubtitle {
+  text-transform: capitalize;
+}
+.activityItem .attachmentTitle {
+  font-weight: normal;
+}
+.link {
+  text-decoration: inherit;
+  color: inherit;
+  white-space: inherit;
+}
+
+#settingsContainer {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.6;
+}
+
+#settingsContainer > * {
+  margin-bottom: 8px;
+}
+
+#settingsContainer a {
   text-decoration: underline;
 }
-.info #alert {
-  display: block;
-  font-style: italic;
-}
-.warn #alert {
-  display: block;
-  background-color: #fdd04d;
-  border: 1px solid #ffa924;
-}
-.error #alert {
-  display: block;
-  font-weight: bold;
-  background-color: #fd5f4d;
-  border: 1px solid #fd5f4d;
-  color: #fff;
-}
 
-.attachment {
-  cursor: pointer;
-  padding: 9px 12px;
-  font-size: 14px;
-  border-bottom: 1px solid #f6f6f6;
-}
-.attachment:hover {
-  background-color: rgba(100, 100, 100, 0.1);
-  color: #333;
-}
-.attachment__name {
-}
-.attachment__meta {
-  margin-top: 3px;
-  font-size: 11px;
-  color: #aaa;
-}
-.attachment__meta > span + span::before {
-  content: ' - ';
-  margin: 3px 0;
-}
-
-.bottombar {
-  background-color: #f6f6f6;
-  box-shadow: 0px -2px 5px #ddd;
-  padding-top: 6px;
-}
-.bottombarInfo {
-  font-style: italic;
-  padding-left: 12px;
-}
-.error .bottombarInfo,
-.warn .bottombarInfo {
+.integrationStatus {
   display: none;
 }
 
-#accounts {
+.integrationStatus.active {
+  display: block;
+}
+
+#integrationOn {
+  color: #5d9c52;
+  display: none;
+}
+
+#enableIntegrationLink,
+#disableIntegrationLink {
+  display: none;
+  user-select: none;
+}
+
+#integrationOff {
+  display: none;
+}
+
+#enableIntegrationLink.active,
+#disableIntegrationLink.active,
+#integrationOn.active,
+#integrationOff.active {
+  display: inline-block;
+}
+
+#integrationDisabled *,
+#integrationNotSupported * {
+  margin-bottom: 14px;
+}
+
+#settingsContainer a.integrationButton {
+  text-decoration: none;
+}
+
+#settingsOther {
   display: flex;
-  height: 38px;
+  flex-direction: column;
+  margin-top: 12px;
 }
-.account {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 6px 10px;
-  font-size: 12px;
-  line-height: 20px;
-  cursor: pointer;
-}
-.account:hover {
-  background-color: #eee;
-}
-.account__photo {
-  width: 24px;
-  height: 24px;
-  margin-right: 6px;
-  border-radius: 100px;
-  border: 1px solid #ddd;
+
+#settingsOther hr {
+  margin-bottom: 8px;
 }

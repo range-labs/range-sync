@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="shortcut icon" type="image/x-icon" href="../images/favicons/browser-action16.png" />
+  <link rel="stylesheet" href="options.css" />
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="logoContainer">
+      <a href="https://range.co"><img class="logo" src="../images/range.png" /></a>
+    </div>
+    <div class="titleContainer">
+      <div class="title">
+        <b>Range Sync for Chrome</b> - Settings
+      </div>
+      <div class="subtext">Easily import work to your Range Check-in from anywhere on the web</div>
+    </div>
+    <div id="workspaceSelector">
+      <button class="largeButton" id="workspaceButton">
+        <span>Sync to workspace</span><img id="workspaceIndicator" src="/images/accordion-indicator.png" />
+      </button>
+      <div id="workspaceContent">
+        <div id="workspaceList"></div>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <div class="settingsContainer">
+    <img class="containerIcon" src="../images/sync-list.svg" />
+    <div class="syncContainer">
+      <div class="providerContainer" id="activeProviders">
+        <div class="titleContainer">
+          <div class="title">
+            <b>Sync activity from your apps</b>
+          </div>
+          <div class="subtext">
+            Showing apps visited in the last 90 days, and apps with sync enabled
+          </div>
+        </div>
+        <div class="providerContent">
+          <div class="toggleContent" id="relevantToggles">
+            <hr>
+            <template id="toggleTemplate">
+              <div class="toggleContainer">
+                <div class="provider">
+                  <img class="providerIcon" src="">
+                  <div class="providerName"></div>
+                  <div class="switchContainer">
+                    <label class="switch">
+                      <input class="toggle" type="checkbox">
+                      <span class="slider"></span>
+                    </label>
+                    <div class="switchDescription"></div>
+                  </div>
+                </div>
+              </div>
+              <hr>
+            </template>
+          </div>
+          <div class="syncExplanation">
+            <div class="title">
+              <b>How sync works</b>
+            </div>
+            <div class="subtext">When you turn on sync for an app, items you
+              visit in that app will appear in Range as you write your Check-in.
+              You can then choose to share items from apps as part of a Check-in
+              with your team.
+              <span id="learnMore">
+                <a href="https://www.range.co/product/integrations" target="_blank">Learn more</a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="buttonContainer">
+      <button class="largeButton" id="enableVisited">Sync all above apps</button>
+      <button class="largeButton secondary" id="disableAll">Disable sync for all apps</button>
+    </div>
+    <img class="containerIcon" src="../images/supported-list.svg" />
+    <div class="syncContainer">
+      <div class="providerContainer" id="activeProviders">
+        <div class="titleContainer">
+          <div class="title">
+            <b><span class="supportedCount"></span> other supported apps</b>
+          </div>
+          <a class="subtext active" id="showIrrelevant">Show more apps</a>
+        </div>
+        <div class="providerContent inactive" id="irrelevantContent">
+          <div class="toggleContent" id="irrelevantToggles">
+            <hr>
+          </div>
+          <div class="syncExplanation">
+            <div class="subtext">If you don't find the app that you are looking for, be sure to
+              <span id="learnMore">
+                <a href="https://forms.gle/nWrVyRF7tXKTYXWC9" target="_blank">request it</a>.
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="options.js"></script>
+</body>
+
+</html>
