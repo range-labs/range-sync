@@ -44,7 +44,7 @@ registerFilter({
         let dedupeUrl = decodeURI(url.href);
         const rePath1 = /resid=([a-zA-Z0-9!]+)/;
         const rePath2 = /FormId=([a-zA-Z0-9]+)/; //for Microsoft Forms
-        let match = reMatch(dedupeUrl, rePath1, 1);
+        const match = reMatch(dedupeUrl, rePath1, 1);
         return !!match ? match : reMatch(dedupeUrl, rePath2, 1);
       },
       // i.e. 'Title of Doc - Microsoft Word Online' -> 'Title of Doc'
