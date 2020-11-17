@@ -2,7 +2,7 @@
 
 registerFilter({
   url_regex: [/onedrive\.live\.com/, /office\.com/],
-  provider: 'live',
+  provider: 'onedrive',
   provider_name: (url, title) => {
     if (!url || !title) return 'OneDrive';
     const providerName = title.split('-');
