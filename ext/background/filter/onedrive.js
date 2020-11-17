@@ -4,16 +4,15 @@ registerFilter({
   url_regex: [/onedrive\.live\.com/, /office\.com/],
   provider: 'live',
   provider_name: (url, title) => {
-    if (!url) return 'Microsoft OneDrive';
+    if (!url || !title) return 'OneDrive';
     const providerName = title.split('-');
     if (providerName[1]) return providerName[1].trim();
-
-    const reDomain = /onedrive\.live\.com|office\.com/;
-    const domain = reMatch(url.href, reDomain, 0);
+    const reDomain = /live|office/;
+    const domain = reMatch(url.hostname, reDomain, 0);
     switch (domain) {
-      case 'onedrive.live.com':
-        return 'Microsoft OneDrive';
-      case 'office.com':
+      case 'live':
+        return 'OneDrive';
+      case 'office':
         return 'Microsoft Office Online';
     }
   },
