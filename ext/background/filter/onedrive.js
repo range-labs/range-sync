@@ -41,7 +41,7 @@ registerFilter({
   processors: [
     {
       source_id_processor: (url) => {
-        let dedupeUrl = decodeURI(url.href);
+        const dedupeUrl = decodeURI(url.href);
         const rePath1 = /resid=([a-zA-Z0-9!]+)/;
         const rePath2 = /FormId=([a-zA-Z0-9]+)/; //for Microsoft Forms
         const match = reMatch(dedupeUrl, rePath1, 1);
