@@ -229,10 +229,10 @@ function providerInfo(url, title, force) {
             return {
               name: processor.title_processor(title),
               provider: filter.provider,
-              provider_name: filter.provider_name(url),
+              provider_name: filter.provider_name(url, title),
               source_id: sourceId,
               type: !!filter.type ? filter.type(url) : DEFAULT_TYPE,
-              subtype: !!filter.subtype ? filter.subtype(url) : DEFAULT_SUBTYPE,
+              subtype: !!filter.subtype ? filter.subtype(url, title) : DEFAULT_SUBTYPE,
             };
           }
         }
@@ -243,7 +243,7 @@ function providerInfo(url, title, force) {
         return {
           name: title,
           provider: filter.provider,
-          provider_name: filter.provider_name(url),
+          provider_name: filter.provider_name(url, title),
           // prefixing 'chromeext_' will make it easier to find out what pages
           // to add next
           source_id: `chromeext_${base}`,
