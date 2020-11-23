@@ -8,16 +8,14 @@ chrome.tabs.onUpdated.addListener((_tabId, _info, tab) => {
   // no-op unless done loading
   if (!tab.status || !tab.status.localeCompare('complete') == 0) return;
 
-  // no-op if title is in the global block list
-  for (const reTitle of BLOCK_LIST.title) {
-    if (reTitle.test(tab.title)) return;
-  }
-
   // no-op unless we have enough info to make an attachment
   if (!tab.url || !tab.title) return;
 
   // no-op if the title has not actually loaded yet
   if (tab.url.localeCompare(tab.title) == 0) return;
+
+  // no-op if title is in the global block list
+  if (blocked(BLOCK_LIST, null, tab.title)) return;
 
   currentSession()
     .then((s) => {
@@ -289,17 +287,19 @@ function providerInfo(url, title, force) {
 function blocked(blockList, url, title) {
   if (!blockList) return false;
 
-  if (!!blockList.title) {
+  if (!!blockList.title && !!title) {
     for (const s of blockList.title) {
       if (s.test(title)) return true;
     }
   }
 
-  if (!!blockList.url) {
+  if (!!blockList.url && !!url) {
     for (const r of blockList.url) {
       if (r.test(url.href)) return true;
     }
   }
+
+  return false;
 }
 
 function currentSession() {
