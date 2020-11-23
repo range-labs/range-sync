@@ -231,7 +231,7 @@ function providerInfo(url, title, force) {
         for (const processor of filter.processors) {
           sourceId = processor.source_id_processor(url);
           if (!!sourceId) {
-            return {
+            const info = {
               name: processor.title_processor(title),
               provider: filter.provider,
               provider_name: filter.provider_name(url, title),
@@ -239,6 +239,12 @@ function providerInfo(url, title, force) {
               type: !!filter.type ? filter.type(url) : DEFAULT_TYPE,
               subtype: !!filter.subtype ? filter.subtype(url, title) : DEFAULT_SUBTYPE,
             };
+
+            if (info.type == 'CODE_CHANGE') {
+              Object.assign(info, filter.parent(url));
+              Object.assign(info, processor.change_info(url));
+            }
+            return info;
           }
         }
 
@@ -258,7 +264,7 @@ function providerInfo(url, title, force) {
       }
     }
 
-    // No processor found for any domain; return null to avoid spam
+    // No filter found for any domain; return null to avoid spam
     if (!force) return null;
 
     // If there's no known provider, generate one based on the URL

@@ -7,8 +7,8 @@
     "fmt": "./node_modules/.bin/prettier --write **/*.js"
   },
   "devDependencies": {
-    "eslint": "^5.16.0",
-    "eslint-config-prettier": "^4.3.0",
-    "prettier": "^1.17.1"
+    "eslint": "6.x",
+    "eslint-config-prettier": "6.x",
+    "prettier": "2.x"
   }
 }

@@ -4,6 +4,16 @@ registerFilter({
   url_regex: [/github\.com\/.+/],
   provider: 'github',
   provider_name: (_url) => 'GitHub',
+  parent: (url) => {
+    const reName = /\.com\/(.+)\/(.+)\/(issues|pull)/;
+    const nameMatch = url.href.match(reName);
+    const reUrl = /(.+)\/(issues|pull)/;
+    const urlMatch = url.href.match(reUrl);
+    return {
+      parent_name: nameMatch ? `${nameMatch[1]}/${nameMatch[2]}` : null,
+      parent_html_url: urlMatch ? urlMatch[1] : null,
+    };
+  },
   type: (_url) => 'CODE_CHANGE',
   processors: [
     // Issue
@@ -18,6 +28,14 @@ registerFilter({
       title_processor: (t) => {
         return t.split(' · ')[0].trim();
       },
+      change_info: (url) => {
+        const rePath = /\.com\/(.+)\/(.+)\/issues\/([0-9]+)/;
+        const match = url.href.match(rePath);
+        return {
+          change_label: 'Issue #',
+          change_id: match ? match[3] : null,
+        };
+      },
     },
     // Pull Request
     {
@@ -31,6 +49,14 @@ registerFilter({
       title_processor: (t) => {
         const p = t.split(' · ');
         return p[0].split(' by ')[0].trim();
+      },
+      change_info: (url) => {
+        const rePath = /\.com\/(.+)\/(.+)\/pull\/([0-9]+)/;
+        const match = url.href.match(rePath);
+        return {
+          change_label: 'PR #',
+          change_id: match ? match[3] : null,
+        };
       },
     },
   ],
