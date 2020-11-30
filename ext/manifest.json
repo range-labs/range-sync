@@ -17,6 +17,7 @@
       "background/filter/dropbox_paper.js",
       "background/filter/figma.js",
       "background/filter/github.js",
+      "background/filter/github_enterprise.js",
       "background/filter/google_drive.js",
       "background/filter/gmail.js",
       "background/filter/lever.js",
