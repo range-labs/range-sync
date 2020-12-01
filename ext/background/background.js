@@ -240,10 +240,9 @@ function providerInfo(url, title, force) {
               subtype: !!filter.subtype ? filter.subtype(url, title) : DEFAULT_SUBTYPE,
             };
 
-            if (info.type == 'CODE_CHANGE') {
-              Object.assign(info, filter.parent(url));
-              Object.assign(info, processor.change_info(url));
-            }
+            if (processor.change_info) Object.assign(info, processor.change_info(url));
+            if (filter.parent) Object.assign(info, filter.parent(url));
+
             return info;
           }
         }
