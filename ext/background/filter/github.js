@@ -15,15 +15,15 @@ const base = {
   type: (url) => {
     const type = /\/(issues|pull)/;
     const typeMatch = url.pathname.match(type);
-    if (typeMatch) {
-      switch (typeMatch[1]) {
-        case 'issues':
-          return 'ISSUE';
-        case 'pull':
-          return 'CODE_CHANGE';
-      }
+    if (!typeMatch) return 'CODE_CHANGE';
+
+    switch (typeMatch[1]) {
+      case 'issues':
+        return 'ISSUE';
+      case 'pull':
+      default:
+        return 'CODE_CHANGE';
     }
-    return 'CODE_CHANGE';
   },
   processors: [
     // Issue
