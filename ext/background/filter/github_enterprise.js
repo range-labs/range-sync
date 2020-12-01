@@ -1,9 +1,9 @@
 'use strict';
 
 registerFilter({
-  url_regex: [/github\.com\/.+/],
-  provider: 'github',
-  provider_name: (_url) => 'GitHub',
+  url_regex: [/(.+)github\.com/, /github(.+)\.com/],
+  provider: 'github_enterprise',
+  provider_name: (_url) => 'GitHub Enterprise',
   parent: (url) => {
     const reName = /(.+)\/(.+)\/(issues|pull)/;
     const nameMatch = url.pathname.match(reName);
