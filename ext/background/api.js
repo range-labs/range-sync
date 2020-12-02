@@ -8,6 +8,7 @@ const sessionCheckInterval = 30 * 1000;
 const sessionExpiryThreshold = 30 * 60 * 1000;
 
 let _sessionCache = {};
+const init = refreshSessions(true);
 setInterval(refreshSessions, sessionCheckInterval);
 
 async function isAuthenticated() {
@@ -47,26 +48,22 @@ async function refreshSessions(force) {
       moment(session.session_expires_at) - moment() < sessionExpiryThreshold
     ) {
       delete _sessionCache[slug];
-      const newSession = await getSession(slug);
-      if (newSession) _sessionCache[slug] = newSession;
+      try {
+        const newSession = await rangeLogin(slug);
+        reportFirstAction(USER_ACTIONS.FIRST_LOGIN, newSession);
+        if (newSession) _sessionCache[slug] = newSession;
+      } catch (_) {
+        console.log(`user is not authenticated with ${slug}`);
+      }
     }
   }
   return;
 }
 
-// Returns session information from cache. If it doesn't exist then reaches out
-// to Range for authentication.
-function getSession(orgSlug) {
-  if (!!_sessionCache[orgSlug]) {
-    return _sessionCache[orgSlug];
-  }
-
-  return rangeLogin(orgSlug)
-    .then((resp) => {
-      reportFirstAction(USER_ACTIONS.FIRST_LOGIN, resp);
-      return resp;
-    })
-    .catch(() => console.log(`user is not authenticated with ${orgSlug}`));
+async function getSessions() {
+  await init;
+  const orgs = await orgsFromCookies();
+  return orgs.map((o) => _sessionCache[o]);
 }
 
 // Returns a list of authenticated org slugs from Range cookies
