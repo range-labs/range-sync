@@ -241,6 +241,7 @@ function providerInfo(url, title, force) {
             };
 
             if (processor.change_info) Object.assign(info, processor.change_info(url));
+            if (processor.issue_info) Object.assign(info, processor.issue_info(url));
             if (filter.parent) Object.assign(info, filter.parent(url));
 
             return info;
