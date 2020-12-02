@@ -38,12 +38,12 @@ const base = {
       title_processor: (t) => {
         return t.split(' · ')[0].trim();
       },
-      change_info: (url) => {
+      issue_info: (url) => {
         const rePath = /\/(.+)\/(.+)\/issues\/([0-9]+)/;
         const match = url.pathname.match(rePath);
         return {
-          change_label: 'Issue #',
-          change_id: match ? match[3] : null,
+          issue_label: 'Issue #',
+          issue_id: match ? match[3] : null,
         };
       },
     },
