@@ -88,21 +88,19 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       break;
     // Responses that require all sessions
     case MESSAGE_TYPES.SESSIONS:
-      orgsFromCookies()
-        .then((orgs) => Promise.all(orgs.map(getSession)))
+      getSessions()
         .then((sessions) => {
           currentSession().then((c) => {
             sessions.forEach((s) => {
               if (s) s.active = s?.org.slug == c.org.slug;
             });
-            sendResponse(sessions.filter((s) => s));
+            sendResponse(sessions);
           });
         })
         .catch(handleErr);
       break;
     case MESSAGE_TYPES.SET_SESSION:
-      orgsFromCookies()
-        .then((orgs) => Promise.all(orgs.map(getSession)))
+      getSessions()
         .then((sessions) => {
           const s = sessions.filter((s) => s && s.org.slug == request.org_slug)[0];
           setActiveOrg(s.org.slug).then(sendResponse);
@@ -304,8 +302,7 @@ function blocked(blockList, url, title) {
 
 function currentSession() {
   return new Promise((resolve) => {
-    orgsFromCookies()
-      .then((orgs) => Promise.all(orgs.map(getSession)))
+    getSessions()
       .then((sessions) => {
         chrome.storage.local.get(['active_org'], (resp) => {
           const slug = resp.active_org || sessions[0].org.slug;
