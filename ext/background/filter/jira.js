@@ -43,15 +43,11 @@
   });
 
   function toIssueKey(url) {
-    const a = document.createElement('a');
-    a.href = url;
     // https://workspace-slug.atlassian.net/browse/AB-1
-    return reMatch(a.pathname, /^\/browse\/([^\/]+)$/, 1);
+    return reMatch(new URL(url).pathname, /^\/browse\/([^\/]+)$/, 1);
   }
 
   function toHostname(url) {
-    const a = document.createElement('a');
-    a.href = url;
-    return a.hostname;
+    return new URL(url).hostname;
   }
 })();
