@@ -134,7 +134,7 @@ function searchRelevantHistory() {
               return;
             }
           })
-        ).then((h) => {
+        ).then(() => {
           resolve(relevantHistory);
         });
       }
@@ -171,14 +171,47 @@ async function attemptRecordInteraction(tab, session, force) {
     return Promise.resolve();
   }
   setChromeActivity(a, tab);
+
+  const merged = await mergeAttachment(session, a);
   return recordInteraction(
     {
       interaction_type: (_) => 'VIEWED',
       idempotency_key: `${moment().startOf('day')}::${tab.title}`,
-      attachment: a,
+      attachment: merged,
     },
     authorize(session)
   );
+}
+
+// Queries Range for existing attachments and merges the attachments based on a
+// provider's configured behavior.
+// Default behavior leaves the existing attachment fields alone, but will add
+// new ones.
+async function mergeAttachment(session, attachment) {
+  const dedupe = getProviderDedupe(attachment.provider);
+  if (dedupe == DEDUPE_BEHAVIOR.REPLACE) return attachment;
+
+  const activity = await listActivity(attachment.provider, authorize(session));
+  for (const a of activity.attachments) {
+    if (a.source_id != attachment.source_id) continue;
+
+    switch (dedupe) {
+      case DEDUPE_BEHAVIOR.KEEP_NEW:
+        return {
+          ...a,
+          ...attachment,
+        };
+      case DEDUPE_BEHAVIOR.KEEP_OLD:
+      default:
+        return {
+          ...attachment,
+          ...a,
+        };
+    }
+  }
+
+  // Could not find an existing attachment, returning the new attachment
+  return attachment;
 }
 
 function attemptAddSnippet(session, snippetType, text, attachmentId) {
