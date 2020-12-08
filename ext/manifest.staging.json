@@ -19,6 +19,7 @@
       "background/filter/github.js",
       "background/filter/google_drive.js",
       "background/filter/gmail.js",
+      "background/filter/jira.js",
       "background/filter/lever.js",
       "background/filter/lucid_chart.js",
       "background/filter/medium.js",
