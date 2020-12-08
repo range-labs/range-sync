@@ -42,6 +42,14 @@ function registerFilter(filter) {
   chrome.storage.local.set({ filters: toStore });
 }
 
+function getProviderDedupe(provider) {
+  const f = _filters.filter((f) => f.provider == provider);
+  if (f && f.length > 0 && f[0].dedupe) {
+    return DEDUPE_BEHAVIOR[f[0].dedupe] || DEDUPE_BEHAVIOR.KEEP_OLD;
+  }
+  return DEDUPE_BEHAVIOR.KEEP_OLD;
+}
+
 async function tabHasFilter(tab) {
   const _enabledFilters = await enabledFilters();
   const provider = await providerInfo(new URL(tab.url), tab.title, true);

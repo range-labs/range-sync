@@ -79,12 +79,21 @@ function orgsFromCookies() {
 // Posts a new suggestion to the Range servers on behalf of the user. Based on
 // the suggestion object it will be deduped.
 function recordInteraction(interaction, params) {
-  return post(`/v1/activity`, interaction, params);
+  return post('/v1/activity', interaction, params);
 }
 
+// Retrieves that last 100 attachments associated with this user
 function recentActivity(params) {
   return get(
-    `/v1/activity?collation=ATTACHMENT&attachment_visibility=NEW&include_dismissed=true&include_refs=true&limit=100`,
+    '/v1/activity?collation=ATTACHMENT&attachment_visibility=NEW&include_dismissed=true&include_refs=true&limit=100',
+    params
+  );
+}
+
+// Retrieves the last 100 attachments associated with this user for a given provider
+function listActivity(provider, params) {
+  return get(
+    `/v1/activity?include_attachment_providers=${provider}&collation=ATTACHMENT&attachment_visibility=NEW&include_dismissed=true&include_refs=true&limit=100`,
     params
   );
 }
