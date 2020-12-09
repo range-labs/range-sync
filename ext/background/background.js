@@ -3,6 +3,7 @@
 const DEFAULT_TYPE = 'LINK';
 const DEFAULT_SUBTYPE = 'NONE';
 const ATTACHMENT_ORIGIN = 1;
+const ATTACHMENT_CORE = ['source_id', 'provider', 'org_id', 'type', 'origin'];
 
 chrome.tabs.onUpdated.addListener((_tabId, _info, tab) => {
   // no-op unless done loading
@@ -134,7 +135,7 @@ function searchRelevantHistory() {
               return;
             }
           })
-        ).then((h) => {
+        ).then(() => {
           resolve(relevantHistory);
         });
       }
@@ -171,14 +172,41 @@ async function attemptRecordInteraction(tab, session, force) {
     return Promise.resolve();
   }
   setChromeActivity(a, tab);
+
+  const merged = await mergeAttachment(session, a);
   return recordInteraction(
     {
       interaction_type: (_) => 'VIEWED',
       idempotency_key: `${moment().startOf('day')}::${tab.title}`,
-      attachment: a,
+      attachment: merged,
     },
     authorize(session)
   );
+}
+
+// Queries Range for existing attachments and merges the attachments based on a
+// provider's configured behavior. The Range backend will overwrite all fields
+// sent to it, but leave the rest alone.
+async function mergeAttachment(session, attachment) {
+  const dedupe = getProviderDedupe(attachment.provider);
+  if (dedupe == MERGE_BEHAVIOR.REPLACE_EXISTING) return attachment;
+
+  // This is the default, KEEP_EXISTING case
+  const activity = await listActivity(attachment.provider, authorize(session));
+  for (const a of activity.attachments) {
+    if (a.source_id != attachment.source_id) continue;
+
+    // Delete the properties that we want to preserve in the existing attachment
+    for (const f in a) {
+      // Send the core properties to ensure that the attachment is associated
+      // and updated properly in Range
+      if (ATTACHMENT_CORE.includes(f)) continue;
+      delete attachment[f];
+    }
+    break;
+  }
+
+  return attachment;
 }
 
 function attemptAddSnippet(session, snippetType, text, attachmentId) {

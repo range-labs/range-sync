@@ -5,6 +5,13 @@ const BLOCK_LIST = { title: [/^chrome:\/\//, /^Range/] };
 const GUID_REGEX =
   '({){0,1}[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(}){0,1}';
 
+const MERGE_BEHAVIOR = {
+  // Keep all existing fields, fill remaining fields with new values
+  KEEP_EXISTING: 'KEEP_EXISTING',
+  // Replace existing fields with new attachment fields
+  REPLACE_EXISTING: 'REPLACE_EXISTING',
+};
+
 var INTEGRATION_STATUSES = {
   ENABLED: 'ENABLED',
   DISABLED: 'DISABLED',
