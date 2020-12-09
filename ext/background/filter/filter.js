@@ -45,9 +45,9 @@ function registerFilter(filter) {
 function getProviderDedupe(provider) {
   const f = _filters.filter((f) => f.provider == provider);
   if (f && f.length > 0 && f[0].dedupe) {
-    return MERGE_BEHAVIOR[f[0].dedupe] || MERGE_BEHAVIOR.MERGE_EXISTING;
+    return MERGE_BEHAVIOR[f[0].dedupe] || MERGE_BEHAVIOR.KEEP_EXISTING;
   }
-  return MERGE_BEHAVIOR.MERGE_EXISTING;
+  return MERGE_BEHAVIOR.KEEP_EXISTING;
 }
 
 async function tabHasFilter(tab) {

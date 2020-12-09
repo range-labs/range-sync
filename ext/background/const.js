@@ -7,11 +7,9 @@ const GUID_REGEX =
 
 const MERGE_BEHAVIOR = {
   // Keep all existing fields, fill remaining fields with new values
-  MERGE_EXISTING: 'MERGE_EXISTING',
-  // Keep all new fields, fill remaining fields with existing values
-  MERGE_NEW: 'MERGE_NEW',
-  // Completely replace the object without checking the old copy
-  REPLACE: 'REPLACE',
+  KEEP_EXISTING: 'KEEP_EXISTING',
+  // Replace existing fields with new attachment fields
+  REPLACE_EXISTING: 'REPLACE_EXISTING',
 };
 
 var INTEGRATION_STATUSES = {

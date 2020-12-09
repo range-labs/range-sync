@@ -184,33 +184,24 @@ async function attemptRecordInteraction(tab, session, force) {
 }
 
 // Queries Range for existing attachments and merges the attachments based on a
-// provider's configured behavior.
-// Default behavior leaves the existing attachment fields alone, but will add
-// new ones.
+// provider's configured behavior. The Range backend will overwrite all fields
+// sent and keep the rest.
 async function mergeAttachment(session, attachment) {
   const dedupe = getProviderDedupe(attachment.provider);
-  if (dedupe == MERGE_BEHAVIOR.REPLACE) return attachment;
+  if (dedupe == MERGE_BEHAVIOR.REPLACE_EXISTING) return attachment;
 
+  // This is the default, KEEP_EXISTING case
   const activity = await listActivity(attachment.provider, authorize(session));
   for (const a of activity.attachments) {
     if (a.source_id != attachment.source_id) continue;
 
-    switch (dedupe) {
-      case MERGE_BEHAVIOR.MERGE_NEW:
-        return {
-          ...a,
-          ...attachment,
-        };
-      case MERGE_BEHAVIOR.MERGE_EXISTING:
-      default:
-        return {
-          ...attachment,
-          ...a,
-        };
+    // Delete the properties for the existing attachment to ensure they aren't
+    // overwritten in Range
+    for (const f in a) {
+      delete attachment[f];
     }
   }
 
-  // Could not find an existing attachment, returning the new attachment
   return attachment;
 }
 
