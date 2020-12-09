@@ -203,6 +203,7 @@ async function mergeAttachment(session, attachment) {
       if (ATTACHMENT_CORE.includes(f)) continue;
       delete attachment[f];
     }
+    break;
   }
 
   return attachment;
