@@ -5,11 +5,11 @@ const BLOCK_LIST = { title: [/^chrome:\/\//, /^Range/] };
 const GUID_REGEX =
   '({){0,1}[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(}){0,1}';
 
-const DEDUPE_BEHAVIOR = {
+const MERGE_BEHAVIOR = {
   // Keep all existing fields, fill remaining fields with new values
-  KEEP_OLD: 'KEEP_OLD',
+  MERGE_EXISTING: 'MERGE_EXISTING',
   // Keep all new fields, fill remaining fields with existing values
-  KEEP_NEW: 'KEEP_NEW',
+  MERGE_NEW: 'MERGE_NEW',
   // Completely replace the object without checking the old copy
   REPLACE: 'REPLACE',
 };

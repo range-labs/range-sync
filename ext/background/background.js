@@ -189,19 +189,19 @@ async function attemptRecordInteraction(tab, session, force) {
 // new ones.
 async function mergeAttachment(session, attachment) {
   const dedupe = getProviderDedupe(attachment.provider);
-  if (dedupe == DEDUPE_BEHAVIOR.REPLACE) return attachment;
+  if (dedupe == MERGE_BEHAVIOR.REPLACE) return attachment;
 
   const activity = await listActivity(attachment.provider, authorize(session));
   for (const a of activity.attachments) {
     if (a.source_id != attachment.source_id) continue;
 
     switch (dedupe) {
-      case DEDUPE_BEHAVIOR.KEEP_NEW:
+      case MERGE_BEHAVIOR.MERGE_NEW:
         return {
           ...a,
           ...attachment,
         };
-      case DEDUPE_BEHAVIOR.KEEP_OLD:
+      case MERGE_BEHAVIOR.MERGE_EXISTING:
       default:
         return {
           ...attachment,
