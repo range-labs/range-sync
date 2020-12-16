@@ -48,63 +48,61 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       break;
     // Responses that require the current session
     case MESSAGE_TYPES.INTERACTION:
-      currentSession().then((s) => {
-        attemptRecordInteraction(request.tab, s, true)
-          .then(() => {
-            reportFirstAction(USER_ACTIONS.FIRST_INTERACTION, s);
-            sendResponse();
-          })
-          .catch(handleErr);
-      });
+      currentSession()
+        .then(async (s) => {
+          await attemptRecordInteraction(request.tab, s, true);
+          reportFirstAction(USER_ACTIONS.FIRST_INTERACTION, s);
+          sendResponse();
+        })
+        .catch(handleErr);
       break;
     case MESSAGE_TYPES.ADD_SNIPPET:
       // Since recording and interaction is idempotent we do it first to
       // ensure that the attachment exists.
-      currentSession().then((s) => {
-        attemptRecordInteraction(request.tab, s, true)
-          .then((r) => attemptAddSnippet(s, request.snippet_type, request.text, r.attachment_id))
-          .then(() => {
-            reportFirstAction(USER_ACTIONS.FIRST_SNIPPET, s);
-            sendResponse();
-          })
-          .catch(handleErr);
-      });
+      currentSession()
+        .then(async (s) => {
+          const r = await attemptRecordInteraction(request.tab, s, true);
+          await attemptAddSnippet(s, request.snippet_type, request.text, r.attachment_id);
+          reportFirstAction(USER_ACTIONS.FIRST_SNIPPET, s);
+          sendResponse();
+        })
+        .catch(handleErr);
       break;
     case MESSAGE_TYPES.USER_STATS:
-      currentSession().then((s) => {
-        const userId = sessionUserId(s);
-        userStats(userId, authorize(s))
-          .then((r) => {
-            r.user_id = userId;
-            r.org_slug = s.org.slug;
-            sendResponse(r);
-          })
-          .catch(handleErr);
-      });
+      currentSession()
+        .then(async (s) => {
+          const userId = sessionUserId(s);
+          const r = await userStats(userId, authorize(s));
+          r.user_id = userId;
+          r.org_slug = s.org.slug;
+          sendResponse(r);
+        })
+        .catch(handleErr);
       break;
     case MESSAGE_TYPES.RECENT_ACTIVITY:
-      currentSession().then((s) => {
-        recentActivity(authorize(s)).then(sendResponse).catch(handleErr);
-      });
+      currentSession()
+        .then(async (s) => {
+          sendResponse(await recentActivity(authorize(s)));
+        })
+        .catch(handleErr);
       break;
     // Responses that require all sessions
     case MESSAGE_TYPES.SESSIONS:
       getSessions()
-        .then((sessions) => {
-          currentSession().then((c) => {
-            sessions.forEach((s) => {
-              if (s) s.active = s?.org.slug == c.org.slug;
-            });
-            sendResponse(sessions);
+        .then(async (sessions) => {
+          const c = await currentSession();
+          sessions.forEach((s) => {
+            if (s) s.active = s.org.slug == c.org.slug;
           });
+          sendResponse(sessions);
         })
         .catch(handleErr);
       break;
     case MESSAGE_TYPES.SET_SESSION:
       getSessions()
-        .then((sessions) => {
-          const s = sessions.filter((s) => s && s.org.slug == request.org_slug)[0];
-          setActiveOrg(s.org.slug).then(sendResponse);
+        .then(async (sessions) => {
+          const s = sessions.filter((s) => s.org.slug == request.org_slug)[0];
+          sendResponse(await setActiveOrg(s.org.slug));
         })
         .catch(handleErr);
       break;
@@ -329,18 +327,27 @@ function blocked(blockList, url, title) {
 }
 
 function currentSession() {
-  return new Promise((resolve) => {
-    getSessions()
-      .then((sessions) => {
-        chrome.storage.local.get(['active_org'], (resp) => {
-          const slug = resp.active_org || sessions[0].org.slug;
-          const session = sessions.find((s) => s?.org.slug == slug) || sessions[0];
-          setActiveOrg(session.org.slug).then(() => {
-            resolve(session);
-          });
-        });
-      })
-      .catch(console.log);
+  return new Promise(async (resolve, reject) => {
+    let sessions;
+    try {
+      sessions = await getSessions();
+    } catch (e) {
+      reject(e);
+      return;
+    } finally {
+      if (!sessions || sessions.length < 1) {
+        reject('no authenticated sessions');
+        return;
+      }
+    }
+
+    chrome.storage.local.get(['active_org'], (resp) => {
+      const slug = resp.active_org || sessions[0].org.slug;
+      const session = sessions.find((s) => s.org.slug == slug) || sessions[0];
+      setActiveOrg(session.org.slug).then(() => {
+        resolve(session);
+      });
+    });
   });
 }
 
