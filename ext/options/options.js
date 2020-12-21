@@ -9,6 +9,9 @@ const init = new Promise((resolve) => {
   });
 });
 
+const workspaceSelector = document.getElementById('workspaceSelector');
+const signInButton = document.getElementById('signInButton');
+const workspaceButton = document.getElementById('workspaceButton');
 const workspaceContent = document.getElementById('workspaceContent');
 const workspaceList = document.getElementById('workspaceList');
 const enableVisited = document.getElementById('enableVisited');
@@ -88,12 +91,19 @@ const supportedCounts = document.getElementsByClassName('supportedCount');
       .catch(console.log);
 
     getSessions().then((sessions) => {
+      if (!sessions || sessions.length < 1) {
+        workspaceSelector.classList.add('active');
+        signInButton.classList.add('active');
+        return;
+      }
+
       if (sessions.length < 2) return;
 
       workspaceSelector.addEventListener('click', () => {
         workspaceSelector.classList.toggle('open');
       });
       workspaceSelector.classList.add('active');
+      workspaceButton.classList.add('active');
 
       for (const s of sessions) {
         const isActive = s.active ? 'active' : '';

@@ -72,7 +72,20 @@ hr {
   display: flex;
 }
 
+#signInButton {
+  display: none;
+}
+
+#signInButton.active {
+  display: block;
+}
+
 #workspaceButton {
+  display: none;
+}
+
+#workspaceButton.active {
+  display: block;
   margin: 0;
   outline: none;
 }

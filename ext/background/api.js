@@ -8,8 +8,15 @@ const sessionCheckInterval = 30 * 1000;
 const sessionExpiryThreshold = 30 * 60 * 1000;
 
 let _sessionCache = {};
-const init = refreshSessions(true);
+let init = refreshSessions(true);
+
 setInterval(refreshSessions, sessionCheckInterval);
+chrome.cookies.onChanged.addListener(async () => {
+  console.log(`refreshing sessions, cookies changed`);
+  console.log(_sessionCache);
+  await refreshSessions();
+  console.log(_sessionCache);
+});
 
 async function isAuthenticated() {
   if (Object.keys(_sessionCache).length > 0) return true;
@@ -61,9 +68,11 @@ async function refreshSessions(force) {
 }
 
 async function getSessions() {
-  await init;
-  const orgs = await orgsFromCookies();
-  return orgs.map((o) => _sessionCache[o]);
+  await refreshSessions();
+
+  const sessions = Object.values(_sessionCache);
+  if (sessions.length < 1) throw 'no authenticated sessions';
+  return sessions;
 }
 
 // Returns a list of authenticated org slugs from Range cookies
@@ -155,39 +164,40 @@ function get(path, params = {}) {
 }
 
 // Makes a request to the Range API server, handling authentication and common error cases
-function request(path, params = {}) {
-  let statusCode = 0;
-  let statusText = 'OK';
-  return fetch(`https://${CONFIG.api_host}${path}`, {
-    ...params,
-    headers: {
-      ...params.headers,
-      'X-Requested-With': 'XMLHttpRequest',
-      'Content-Type': 'application/json',
-      'X-Range-Client': `ChromeExt/${manifest.version}`,
-    },
-    redirect: 'error',
-  })
-    .then((resp) => {
-      statusCode = resp.status;
-      statusText = resp.statusText;
-      return resp.json();
-    })
-    .catch((e) => {
-      console.log(`Network error, status: ${statusCode},  ${statusText} (${String(e)})`);
-    })
-    .then((resp) => {
-      if (statusCode !== 200) {
-        if (resp?.code === 16 || resp?.code === 7) {
-          if (!path.includes('login')) {
-            console.log('no longer authenticated, refreshing sessions...');
-            refreshSessions(true);
-          }
-        }
-        throw resp;
-      }
-      return resp;
+async function request(path, params = {}) {
+  // Make sure we don't do requests before we are authenticated
+  if (!path.includes('login')) await init;
+
+  let resp;
+  try {
+    resp = await fetch(`https://${CONFIG.api_host}${path}`, {
+      ...params,
+      headers: {
+        ...params.headers,
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/json',
+        'X-Range-Client': `ChromeExt/${manifest.version}`,
+      },
+      redirect: 'error',
     });
+  } catch (e) {
+    console.log(`Network error, status: (${String(e)})`);
+    throw e;
+  }
+
+  if (resp.ok) return resp.json();
+
+  if (resp.status === 401) {
+    if (path.includes('login')) {
+      console.log('failed login attempt, likely invalid cookies...');
+    } else {
+      console.log('no longer authenticated, refreshing sessions...');
+      await refreshSessions(true);
+    }
+  } else {
+    console.log(`invalid request: (${resp.status}, ${resp.statusText})`);
+  }
+  throw resp.json();
 }
 
 // Implementation of Java's String.hashCode. Not secure.
