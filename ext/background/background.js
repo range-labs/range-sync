@@ -326,29 +326,25 @@ function blocked(blockList, url, title) {
   }
 }
 
-function currentSession() {
-  return new Promise(async (resolve, reject) => {
-    let sessions;
-    try {
-      sessions = await getSessions();
-    } catch (e) {
-      reject(e);
-      return;
-    } finally {
-      if (!sessions || sessions.length < 1) {
-        reject('no authenticated sessions');
-        return;
-      }
+async function currentSession() {
+  try {
+    const sessions = await getSessions();
+    if (!sessions || sessions.length < 1) {
+      throw 'no authenticated sessions';
     }
 
-    chrome.storage.local.get(['active_org'], (resp) => {
-      const slug = resp.active_org || sessions[0].org.slug;
-      const session = sessions.find((s) => s.org.slug == slug) || sessions[0];
-      setActiveOrg(session.org.slug).then(() => {
-        resolve(session);
+    return new Promise(async (resolve) => {
+      chrome.storage.local.get(['active_org'], (resp) => {
+        const slug = resp.active_org || sessions[0].org.slug;
+        const session = sessions.find((s) => s.org.slug == slug) || sessions[0];
+        setActiveOrg(session.org.slug).then(() => {
+          resolve(session);
+        });
       });
     });
-  });
+  } catch (e) {
+    throw e;
+  }
 }
 
 function setActiveOrg(slug) {
