@@ -161,15 +161,13 @@ function searchRelevantHistory() {
 }
 
 async function backfillHistory(session, provider) {
-  const backfillStart = await new Promise(
-    chrome.storage.local.get(['backfill'], (resp) => {
-      if (!resp.backfill && !resp.backfill[provider])
-        resolve(moment().subtract(90, 'd').unix() * 1000);
-      resolve(moment(resp.backfill[provider]));
-    })
-  );
+  console.log(`backfilling ${provider}`);
 
-  return new Promise((resolve) => {
+  const backfillStart = await getBackfillTime(provider);
+  setBackfillTime(provider);
+
+  let count = 0;
+  await new Promise((resolve) => {
     chrome.history.search(
       { text: '', startTime: backfillStart, maxResults: 10000 },
       async (history) => {
@@ -197,8 +195,7 @@ async function backfillHistory(session, provider) {
           return b.time - a.time;
         });
         for (const t of tabs) {
-          console.warn(`${provider}::${t.title}::${t.time}`);
-          await attemptRecordInteraction(t, session, false);
+          await attemptRecordInteraction(t, session, false).then(() => count++);
           await new Promise((resolve) => {
             setTimeout(resolve, 100);
           });
@@ -208,6 +205,9 @@ async function backfillHistory(session, provider) {
       }
     );
   });
+
+  console.log(`finished backfilling ${count} interactions for ${provider}`);
+  return;
 }
 
 function setChromeActivity(attachment, tab) {
@@ -436,6 +436,28 @@ function reportFirstAction(action, session) {
           chrome.storage.sync.set({ reported_actions: reportedActions }, resolve);
         })
         .catch(console.log);
+    });
+  });
+}
+
+function getBackfillTime(provider) {
+  return new Promise((resolve) => {
+    chrome.storage.local.get(['backfill'], (resp) => {
+      if (!resp.backfill || !resp.backfill[provider]) {
+        resolve(moment().subtract(90, 'd').valueOf());
+      } else {
+        resolve(resp.backfill[provider]);
+      }
+    });
+  });
+}
+
+function setBackfillTime(provider) {
+  return new Promise((resolve) => {
+    chrome.storage.local.get(['backfill'], (resp) => {
+      const backfill = resp.backfill || {};
+      backfill[provider] = new Date().getTime();
+      chrome.storage.local.set({ backfill: backfill }, resolve);
     });
   });
 }
