@@ -183,7 +183,7 @@ async function backfillHistory(session, provider) {
               title: h.title,
               url: h.url,
               favIconUrl: `chrome://favicon/size/24/${new URL(h.url).href.split('?')[0]}`,
-              time: h.lastVisitTime,
+              time: moment(h.lastVisitTime).toISOString() || new Date().toISOString(),
             };
           } catch (_) {
             continue;
@@ -192,10 +192,10 @@ async function backfillHistory(session, provider) {
 
         const tabs = Object.values(toSync);
         tabs.sort((a, b) => {
-          return b.time - a.time;
+          return moment(a.time) - moment(b.time);
         });
         for (const t of tabs) {
-          await attemptRecordInteraction(t, session, false).then(() => count++);
+          await attemptRecordInteraction(t, session, false, t.time).then(() => count++);
           await new Promise((resolve) => {
             setTimeout(resolve, 100);
           });
@@ -222,7 +222,12 @@ function setChromeActivity(attachment, tab) {
   });
 }
 
-async function attemptRecordInteraction(tab, session, force) {
+async function attemptRecordInteraction(
+  tab,
+  session,
+  force,
+  interactionAt = new Date().toISOString()
+) {
   if (!tab || !tab.id) {
     console.log('invalid tab sent to record interaction');
     console.log(tab);
@@ -245,6 +250,7 @@ async function attemptRecordInteraction(tab, session, force) {
     {
       interaction_type: (_) => 'VIEWED',
       idempotency_key: `${moment().startOf('day')}::${tab.title}`,
+      interaction_at: interactionAt,
       attachment: merged,
     },
     authorize(session)
