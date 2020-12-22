@@ -25,100 +25,93 @@ const supportedCounts = document.getElementsByClassName('supportedCount');
 (async () => {
   await init;
 
-  chrome.storage.local.get(['active_providers', 'filters'], (resp) => {
-    if (!resp || !resp.filters) return;
-    if (!resp.active_providers) resp.active_providers = [];
+  const providerNameMap = {};
+  const active = [];
+  const inactive = [];
 
-    const active = [];
-    const inactive = [];
-    const providerNameMap = {};
+  const allFilters = await getAllFilters();
+  const enabledProviders = await getEnabledProviders();
+  for (const f of Object.values(allFilters)) {
+    providerNameMap[f.provider_name] = f.provider;
+    const inst = toggleTemplate.content.cloneNode(true);
+    inst.querySelector('.providerIcon').src = `../images/providers/${f.provider}.png`;
+    const name = inst.querySelector('.providerName');
+    name.textContent = f.provider_name;
+    name.id = f.provider;
+    const desc = inst.querySelector('.switchDescription');
 
-    for (const f of Object.values(resp.filters)) {
-      providerNameMap[f.provider_name] = f.provider;
-      const inst = toggleTemplate.content.cloneNode(true);
-      inst.querySelector('.providerIcon').src = `../images/providers/${f.provider}.png`;
-      const name = inst.querySelector('.providerName');
-      name.textContent = f.provider_name;
-      name.id = f.provider;
-      const desc = inst.querySelector('.switchDescription');
-
-      if (resp.active_providers.includes(f.provider)) {
-        desc.textContent = 'Sync ON';
-        desc.classList.add('active');
-        inst.querySelector('.toggle').checked = true;
-        active.push(inst);
-      } else {
-        desc.textContent = 'Sync OFF';
-        inst.querySelector('.toggle').checked = false;
-        inactive.push(inst);
-      }
+    if (enabledProviders.includes(f.provider)) {
+      desc.textContent = 'Sync ON';
+      desc.classList.add('active');
+      inst.querySelector('.toggle').checked = true;
+      active.push(inst);
+    } else {
+      desc.textContent = 'Sync OFF';
+      inst.querySelector('.toggle').checked = false;
+      inactive.push(inst);
     }
+  }
 
-    active.sort(sortProvider);
-    active.forEach((e) => relevantToggles.appendChild(e));
+  active.sort(sortProvider);
+  active.forEach((e) => relevantToggles.appendChild(e));
 
-    getRelevantHistory()
-      .then((history) => {
-        const sortRelevant = (a, b) => {
-          const providerA = providerNameMap[a.querySelector('.providerName').textContent];
-          const providerB = providerNameMap[b.querySelector('.providerName').textContent];
-          const scoreA = history[providerA] || 0;
-          const scoreB = history[providerB] || 0;
+  const history = await getRelevantHistory();
+  const sortRelevant = (a, b) => {
+    const providerA = providerNameMap[a.querySelector('.providerName').textContent];
+    const providerB = providerNameMap[b.querySelector('.providerName').textContent];
+    const scoreA = history[providerA] || 0;
+    const scoreB = history[providerB] || 0;
 
-          if (scoreA == scoreB) {
-            return sortProvider(a, b);
-          } else {
-            return scoreB - scoreA;
-          }
-        };
+    if (scoreA == scoreB) {
+      return sortProvider(a, b);
+    } else {
+      return scoreB - scoreA;
+    }
+  };
 
-        let irrelevantCount = 0;
-        inactive.sort(sortRelevant);
-        inactive.forEach((e) => {
-          if (!!history[providerNameMap[e.querySelector('.providerName').textContent]]) {
-            relevantToggles.appendChild(e);
-          } else {
-            irrelevantCount++;
-            irrelevantToggles.appendChild(e);
-          }
-        });
-
-        for (const c of supportedCounts) {
-          c.textContent = irrelevantCount;
-        }
-      })
-      .then(addToggleListeners)
-      .catch(console.log);
-
-    getSessions().then((sessions) => {
-      if (!sessions || sessions.length < 1) {
-        workspaceSelector.classList.add('active');
-        signInButton.classList.add('active');
-        return;
-      }
-
-      if (sessions.length < 2) return;
-
-      workspaceSelector.addEventListener('click', () => {
-        workspaceSelector.classList.toggle('open');
-      });
-      workspaceSelector.classList.add('active');
-      workspaceButton.classList.add('active');
-
-      for (const s of sessions) {
-        const isActive = s.active ? 'active' : '';
-        const option = document.createElement('div');
-        option.className = `workspaceOption ${isActive}`;
-        option.textContent = s.org.name;
-        option.addEventListener('click', () => {
-          setActiveOrg(s.org.slug).then(() => {
-            location.reload();
-          });
-        });
-        workspaceList.appendChild(option);
-      }
-    });
+  let irrelevantCount = 0;
+  inactive.sort(sortRelevant);
+  inactive.forEach((e) => {
+    if (!!history[providerNameMap[e.querySelector('.providerName').textContent]]) {
+      relevantToggles.appendChild(e);
+    } else {
+      irrelevantCount++;
+      irrelevantToggles.appendChild(e);
+    }
   });
+
+  for (const c of supportedCounts) {
+    c.textContent = irrelevantCount;
+  }
+  addToggleListeners();
+
+  const sessions = await getSessions();
+  if (!sessions || sessions.length < 1) {
+    workspaceSelector.classList.add('active');
+    signInButton.classList.add('active');
+    return;
+  }
+
+  if (sessions.length < 2) return;
+
+  workspaceSelector.addEventListener('click', () => {
+    workspaceSelector.classList.toggle('open');
+  });
+
+  for (const s of sessions) {
+    const isActive = s.active ? 'active' : '';
+    const option = document.createElement('div');
+    option.className = `workspaceOption ${isActive}`;
+    option.textContent = s.org.name;
+    option.addEventListener('click', async () => {
+      await setActiveOrg(s.org.slug);
+      location.reload();
+    });
+    workspaceList.appendChild(option);
+
+    workspaceSelector.classList.add('active');
+    workspaceButton.classList.add('active');
+  }
 })();
 
 enableVisited.addEventListener('click', async () => {
@@ -130,7 +123,7 @@ enableVisited.addEventListener('click', async () => {
 
     if (!desc.classList.contains('active')) {
       enableToggle(desc, checkbox);
-      await toggleStoredProvider(name.id, true);
+      await enableProvider(name.id);
     }
   }
 });
@@ -158,7 +151,7 @@ async function addToggleListeners() {
       const name = t.querySelector('.providerName');
 
       disableToggle(desc, checkbox);
-      await toggleStoredProvider(name.id, false);
+      await disableProvider(name.id);
     }
   });
 
@@ -176,10 +169,10 @@ async function addToggleListeners() {
     t.addEventListener('click', () => {
       if (desc.classList.contains('active')) {
         disableToggle(desc, checkbox);
-        toggleStoredProvider(name.id, false);
+        disableProvider(name.id);
       } else {
         enableToggle(desc, checkbox);
-        toggleStoredProvider(name.id, true);
+        enableProvider(name.id);
       }
     });
   }
@@ -197,22 +190,6 @@ function disableToggle(desc, checkbox) {
   checkbox.checked = false;
 }
 
-function toggleStoredProvider(provider, active) {
-  return new Promise((resolve) => {
-    chrome.storage.local.get(['active_providers'], (resp) => {
-      const providers = resp.active_providers || [];
-      const idx = providers.indexOf(provider);
-      if (active) {
-        if (idx < 0) providers.push(provider);
-      } else {
-        if (idx > -1) providers.splice(idx, 1);
-      }
-
-      chrome.storage.local.set({ active_providers: providers }, resolve);
-    });
-  });
-}
-
 function getRelevantHistory() {
   return new Promise((resolve) => {
     chrome.runtime.sendMessage({ action: MESSAGE_TYPES.RELEVANT_HISTORY }, resolve);
@@ -228,5 +205,35 @@ function getSessions() {
 function setActiveOrg(orgSlug) {
   return new Promise((resolve) => {
     chrome.runtime.sendMessage({ action: MESSAGE_TYPES.SET_SESSION, org_slug: orgSlug }, resolve);
+  });
+}
+
+function getAllFilters() {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({ action: MESSAGE_TYPES.ALL_FILTERS }, resolve);
+  });
+}
+
+function getEnabledProviders() {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({ action: MESSAGE_TYPES.ENABLED_PROVIDERS }, resolve);
+  });
+}
+
+function enableProvider(provider) {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage(
+      { action: MESSAGE_TYPES.ENABLE_PROVIDER, provider: provider },
+      resolve
+    );
+  });
+}
+
+function disableProvider(provider) {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage(
+      { action: MESSAGE_TYPES.DISABLE_PROVIDER, provider: provider },
+      resolve
+    );
   });
 }
