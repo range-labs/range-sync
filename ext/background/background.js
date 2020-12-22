@@ -254,7 +254,7 @@ async function attemptRecordInteraction(
       attachment: merged,
     },
     authorize(session)
-  );
+  ).then(() => setBackfillTime(merged.provider));
 }
 
 // Queries Range for existing attachments and merges the attachments based on a
