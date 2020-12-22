@@ -31,14 +31,14 @@ chrome.tabs.onUpdated.addListener((_tabId, _info, tab) => {
 
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   const handleErr = (err) => {
-    console.log(err);
+    console.error(err);
     sendResponse(false);
   };
 
   switch (request.action) {
     // Responses that don't need to use the session
     case MESSAGE_TYPES.IS_AUTHENTICATED:
-      isAuthenticated().then(sendResponse);
+      isAuthenticated().then(sendResponse).catch(handleErr);
       break;
     case MESSAGE_TYPES.INTEGRATION_STATUS:
       tabHasFilter(request.tab).then(sendResponse).catch(handleErr);
@@ -46,13 +46,31 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     case MESSAGE_TYPES.RELEVANT_HISTORY:
       searchRelevantHistory().then(sendResponse).catch(handleErr);
       break;
+    case MESSAGE_TYPES.ALL_FILTERS:
+      getAllFilters().then(sendResponse).catch(handleErr);
+      break;
+    case MESSAGE_TYPES.ENABLED_PROVIDERS:
+      getEnabledProviders().then(sendResponse).catch(handleErr);
+      break;
+    case MESSAGE_TYPES.DISABLE_PROVIDER:
+      toggleProvider(request.provider, false).then(sendResponse).catch(handleErr);
+      break;
     // Responses that require the current session
+    case MESSAGE_TYPES.ENABLE_PROVIDER:
+      toggleProvider(request.provider, true)
+        .then(sendResponse)
+        .then(currentSession)
+        .then((s) => {
+          backfillHistory(s, request.provider);
+        })
+        .catch(handleErr);
+      break;
     case MESSAGE_TYPES.INTERACTION:
       currentSession()
         .then(async (s) => {
-          await attemptRecordInteraction(request.tab, s, true);
+          const r = await attemptRecordInteraction(request.tab, s, true);
           reportFirstAction(USER_ACTIONS.FIRST_INTERACTION, s);
-          sendResponse();
+          sendResponse(r);
         })
         .catch(handleErr);
       break;
@@ -61,10 +79,10 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       // ensure that the attachment exists.
       currentSession()
         .then(async (s) => {
-          const r = await attemptRecordInteraction(request.tab, s, true);
-          await attemptAddSnippet(s, request.snippet_type, request.text, r.attachment_id);
+          const i = await attemptRecordInteraction(request.tab, s, true);
+          const r = await attemptAddSnippet(s, request.snippet_type, request.text, i.attachment_id);
           reportFirstAction(USER_ACTIONS.FIRST_SNIPPET, s);
-          sendResponse();
+          sendResponse(r);
         })
         .catch(handleErr);
       break;
@@ -107,6 +125,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
         .catch(handleErr);
       break;
   }
+
   return true;
 });
 
@@ -136,6 +155,56 @@ function searchRelevantHistory() {
         ).then(() => {
           resolve(relevantHistory);
         });
+      }
+    );
+  });
+}
+
+async function backfillHistory(session, provider) {
+  const backfillStart = await new Promise(
+    chrome.storage.local.get(['backfill'], (resp) => {
+      if (!resp.backfill && !resp.backfill[provider])
+        resolve(moment().subtract(90, 'd').unix() * 1000);
+      resolve(moment(resp.backfill[provider]));
+    })
+  );
+
+  return new Promise((resolve) => {
+    chrome.history.search(
+      { text: '', startTime: backfillStart, maxResults: 10000 },
+      async (history) => {
+        const toSync = {};
+        for (const h of history) {
+          try {
+            const url = new URL(h.url);
+            const info = await providerInfo(url, h.title, false);
+            if (!info || info.provider != provider) continue;
+
+            toSync[info.source_id] = {
+              id: h.id,
+              title: h.title,
+              url: h.url,
+              favIconUrl: `chrome://favicon/size/24/${new URL(h.url).href.split('?')[0]}`,
+              time: h.lastVisitTime,
+            };
+          } catch (_) {
+            continue;
+          }
+        }
+
+        const tabs = Object.values(toSync);
+        tabs.sort((a, b) => {
+          return b.time - a.time;
+        });
+        for (const t of tabs) {
+          console.warn(`${provider}::${t.title}::${t.time}`);
+          await attemptRecordInteraction(t, session, false);
+          await new Promise((resolve) => {
+            setTimeout(resolve, 100);
+          });
+        }
+
+        resolve();
       }
     );
   });
@@ -327,24 +396,20 @@ function blocked(blockList, url, title) {
 }
 
 async function currentSession() {
-  try {
-    const sessions = await getSessions();
-    if (!sessions || sessions.length < 1) {
-      throw 'no authenticated sessions';
-    }
+  const sessions = await getSessions();
+  if (!sessions || sessions.length < 1) {
+    throw 'no authenticated sessions';
+  }
 
-    return new Promise(async (resolve) => {
-      chrome.storage.local.get(['active_org'], (resp) => {
-        const slug = resp.active_org || sessions[0].org.slug;
-        const session = sessions.find((s) => s.org.slug == slug) || sessions[0];
-        setActiveOrg(session.org.slug).then(() => {
-          resolve(session);
-        });
+  return new Promise(async (resolve) => {
+    chrome.storage.local.get(['active_org'], (resp) => {
+      const slug = resp.active_org || sessions[0].org.slug;
+      const session = sessions.find((s) => s.org.slug == slug) || sessions[0];
+      setActiveOrg(session.org.slug).then(() => {
+        resolve(session);
       });
     });
-  } catch (e) {
-    throw e;
-  }
+  });
 }
 
 function setActiveOrg(slug) {
