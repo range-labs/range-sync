@@ -192,7 +192,7 @@ async function backfillHistory(session, provider) {
 
         const tabs = Object.values(toSync);
         tabs.sort((a, b) => {
-          return moment(a.time) - moment(b.time);
+          return moment(b.time) - moment(a.time);
         });
         for (const t of tabs) {
           await attemptRecordInteraction(t, session, false, t.time).then(() => count++);
