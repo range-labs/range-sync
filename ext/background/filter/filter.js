@@ -14,20 +14,45 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-function enabledFilters(userRequested) {
+async function enabledFilters(userRequested) {
   // This is only used when a user is recording something on purpose
-  if (userRequested) return Promise.resolve(_filters);
+  if (userRequested) return _filters;
+
+  const activeProviders = await getEnabledProviders();
+  const activeFilters = [];
+  for (const f of _filters) {
+    if (activeProviders.includes(f.provider)) activeFilters.push(f);
+  }
+
+  return activeFilters;
+}
+
+async function toggleProvider(provider, active) {
+  const activeProviders = await getEnabledProviders();
+  const idx = activeProviders.indexOf(provider);
+  if (active) {
+    if (idx < 0) activeProviders.push(provider);
+  } else {
+    if (idx > -1) activeProviders.splice(idx, 1);
+  }
 
   return new Promise((resolve) => {
-    chrome.storage.local.get(['active_providers'], (resp) => {
-      if (!resp || !resp.active_providers) resolve([]);
+    chrome.storage.local.set({ active_providers: activeProviders }, resolve);
+  });
+}
 
-      const activeFilters = [];
-      for (const f of _filters) {
-        if (resp.active_providers?.includes(f.provider)) activeFilters.push(f);
-      }
+function getEnabledProviders() {
+  return new Promise((resolve) => {
+    chrome.storage.local.get(['active_providers'], (r) => {
+      resolve(r.active_providers || []);
+    });
+  });
+}
 
-      resolve(activeFilters);
+function getAllFilters() {
+  return new Promise((resolve) => {
+    chrome.storage.local.get(['filters'], (r) => {
+      resolve(r.filters || []);
     });
   });
 }

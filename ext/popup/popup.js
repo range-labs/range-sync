@@ -307,40 +307,21 @@ function currentCheckInType() {
   return SNIPPET_TYPES['PAST'];
 }
 
-function enableProvider(providerName) {
-  return new Promise((resolve) => {
-    chrome.storage.local.get(['active_providers'], (resp) => {
-      if (!providerName) {
-        resolve();
-        return;
-      }
-
-      // While developing we can accidentally introduce invalid providers
-      const providers = (resp.active_providers || []).filter((p) => !!p);
-      if (!providers.includes(providerName)) providers.push(providerName);
-      chrome.storage.local.set({ active_providers: providers }, () => {
-        resolve();
-      });
-    });
+function enableProvider(provider) {
+  return new Promise(resolve, () => {
+    chrome.runtime.sendMessage(
+      { action: MESSAGE_TYPES.ENABLE_PROVIDER, provider: provider },
+      resolve
+    );
   });
 }
 
-function disableProvider(providerName) {
-  return new Promise((resolve) => {
-    chrome.storage.local.get(['active_providers'], (resp) => {
-      if (!providerName) {
-        resolve();
-        return;
-      }
-
-      // While developing we can accidentally introduce invalid providers
-      const providers = (resp.active_providers || []).filter((p) => !!p);
-      const idx = providers.indexOf(providerName);
-      if (idx > -1) providers.splice(idx, 1);
-      chrome.storage.local.set({ active_providers: providers }, () => {
-        resolve();
-      });
-    });
+function disableProvider(provider) {
+  return new Promise(resolve, () => {
+    chrome.runtime.sendMessage(
+      { action: MESSAGE_TYPES.DISABLE_PROVIDER, provider: provider },
+      resolve
+    );
   });
 }
 
