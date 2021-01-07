@@ -12,6 +12,10 @@ const MERGE_BEHAVIOR = {
   REPLACE_EXISTING: 'REPLACE_EXISTING',
 };
 
+// Currently inelegant, but this is a quick way of tracking what new providers
+// have been added in a given update.
+const NEW_PROVIDERS = ['clubhouse'];
+
 var INTEGRATION_STATUSES = {
   ENABLED: 'ENABLED',
   DISABLED: 'DISABLED',
