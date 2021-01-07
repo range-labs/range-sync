@@ -5,6 +5,26 @@ const DEFAULT_SUBTYPE = 'NONE';
 const ATTACHMENT_ORIGIN = 1;
 const ATTACHMENT_CORE = ['source_id', 'provider', 'org_id', 'type', 'origin'];
 
+// These are the onInstalled reasons that will trigger the options page to open
+const _openOptionsReasons = ['install', 'update'];
+
+chrome.runtime.onInstalled.addListener(async (d) => {
+  chrome.storage.local.get(['active_providers'], (r) => {
+    // Carry over active providers from previous install
+    const providers = r.active_providers || [];
+    chrome.storage.local.set({ active_providers: providers }, () => {
+      if (!_openOptionsReasons.includes(d.reason)) return;
+
+      if (d.reason === 'update') {
+        // Keeps track of whether the new providers have been seen by the user
+        chrome.storage.local.set({ new_providers: NEW_PROVIDERS });
+      }
+
+      chrome.runtime.openOptionsPage();
+    });
+  });
+});
+
 chrome.tabs.onUpdated.addListener((_tabId, _info, tab) => {
   // no-op unless done loading
   if (!tab.status || !tab.status.localeCompare('complete') == 0) return;
@@ -64,6 +84,12 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
           backfillHistory(s, request.provider);
         })
         .catch(handleErr);
+      break;
+    case MESSAGE_TYPES.NEW_PROVIDERS:
+      getNewProviders().then(sendResponse).catch(handleErr);
+      break;
+    case MESSAGE_TYPES.ACK_NEW_PROVIDERS:
+      ackNewProviders().then(sendResponse).catch(handleErr);
       break;
     case MESSAGE_TYPES.INTERACTION:
       currentSession()
