@@ -10,6 +10,7 @@ const init = new Promise((resolve) => {
 });
 
 const workspaceSelector = document.getElementById('workspaceSelector');
+const activeOrg = document.getElementsByClassName('activeOrg');
 const signInButton = document.getElementById('signInButton');
 const workspaceButton = document.getElementById('workspaceButton');
 const workspaceContent = document.getElementById('workspaceContent');
@@ -26,11 +27,13 @@ const supportedCounts = document.getElementsByClassName('supportedCount');
   await init;
 
   const providerNameMap = {};
+  const newProviderOptions = [];
   const active = [];
   const inactive = [];
 
   const allFilters = await getAllFilters();
   const enabledProviders = await getEnabledProviders();
+  const newProviders = await getNewProviders();
   for (const f of Object.values(allFilters)) {
     providerNameMap[f.provider_name] = f.provider;
     const inst = toggleTemplate.content.cloneNode(true);
@@ -45,6 +48,12 @@ const supportedCounts = document.getElementsByClassName('supportedCount');
       desc.classList.add('active');
       inst.querySelector('.toggle').checked = true;
       active.push(inst);
+    } else if (newProviders.includes(f.provider)) {
+      const newProvider = inst.querySelector('.newProvider');
+      newProvider.classList.add('active');
+      desc.textContent = 'Sync OFF';
+      inst.querySelector('.toggle').checked = false;
+      newProviderOptions.push(inst);
     } else {
       desc.textContent = 'Sync OFF';
       inst.querySelector('.toggle').checked = false;
@@ -52,6 +61,8 @@ const supportedCounts = document.getElementsByClassName('supportedCount');
     }
   }
 
+  newProviderOptions.sort(sortProvider);
+  newProviderOptions.forEach((e) => relevantToggles.appendChild(e));
   active.sort(sortProvider);
   active.forEach((e) => relevantToggles.appendChild(e));
 
@@ -100,6 +111,12 @@ const supportedCounts = document.getElementsByClassName('supportedCount');
 
   for (const s of sessions) {
     const isActive = s.active ? 'active' : '';
+    if (isActive) {
+      for (const e of activeOrg) {
+        e.textContent = s.org.name;
+      }
+    }
+
     const option = document.createElement('div');
     option.className = `workspaceOption ${isActive}`;
     option.textContent = s.org.name;
@@ -112,6 +129,8 @@ const supportedCounts = document.getElementsByClassName('supportedCount');
     workspaceSelector.classList.add('active');
     workspaceButton.classList.add('active');
   }
+
+  await ackNewProviders();
 })();
 
 enableVisited.addEventListener('click', async () => {
@@ -217,6 +236,18 @@ function getAllFilters() {
 function getEnabledProviders() {
   return new Promise((resolve) => {
     chrome.runtime.sendMessage({ action: MESSAGE_TYPES.ENABLED_PROVIDERS }, resolve);
+  });
+}
+
+function getNewProviders() {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({ action: MESSAGE_TYPES.NEW_PROVIDERS }, resolve);
+  });
+}
+
+function ackNewProviders() {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({ action: MESSAGE_TYPES.ACK_NEW_PROVIDERS }, resolve);
   });
 }
 

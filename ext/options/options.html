@@ -20,7 +20,8 @@
     <div id="workspaceSelector">
       <a class="largeButton" id="signInButton" href="https://range.co/login" target="_blank">Sign in to Range</a>
       <button class="largeButton" id="workspaceButton">
-        <span>Sync to workspace</span><img id="workspaceIndicator" src="/images/accordion-indicator.png" />
+        <span>Syncing to: </span><span class="activeOrg"></span><img id="workspaceIndicator"
+          src="/images/accordion-indicator.png" />
       </button>
       <div id="workspaceContent">
         <div id="workspaceList"></div>
@@ -47,7 +48,7 @@
               <div class="toggleContainer">
                 <div class="provider">
                   <img class="providerIcon" src="">
-                  <div class="providerName"></div>
+                  <div class="providerName"></div><sup class="newProvider">NEW</sup>
                   <div class="switchContainer">
                     <label class="switch">
                       <input class="toggle" type="checkbox">
