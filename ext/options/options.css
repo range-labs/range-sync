@@ -177,6 +177,17 @@ hr {
   align-items: center;
 }
 
+.newProvider {
+  display: none;
+}
+
+.newProvider.active {
+  color: #fe0061;
+  display: block;
+  font-size: 8px;
+  margin-left: 8px;
+}
+
 .providerIcon {
   height: auto;
   margin-right: 14px;

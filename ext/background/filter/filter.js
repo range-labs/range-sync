@@ -4,16 +4,6 @@
 // save objects with their methods in chrome.storage.
 const _filters = [];
 
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.local.get(['active_providers'], (r) => {
-    // Carry over active providers from previous install
-    const p = r.active_providers || [];
-    chrome.storage.local.set({ active_providers: p }, () => {
-      chrome.runtime.openOptionsPage();
-    });
-  });
-});
-
 async function enabledFilters(userRequested) {
   // This is only used when a user is recording something on purpose
   if (userRequested) return _filters;
@@ -34,6 +24,8 @@ async function toggleProvider(provider, active) {
     if (idx < 0) activeProviders.push(provider);
   } else {
     if (idx > -1) activeProviders.splice(idx, 1);
+    // Ensure that if reenabled, the backfill doesn't start at the beginning
+    setBackfillTime(provider);
   }
 
   return new Promise((resolve) => {
@@ -46,6 +38,20 @@ function getEnabledProviders() {
     chrome.storage.local.get(['active_providers'], (r) => {
       resolve(r.active_providers || []);
     });
+  });
+}
+
+function getNewProviders() {
+  return new Promise((resolve) => {
+    chrome.storage.local.get(['new_providers'], (r) => {
+      resolve(r.new_providers || []);
+    });
+  });
+}
+
+function ackNewProviders() {
+  return new Promise((resolve) => {
+    chrome.storage.local.set({ new_providers: [] }, resolve);
   });
 }
 
