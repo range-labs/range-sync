@@ -41,6 +41,9 @@
       "128": "images/favicons/browser-action128.png"
     }
   },
+  "externally_connectable": {
+    "matches": ["*://*.range.co/*"]
+  },
   "icons": {
     "16": "images/favicons/store16.png",
     "48": "images/favicons/store48.png",
