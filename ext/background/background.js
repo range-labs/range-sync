@@ -156,7 +156,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 });
 
 // Respond to message from Range app to confirm extension is installed.
-chrome.runtime.onMessageExternal.addListener(function (request, sender, sendResponse) {
+chrome.runtime.onMessageExternal.addListener(function (_request, _sender, sendResponse) {
   sendResponse({ isInstalled: true });
 });
 
