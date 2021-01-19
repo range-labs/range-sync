@@ -3,7 +3,7 @@
 const DEFAULT_TYPE = 'LINK';
 const DEFAULT_SUBTYPE = 'NONE';
 const ATTACHMENT_ORIGIN = 1;
-const ATTACHMENT_CORE = ['source_id', 'provider', 'org_id', 'type', 'origin'];
+const ATTACHMENT_CORE = ['source_id', 'provider', 'org_id', 'type', 'origin', 'name'];
 
 // These are the onInstalled reasons that will trigger the options page to open
 const _openOptionsReasons = ['install', 'update'];
