@@ -3,7 +3,7 @@
 const DEFAULT_TYPE = 'LINK';
 const DEFAULT_SUBTYPE = 'NONE';
 const ATTACHMENT_ORIGIN = 1;
-const ATTACHMENT_CORE = ['source_id', 'provider', 'org_id', 'type', 'origin'];
+const ATTACHMENT_CORE = ['source_id', 'provider', 'org_id', 'type', 'origin', 'name'];
 
 chrome.tabs.onUpdated.addListener((_tabId, _info, tab) => {
   // no-op unless done loading
