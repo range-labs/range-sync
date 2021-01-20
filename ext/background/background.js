@@ -235,7 +235,13 @@ async function backfillHistory(session, provider) {
           return moment(b.time) - moment(a.time);
         });
         for (const t of tabs) {
-          await attemptRecordInteraction(t, session, false, t.time).then(() => count++);
+          try {
+            await attemptRecordInteraction(t, session, false, t.time);
+            count++;
+          } catch (e) {
+            console.log(e);
+          }
+
           await new Promise((resolve) => {
             setTimeout(resolve, 100);
           });
