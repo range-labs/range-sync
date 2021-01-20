@@ -25,7 +25,7 @@ chrome.runtime.onInstalled.addListener(async (d) => {
   });
 });
 
-chrome.tabs.onUpdated.addListener((_tabId, _info, tab) => {
+chrome.tabs.onUpdated.addListener(async (_tabId, _info, tab) => {
   // no-op unless done loading
   if (!tab.status || !tab.status.localeCompare('complete') == 0) return;
 
@@ -40,13 +40,13 @@ chrome.tabs.onUpdated.addListener((_tabId, _info, tab) => {
   // no-op if the title has not actually loaded yet
   if (tab.url.localeCompare(tab.title) == 0) return;
 
-  currentSession()
-    .then((s) => {
-      attemptRecordInteraction(tab, s, false).then(() => {
-        reportFirstAction(USER_ACTIONS.FIRST_INTERACTION, s);
-      });
-    })
-    .catch(console.log);
+  try {
+    const s = await currentSession();
+    await attemptRecordInteraction(tab, s, false);
+    await reportFirstAction(USER_ACTIONS.FIRST_INTERACTION, s);
+  } catch (e) {
+    console.log(e);
+  }
 });
 
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
@@ -105,10 +105,19 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       // ensure that the attachment exists.
       currentSession()
         .then(async (s) => {
-          const i = await attemptRecordInteraction(request.tab, s, true);
-          const r = await attemptAddSnippet(s, request.snippet_type, request.text, i.attachment_id);
-          reportFirstAction(USER_ACTIONS.FIRST_SNIPPET, s);
-          sendResponse(r);
+          try {
+            const i = await attemptRecordInteraction(request.tab, s, true);
+            const r = await attemptAddSnippet(
+              s,
+              request.snippet_type,
+              request.text,
+              i.attachment_id
+            );
+            reportFirstAction(USER_ACTIONS.FIRST_SNIPPET, s);
+            sendResponse(r);
+          } catch (e) {
+            handleErr(e);
+          }
         })
         .catch(handleErr);
       break;
@@ -266,18 +275,12 @@ async function attemptRecordInteraction(
   }
 
   const a = await attachment(session, tab, force);
-  if (!a) {
-    if (force) {
-      console.log(session);
-      console.log(tab);
-      return Promise.reject('could not create attachment for interaction');
-    }
-    return Promise.resolve();
-  }
+  if (!a) return Promise.reject('could not create attachment for interaction');
+
   setChromeActivity(a, tab);
 
   const merged = await mergeAttachment(session, a);
-  return recordInteraction(
+  const resp = await recordInteraction(
     {
       interaction_type: (_) => 'VIEWED',
       idempotency_key: `${moment().startOf('day')}::${tab.title}`,
@@ -285,7 +288,10 @@ async function attemptRecordInteraction(
       attachment: merged,
     },
     authorize(session)
-  ).then(() => setBackfillTime(merged.provider));
+  );
+  setBackfillTime(merged.provider);
+
+  return resp;
 }
 
 // Queries Range for existing attachments and merges the attachments based on a
