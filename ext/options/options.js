@@ -97,17 +97,19 @@ const supportedCounts = document.getElementsByClassName('supportedCount');
   addToggleListeners();
 
   const sessions = await getSessions();
+
+  // If there are no user sessions
   if (!sessions || sessions.length < 1) {
     workspaceSelector.classList.add('active');
     signInButton.classList.add('active');
-    return;
   }
 
-  if (sessions.length < 2) return;
-
-  workspaceSelector.addEventListener('click', () => {
-    workspaceSelector.classList.toggle('open');
-  });
+  // If the users is associated with multiple workspaces
+  if (sessions.length > 1) {
+    workspaceSelector.addEventListener('click', () => {
+      workspaceSelector.classList.toggle('open');
+    });
+  }
 
   for (const s of sessions) {
     const isActive = s.active ? 'active' : '';
