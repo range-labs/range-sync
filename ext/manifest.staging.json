@@ -25,6 +25,7 @@
       "background/filter/lucid_chart.js",
       "background/filter/medium.js",
       "background/filter/metabase.js",
+      "background/filter/monday.js",
       "background/filter/notion.js",
       "background/filter/quip.js",
       "background/filter/stack_overflow.js"
