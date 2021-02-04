@@ -24,6 +24,7 @@ const attachmentSubtitle = document.getElementById('attachmentSubtitle');
 const attachmentIcon = document.getElementById('attachmentIcon');
 const checkInLogo = document.getElementById('checkInLogo');
 const checkInTime = document.getElementById('checkInTime');
+const activeOrgNames = document.getElementsByClassName('activeOrgName');
 const checkInButton = document.getElementById('checkInButton');
 const viewCheckInButton = document.getElementById('viewCheckInButton');
 const activityList = document.getElementById('activityList');
@@ -186,22 +187,34 @@ const enabledCounts = document.getElementsByClassName('enabledCount');
 
   chrome.runtime.sendMessage({ action: MESSAGE_TYPES.RECENT_ACTIVITY }, recentActivityHandler);
 
-  chrome.runtime.sendMessage({ action: MESSAGE_TYPES.IS_AUTHENTICATED }, (r) => {
-    if (!!r) {
-      // If authentication has been confirmed, show accordion
-      const authElements = document.getElementsByClassName('authenticated');
-      for (const e of authElements) {
-        e.style.display = 'block';
-      }
-      checkInText.focus();
-    } else {
-      // If the user is not authenticated with Range, show login button
-      const unauthElements = document.getElementsByClassName('unauthenticated');
-      for (const e of unauthElements) {
-        e.style.display = 'flex';
+  const sessions = await getSessions();
+  if (sessions && sessions.length > 0) {
+    // If authentication has been confirmed, show accordion
+    const authElements = document.getElementsByClassName('authenticated');
+    for (const e of authElements) {
+      e.style.display = 'block';
+    }
+    checkInText.focus();
+  } else {
+    // If the user is not authenticated with Range, show login button
+    const unauthElements = document.getElementsByClassName('unauthenticated');
+    for (const e of unauthElements) {
+      e.style.display = 'flex';
+    }
+  }
+
+  let activeOrg = '';
+  if (sessions.length > 1) {
+    for (const s of sessions) {
+      if (s.active) {
+        activeOrg = `${s.org.name} `;
+        for (const a of activeOrgNames) {
+          a.textContent = activeOrg;
+        }
+        break;
       }
     }
-  });
+  }
 
   // Attach events to accordions
   for (const a of accordions) {
@@ -226,29 +239,28 @@ const enabledCounts = document.getElementsByClassName('enabledCount');
       for (const e of checkInTypes) {
         e.classList.remove('active');
       }
-
       t.classList.add('active');
-
-      checkInText.focus();
 
       switch (t.id) {
         case 'FUTURE':
           checkInText.placeholder = 'What do you want to accomplish?';
-          addToCheckInButton.textContent = 'Add to next Check-in';
-          checkInSuccess.textContent = 'Item added to your next Check-in';
+          addToCheckInButton.textContent = `Add to next ${activeOrg}Check-in`;
+          checkInSuccess.textContent = `Item added to your next ${activeOrg}Check-in`;
           break;
         case 'BACKLOG':
           checkInText.placeholder = 'Why is this going to the backlog?';
-          addToCheckInButton.textContent = 'Add to Backlog';
-          checkInSuccess.textContent = 'Item added to your Backlog';
+          addToCheckInButton.textContent = `Add to ${activeOrg}Backlog`;
+          checkInSuccess.textContent = `Item added to your ${activeOrg}Backlog`;
           break;
         case 'PAST':
         default:
           checkInText.placeholder = 'What progress did you make?';
-          addToCheckInButton.textContent = 'Add to next Check-in';
-          checkInSuccess.textContent = 'Item added to your next Check-in';
+          addToCheckInButton.textContent = `Add to next ${activeOrg}Check-in`;
+          checkInSuccess.textContent = `Item added to your next ${activeOrg}Check-in`;
           break;
       }
+
+      checkInText.focus();
     });
   }
 
@@ -337,6 +349,12 @@ function sendSnippet(type, tab, text) {
       checkInSuccess.classList.add('active');
     }
   );
+}
+
+function getSessions() {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({ action: MESSAGE_TYPES.SESSIONS }, resolve);
+  });
 }
 
 function recentActivityHandler(response) {
