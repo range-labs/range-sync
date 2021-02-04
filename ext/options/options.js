@@ -109,27 +109,27 @@ const supportedCounts = document.getElementsByClassName('supportedCount');
     workspaceSelector.addEventListener('click', () => {
       workspaceSelector.classList.toggle('open');
     });
-  }
 
-  for (const s of sessions) {
-    const isActive = s.active ? 'active' : '';
-    if (isActive) {
-      for (const e of activeOrg) {
-        e.textContent = s.org.name;
+    for (const s of sessions) {
+      const isActive = s.active ? 'active' : '';
+      if (isActive) {
+        for (const e of activeOrg) {
+          e.textContent = s.org.name;
+        }
       }
+
+      const option = document.createElement('div');
+      option.className = `workspaceOption ${isActive}`;
+      option.textContent = s.org.name;
+      option.addEventListener('click', async () => {
+        await setActiveOrg(s.org.slug);
+        location.reload();
+      });
+      workspaceList.appendChild(option);
+
+      workspaceSelector.classList.add('active');
+      workspaceButton.classList.add('active');
     }
-
-    const option = document.createElement('div');
-    option.className = `workspaceOption ${isActive}`;
-    option.textContent = s.org.name;
-    option.addEventListener('click', async () => {
-      await setActiveOrg(s.org.slug);
-      location.reload();
-    });
-    workspaceList.appendChild(option);
-
-    workspaceSelector.classList.add('active');
-    workspaceButton.classList.add('active');
   }
 
   await ackNewProviders();
