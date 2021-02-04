@@ -57,9 +57,6 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 
   switch (request.action) {
     // Responses that don't need to use the session
-    case MESSAGE_TYPES.IS_AUTHENTICATED:
-      isAuthenticated().then(sendResponse).catch(handleErr);
-      break;
     case MESSAGE_TYPES.INTEGRATION_STATUS:
       tabHasFilter(request.tab).then(sendResponse).catch(handleErr);
       break;
