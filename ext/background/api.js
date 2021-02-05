@@ -18,12 +18,6 @@ chrome.cookies.onChanged.addListener(async () => {
   console.log(_sessionCache);
 });
 
-async function isAuthenticated() {
-  if (Object.keys(_sessionCache).length > 0) return true;
-  await refreshSessions();
-  return Object.keys(_sessionCache).length > 0;
-}
-
 function sessionUserId(s) {
   if (!s || !s.user || !s.user.user_id) {
     return null;
