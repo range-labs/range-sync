@@ -14,7 +14,7 @@ const MERGE_BEHAVIOR = {
 
 // Currently inelegant, but this is a quick way of tracking what new providers
 // have been added in a given update.
-const NEW_PROVIDERS = ['monday'];
+const NEW_PROVIDERS = ['monday', 'bitbucket'];
 
 var INTEGRATION_STATUSES = {
   ENABLED: 'ENABLED',

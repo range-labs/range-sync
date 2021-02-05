@@ -2,7 +2,7 @@
 
 // GitHub and GitHub Enterprise basically share everything except for their
 // names and URLs
-const base = {
+const gitHubBase = {
   parent: (url) => {
     const reName = /\/(.+)\/(.+)\/(issues|pull)/;
     const nameMatch = url.pathname.match(reName);
@@ -74,7 +74,7 @@ const base = {
 
 // GitHub Enterprise
 registerFilter({
-  ...base,
+  ...gitHubBase,
   url_regex: [/github(.+)\.com/],
   provider: 'github_enterprise',
   provider_name: (_url) => 'GitHub Enterprise',
@@ -82,7 +82,7 @@ registerFilter({
 
 // Regular GitHub
 registerFilter({
-  ...base,
+  ...gitHubBase,
   url_regex: [/github\.com/],
   provider: 'github',
   provider_name: (_url) => 'GitHub',
