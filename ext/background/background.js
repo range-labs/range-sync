@@ -354,75 +354,74 @@ async function attachment(session, tab, force) {
   };
 }
 
-function providerInfo(url, title, force) {
+async function providerInfo(url, title, force) {
   // For consistency, remove trailing forward slashes
   const base = url.hostname + url.pathname.replace(/\/+$/, '');
+
   // Loop through the known providers and check if the current URL matches one
-  return enabledFilters(force).then((filters) => {
-    for (const filter of filters) {
-      if (filter.no_sync && !force) continue;
+  const filters = await enabledFilters(force);
+  for (const filter of filters) {
+    if (filter.no_sync && !force) continue;
 
-      let sourceId = '';
-      for (const reUrl of filter.url_regex) {
-        if (blocked(filter.block_list, url, title) && !force) return null;
-        if (!reUrl.test(base)) continue;
+    let sourceId = '';
+    for (const reUrl of filter.url_regex) {
+      if (!reUrl.test(base)) continue;
+      if (blocked(filter.block_list, url, title) && !force) return null;
 
-        for (const processor of filter.processors) {
-          sourceId = processor.source_id_processor(url);
-          if (!!sourceId) {
-            const info = {
-              name: processor.title_processor(title),
-              provider: filter.provider,
-              provider_name: filter.provider_name(url, title),
-              source_id: sourceId,
-              type: !!filter.type ? filter.type(url) : DEFAULT_TYPE,
-              subtype: !!filter.subtype ? filter.subtype(url, title) : DEFAULT_SUBTYPE,
-            };
+      for (const processor of filter.processors) {
+        sourceId = processor.source_id_processor(url);
+        if (!!sourceId) {
+          const info = {
+            name: processor.title_processor(title),
+            provider: filter.provider,
+            provider_name: filter.provider_name(url, title),
+            source_id: sourceId,
+            type: !!filter.type ? filter.type(url) : DEFAULT_TYPE,
+            subtype: !!filter.subtype ? filter.subtype(url, title) : DEFAULT_SUBTYPE,
+          };
 
-            if (processor.change_info) Object.assign(info, processor.change_info(url));
-            if (processor.issue_info) Object.assign(info, processor.issue_info(url));
-            if (filter.parent) Object.assign(info, filter.parent(url));
+          if (processor.change_info) Object.assign(info, processor.change_info(url));
+          if (processor.issue_info) Object.assign(info, processor.issue_info(url));
+          if (filter.parent) Object.assign(info, filter.parent(url));
 
-            return info;
-          }
+          return info;
         }
-
-        // No processor found for a recognized domain; return to avoid spam
-        if (!force) return null;
-
-        return {
-          name: title,
-          provider: filter.provider,
-          provider_name: filter.provider_name(url, title),
-          // prefixing 'chromeext_' will make it easier to find out what pages
-          // to add next
-          source_id: `chromeext_${base}`,
-          type: DEFAULT_TYPE,
-          subtype: DEFAULT_SUBTYPE,
-        };
       }
+
+      // No processor found for a recognized domain; return to avoid spam
+      if (!force) return null;
+
+      return {
+        name: title,
+        provider: filter.provider,
+        provider_name: filter.provider_name(url, title),
+        // prefixing 'chromeext_' will make it easier to find out what pages
+        // to add next
+        source_id: `chromeext_${base}`,
+        type: DEFAULT_TYPE,
+        subtype: DEFAULT_SUBTYPE,
+      };
     }
+  }
 
-    // No filter found for any domain; return null to avoid spam
-    if (!force) return null;
-
-    // If there's no known provider, generate one based on the URL
-    const hostParts = url.hostname.split('.');
-    const tld = hostParts[hostParts.length - 1];
-    const domain = hostParts[hostParts.length - 2];
-    return {
-      name: title,
-      // i.e. 'subdomain.nytimes.com' -> 'chromeext_nytimes'
-      provider: `chromeext_${domain.replace(/[\W-]/, '')}`,
-      // i.e. 'subdomain.nytimes.com' -> 'nytimes.com (via Range Sync)'
-      provider_name: `${domain}.${tld} (via Range Sync)`,
-      // prefixing 'chromeext_' will make it easier to find out what providers
-      // to add next
-      source_id: `chromeext_${base}`,
-      type: DEFAULT_TYPE,
-      subtype: DEFAULT_SUBTYPE,
-    };
-  });
+  // No filter found for any domain; return null to avoid spam
+  if (!force) return null;
+  // If there's no known provider, generate one based on the URL
+  const hostParts = url.hostname.split('.');
+  const tld = hostParts[hostParts.length - 1];
+  const domain = hostParts[hostParts.length - 2];
+  return {
+    name: title,
+    // i.e. 'subdomain.nytimes.com' -> 'chromeext_nytimes'
+    provider: `chromeext_${domain.replace(/[\W-]/, '')}`,
+    // i.e. 'subdomain.nytimes.com' -> 'nytimes.com (via Range Sync)'
+    provider_name: `${domain}.${tld} (via Range Sync)`,
+    // prefixing 'chromeext_' will make it easier to find out what providers
+    // to add next
+    source_id: `chromeext_${base}`,
+    type: DEFAULT_TYPE,
+    subtype: DEFAULT_SUBTYPE,
+  };
 }
 
 function blocked(blockList, url, title) {

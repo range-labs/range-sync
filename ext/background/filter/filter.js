@@ -127,6 +127,12 @@ function reMatch(str, re, index) {
   return match ? match[index] : null;
 }
 
+function trimFirstPart(str, match) {
+  const parts = str.split(match);
+  if (parts.length > 1) parts.shift();
+  return parts.join(match);
+}
+
 function trimLastPart(str, match) {
   const parts = str.split(match);
   if (parts.length > 1) parts.pop();
