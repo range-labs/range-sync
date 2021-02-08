@@ -14,6 +14,7 @@
       "background/filter/filter.js",
       "background/filter/asana.js",
       "background/filter/bitbucket.js",
+      "background/filter/box.js",
       "background/filter/clubhouse.js",
       "background/filter/confluence.js",
       "background/filter/dropbox_paper.js",

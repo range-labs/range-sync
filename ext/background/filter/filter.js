@@ -138,3 +138,11 @@ function trimLastPart(str, match) {
   if (parts.length > 1) parts.pop();
   return parts.join(match);
 }
+
+function trimExtension(str) {
+  const reExt = /([a-zA-Z0-9]+\.[a-zA-Z0-9]+$)/;
+  if (reExt.test(str)) {
+    return trimLastPart(str, '.');
+  }
+  return str;
+}
