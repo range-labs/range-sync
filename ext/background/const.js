@@ -50,3 +50,14 @@ var USER_ACTIONS = {
   FIRST_INTERACTION: 'extension_first_interaction_recorded',
   FIRST_SNIPPET: 'extension_first_snippet',
 };
+
+var AUTH_STATES = {
+  // Not authenticated at all
+  NO_AUTH: { value: 'NO_AUTH', badge: 'AUTH' },
+  // Currently selected session is no longer authenticated
+  NO_SYNC_AUTH: { value: 'NO_SYNC_AUTH', badge: 'AUTH' },
+  // Multiple sessions are authenticated but none are selected
+  NO_SYNC_SELECTED: { value: 'NO_SYNC_SELECTED', badge: 'SYNC' },
+  // Everything is okay
+  OK: { value: 'OK', badge: '' },
+};
