@@ -80,13 +80,20 @@ hr {
   display: block;
 }
 
+#workspaceOr {
+  display: none;
+}
+
+#workspaceOr.active {
+  display: block;
+}
+
 #workspaceButton {
   display: none;
 }
 
 #workspaceButton.active {
   display: block;
-  margin: 0;
   outline: none;
 }
 
