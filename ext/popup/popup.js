@@ -3,12 +3,14 @@
 let SNIPPET_TYPES;
 let INTEGRATION_STATUSES;
 let MESSAGE_TYPES;
+let AUTH_STATES;
 
 const init = new Promise((resolve) => {
   chrome.runtime.getBackgroundPage((bg) => {
     SNIPPET_TYPES = bg.SNIPPET_TYPES;
     INTEGRATION_STATUSES = bg.INTEGRATION_STATUSES;
     MESSAGE_TYPES = bg.MESSAGE_TYPES;
+    AUTH_STATES = bg.AUTH_STATES;
     resolve();
   });
 });
@@ -188,19 +190,34 @@ const enabledCounts = document.getElementsByClassName('enabledCount');
   chrome.runtime.sendMessage({ action: MESSAGE_TYPES.RECENT_ACTIVITY }, recentActivityHandler);
 
   const sessions = await getSessions();
-  if (sessions && sessions.length > 0) {
-    // If authentication has been confirmed, show accordion
-    const authElements = document.getElementsByClassName('authenticated');
-    for (const e of authElements) {
-      e.style.display = 'block';
-    }
-    checkInText.focus();
-  } else {
-    // If the user is not authenticated with Range, show login button
-    const unauthElements = document.getElementsByClassName('unauthenticated');
-    for (const e of unauthElements) {
-      e.style.display = 'flex';
-    }
+  const authState = await getAuthState();
+
+  switch (authState) {
+    case AUTH_STATES.NO_AUTH.value:
+    case AUTH_STATES.NO_SYNC_AUTH.value:
+      // If the user is not authenticated with Range or is no longer
+      // authenticated with the selected session
+      const unauthElements = document.getElementsByClassName('unauthenticated');
+      for (const e of unauthElements) {
+        e.style.display = 'flex';
+      }
+      break;
+    case AUTH_STATES.NO_SYNC_SELECTED.value:
+      // If the user is authenticated with multiple workspaces but has not
+      // selected one, show link to options page
+      const noActiveElements = document.getElementsByClassName('noActiveWorkspace');
+      for (const e of noActiveElements) {
+        e.style.display = 'flex';
+      }
+      break;
+    case AUTH_STATES.OK.value:
+      // If authentication has been confirmed, show accordion
+      const authElements = document.getElementsByClassName('authenticated');
+      for (const e of authElements) {
+        e.style.display = 'block';
+      }
+      checkInText.focus();
+      break;
   }
 
   let activeOrg = '';
@@ -402,5 +419,13 @@ function recentActivityHandler(response) {
     } else {
       activityList.innerText = 'No activity yet';
     }
+  });
+}
+
+function getAuthState() {
+  return new Promise((resolve) => {
+    chrome.storage.local.get(['auth_state'], (resp) => {
+      resolve(resp.auth_state);
+    });
   });
 }
