@@ -140,20 +140,20 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     case MESSAGE_TYPES.SESSIONS:
       getSessions()
         .then(async (sessions) => {
-          let resp = sessions;
-          if (sessions.length > 1) {
-            try {
-              const c = await currentSession();
-              resp = sessions
-                .filter((s) => s)
-                .map((s) => {
-                  return { ...s, active: s.org.slug == c.org.slug };
-                });
-            } catch (err) {
-              console.log(err);
-            }
+          try {
+            const c = await currentSession();
+            sessions
+              .filter((s) => s)
+              .forEach((s) => {
+                s.active = s.org.slug == c.org.slug;
+              });
+          } catch (err) {
+            // If there is an error assigning an active session, we still return
+            // the sessions after logging
+            console.log(err);
+          } finally {
+            sendResponse(sessions);
           }
-          sendResponse(resp);
         })
         .catch(handleErr);
       break;

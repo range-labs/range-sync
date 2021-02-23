@@ -99,7 +99,10 @@ async function getSessions() {
 
   const sessions = Object.values(_sessionCache);
   if (sessions.length < 1) throw 'no authenticated sessions';
-  return sessions;
+  // Return new objects so the caller does not overwrite the _sessionCache
+  return sessions.map((s) => {
+    return { ...s };
+  });
 }
 
 // Returns a map of Range API cookie slugs and cookie values. Filters cookies
@@ -117,7 +120,7 @@ function cookieMap() {
             // Filter cookies that have previously failed to authenticate
             .filter((c) => !_invalidCookieCache[c.value])
             // Filter expired cookies
-            .filter((c) => moment(c.expirationDate) - moment() / 1000 > 0)
+            .filter((c) => moment(c.expirationDate).isBefore(moment()))
             // Convert to slug:cookie_value map
             .reduce((acc, cur) => {
               acc[cur.name.substr(3)] = cur.value;

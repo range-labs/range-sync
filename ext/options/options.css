@@ -86,6 +86,8 @@ hr {
 
 #workspaceOr.active {
   display: block;
+  font-weight: 300;
+  margin: 5px;
 }
 
 #workspaceButton {
