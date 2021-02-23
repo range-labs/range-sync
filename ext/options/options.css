@@ -80,13 +80,22 @@ hr {
   display: block;
 }
 
+#workspaceOr {
+  display: none;
+}
+
+#workspaceOr.active {
+  display: block;
+  font-weight: 300;
+  margin: 5px;
+}
+
 #workspaceButton {
   display: none;
 }
 
 #workspaceButton.active {
   display: block;
-  margin: 0;
   outline: none;
 }
 

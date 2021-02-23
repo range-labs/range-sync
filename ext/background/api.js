@@ -8,13 +8,15 @@ const sessionCheckInterval = 30 * 1000;
 const sessionExpiryThreshold = 30 * 60 * 1000;
 
 let _sessionCache = {};
+let _invalidCookieCache = {};
 let init = refreshSessions(true);
 
 setInterval(refreshSessions, sessionCheckInterval);
+
 chrome.cookies.onChanged.addListener(async () => {
-  console.log(`refreshing sessions, cookies changed`);
+  console.log('refreshing sessions, cookies changed');
   console.log(_sessionCache);
-  await refreshSessions();
+  await refreshSessions(true);
   console.log(_sessionCache);
 });
 
@@ -30,14 +32,16 @@ async function refreshSessions(force) {
   if (force) _sessionCache = {};
 
   // Check for new Range workspace cookies
-  const cookieSlugs = await orgsFromCookies();
-  for (const s of cookieSlugs) {
-    if (!_sessionCache[s]) _sessionCache[s] = { from_cookie: true };
+  const map = await cookieMap();
+  for (const [slug, value] of Object.entries(map)) {
+    if (!_sessionCache[slug]) _sessionCache[slug] = {};
+    const session = _sessionCache[slug];
+    session.cookie_value = value;
   }
 
   for (const slug in _sessionCache) {
     // Check for removed Range workspace cookies
-    if (!cookieSlugs.includes(slug)) {
+    if (!map[slug]) {
       delete _sessionCache[slug];
       continue;
     }
@@ -45,19 +49,48 @@ async function refreshSessions(force) {
     const session = _sessionCache[slug];
     // If session newly initialized or close to expiring, refresh session
     if (
-      session.from_cookie ||
+      !session.session_expires_at ||
       moment(session.session_expires_at) - moment() < sessionExpiryThreshold
     ) {
+      const cookieValue = session.cookie_value;
       delete _sessionCache[slug];
       try {
         const newSession = await rangeLogin(slug);
         reportFirstAction(USER_ACTIONS.FIRST_LOGIN, newSession);
-        if (newSession) _sessionCache[slug] = newSession;
+        if (newSession) {
+          newSession.cookie_value = cookieValue;
+          _sessionCache[slug] = newSession;
+        } else {
+          _invalidCookieCache[cookieValue] = slug;
+        }
       } catch (_) {
         console.log(`user is not authenticated with ${slug}`);
       }
     }
   }
+
+  chrome.storage.local.get(['active_org'], (resp) => {
+    const activeOrg = resp.active_org;
+    const slugs = Object.keys(_sessionCache);
+    if (slugs.length < 1) {
+      // If there are no sessions
+      chrome.storage.local.set({ auth_state: AUTH_STATES.NO_AUTH.value });
+      chrome.browserAction.setBadgeText({ text: AUTH_STATES.NO_AUTH.badge });
+    } else if (slugs.length > 1 && !!activeOrg && !slugs.includes(activeOrg)) {
+      // If the currently selected sync session isn't authenticated
+      chrome.storage.local.set({ auth_state: AUTH_STATES.NO_SYNC_AUTH.value });
+      chrome.browserAction.setBadgeText({ text: AUTH_STATES.NO_SYNC_AUTH.badge });
+    } else if (slugs.length > 1 && !activeOrg) {
+      // If there are multiple sessions and one isn't selected for sync
+      chrome.storage.local.set({ auth_state: AUTH_STATES.NO_SYNC_SELECTED.value });
+      chrome.browserAction.setBadgeText({ text: AUTH_STATES.NO_SYNC_SELECTED.badge });
+    } else {
+      // If everything is okay
+      chrome.storage.local.set({ auth_state: AUTH_STATES.OK.value });
+      chrome.browserAction.setBadgeText({ text: AUTH_STATES.OK.badge });
+    }
+  });
+
   return;
 }
 
@@ -66,15 +99,35 @@ async function getSessions() {
 
   const sessions = Object.values(_sessionCache);
   if (sessions.length < 1) throw 'no authenticated sessions';
-  return sessions;
+  // Return new objects so the caller does not overwrite the _sessionCache
+  return sessions.map((s) => {
+    return { ...s };
+  });
 }
 
-// Returns a list of authenticated org slugs from Range cookies
-function orgsFromCookies() {
+// Returns a map of Range API cookie slugs and cookie values. Filters cookies
+// that have been found to be invalid or expired
+function cookieMap() {
   return new Promise((resolve, reject) => {
     chrome.cookies.getAll({ domain: CONFIG.cookie_host || CONFIG.api_host }, (cookies) => {
-      if (cookies === null) reject(chrome.runtime.lastError.message);
-      else resolve(cookies.filter((c) => c.name.startsWith('at-')).map((c) => c.name.substr(3)));
+      if (cookies === null) {
+        reject(chrome.runtime.lastError.message);
+      } else {
+        resolve(
+          cookies
+            // Get only Range API cookies
+            .filter((c) => c.name.startsWith('at-'))
+            // Filter cookies that have previously failed to authenticate
+            .filter((c) => !_invalidCookieCache[c.value])
+            // Filter expired cookies
+            .filter((c) => moment(c.expirationDate).isBefore(moment()))
+            // Convert to slug:cookie_value map
+            .reduce((acc, cur) => {
+              acc[cur.name.substr(3)] = cur.value;
+              return acc;
+            }, {})
+        );
+      }
     });
   });
 }
@@ -159,8 +212,10 @@ function get(path, params = {}) {
 
 // Makes a request to the Range API server, handling authentication and common error cases
 async function request(path, params = {}) {
+  const isLogin = path.includes('login');
+
   // Make sure we don't do requests before we are authenticated
-  if (!path.includes('login')) await init;
+  if (!isLogin) await init;
 
   let resp;
   try {
@@ -182,7 +237,7 @@ async function request(path, params = {}) {
   if (resp.ok) return resp.json();
 
   if (resp.status === 401) {
-    if (path.includes('login')) {
+    if (isLogin) {
       console.log('failed login attempt, likely invalid cookies...');
     } else {
       console.log('no longer authenticated, refreshing sessions...');

@@ -84,6 +84,13 @@ hr {
   padding: 10px 0px 10px 15px;
 }
 
+.noActiveWorkspace {
+  display: none;
+  flex-direction: column;
+  justify-content: left;
+  padding: 10px 0px 10px 15px;
+}
+
 .largeButton {
   background: #00bfd8;
   border: 0;

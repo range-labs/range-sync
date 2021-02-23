@@ -51,7 +51,7 @@ chrome.tabs.onUpdated.addListener(async (_tabId, _info, tab) => {
 
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   const handleErr = (err) => {
-    console.error(err);
+    console.log(err);
     sendResponse(false);
   };
 
@@ -140,18 +140,27 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     case MESSAGE_TYPES.SESSIONS:
       getSessions()
         .then(async (sessions) => {
-          const c = await currentSession();
-          sessions.forEach((s) => {
-            if (s) s.active = s.org.slug == c.org.slug;
-          });
-          sendResponse(sessions);
+          try {
+            const c = await currentSession();
+            sessions
+              .filter((s) => s)
+              .forEach((s) => {
+                s.active = s.org.slug == c.org.slug;
+              });
+          } catch (err) {
+            // If there is an error assigning an active session, we still return
+            // the sessions after logging
+            console.log(err);
+          } finally {
+            sendResponse(sessions);
+          }
         })
         .catch(handleErr);
       break;
     case MESSAGE_TYPES.SET_SESSION:
       getSessions()
         .then(async (sessions) => {
-          const s = sessions.filter((s) => s.org.slug == request.org_slug)[0];
+          const s = sessions.find((s) => s.org.slug == request.org_slug);
           sendResponse(await setActiveOrg(s.org.slug));
         })
         .catch(handleErr);
@@ -408,8 +417,8 @@ async function providerInfo(url, title, force) {
   if (!force) return null;
   // If there's no known provider, generate one based on the URL
   const hostParts = url.hostname.split('.');
-  const tld = hostParts[hostParts.length - 1];
-  const domain = hostParts[hostParts.length - 2];
+  const tld = hostParts[hostParts.length - 1] || '';
+  const domain = hostParts[hostParts.length - 2] || '';
   return {
     name: title,
     // i.e. 'subdomain.nytimes.com' -> 'chromeext_nytimes'
@@ -442,17 +451,18 @@ function blocked(blockList, url, title) {
 
 async function currentSession() {
   const sessions = await getSessions();
-  if (!sessions || sessions.length < 1) {
-    throw 'no authenticated sessions';
-  }
+  if (!sessions || sessions.length < 1) throw 'no authenticated sessions';
+  if (sessions.length == 1) return sessions[0];
 
-  return new Promise(async (resolve) => {
+  return new Promise((resolve, reject) => {
     chrome.storage.local.get(['active_org'], (resp) => {
-      const slug = resp.active_org || sessions[0].org.slug;
-      const session = sessions.find((s) => s.org.slug == slug) || sessions[0];
-      setActiveOrg(session.org.slug).then(() => {
-        resolve(session);
-      });
+      const slug = resp.active_org;
+      if (!slug) reject('no active org slug found');
+
+      const session = sessions.find((s) => s.org.slug == slug);
+      if (!session) reject(`no org found matching slug "${slug}"`);
+
+      resolve(session);
     });
   });
 }

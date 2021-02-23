@@ -1,10 +1,12 @@
 'use strict';
 
 let MESSAGE_TYPES;
+let AUTH_STATES;
 
 const init = new Promise((resolve) => {
   chrome.runtime.getBackgroundPage((bg) => {
     MESSAGE_TYPES = bg.MESSAGE_TYPES;
+    AUTH_STATES = bg.AUTH_STATES;
     resolve();
   });
 });
@@ -97,39 +99,67 @@ const supportedCounts = document.getElementsByClassName('supportedCount');
   addToggleListeners();
 
   const sessions = await getSessions();
+  const authState = await getAuthState();
 
-  // If there are no user sessions
-  if (!sessions || sessions.length < 1) {
-    workspaceSelector.classList.add('active');
-    signInButton.classList.add('active');
-  }
-
-  // If the users is associated with multiple workspaces
-  if (sessions.length > 1) {
-    workspaceSelector.addEventListener('click', () => {
-      workspaceSelector.classList.toggle('open');
-    });
-
-    for (const s of sessions) {
-      const isActive = s.active ? 'active' : '';
-      if (isActive) {
-        for (const e of activeOrg) {
-          e.textContent = s.org.name;
-        }
-      }
-
-      const option = document.createElement('div');
-      option.className = `workspaceOption ${isActive}`;
-      option.textContent = s.org.name;
-      option.addEventListener('click', async () => {
-        await setActiveOrg(s.org.slug);
-        location.reload();
+  const setupSelector = () => {
+    // If the users is associated with multiple workspaces
+    if (sessions.length > 1) {
+      workspaceSelector.addEventListener('click', () => {
+        workspaceSelector.classList.toggle('open');
       });
-      workspaceList.appendChild(option);
 
-      workspaceSelector.classList.add('active');
-      workspaceButton.classList.add('active');
+      for (const s of sessions) {
+        const isActive = s.active ? 'active' : '';
+        const option = document.createElement('div');
+        option.className = `workspaceOption ${isActive}`;
+        option.textContent = s.org.name;
+        option.addEventListener('click', async () => {
+          await setActiveOrg(s.org.slug);
+          location.reload();
+        });
+        workspaceList.appendChild(option);
+
+        workspaceSelector.classList.add('active');
+        workspaceButton.classList.add('active');
+      }
     }
+  };
+
+  const activeSession = sessions && sessions.find((s) => s.active);
+  switch (authState) {
+    case AUTH_STATES.NO_AUTH.value:
+      // If there are no user sessions
+      workspaceSelector.classList.add('active');
+      signInButton.classList.add('active');
+      break;
+    case AUTH_STATES.NO_SYNC_AUTH.value:
+      // If the selected workspace is no longer authenticated allow to
+      // reauthenticating or selecting another workspace
+      for (const e of activeOrg) {
+        e.textContent = 'another workspace...';
+      }
+      const workspaceOr = document.getElementById('workspaceOr');
+      workspaceOr.classList.add('active');
+      signInButton.textContent = 'Sign in to current workspace again';
+      signInButton.classList.add('active');
+      setupSelector();
+      break;
+    case AUTH_STATES.NO_SYNC_SELECTED.value:
+      // If authentication is confirmed, put "Please select..." in workspace
+      // selector
+      for (const e of activeOrg) {
+        e.textContent = 'Please select...';
+      }
+      setupSelector();
+      break;
+    case AUTH_STATES.OK.value:
+      // If authentication is confirmed, put active workspace in workspace
+      // selector
+      for (const e of activeOrg) {
+        e.textContent = activeSession.org.name;
+      }
+      setupSelector();
+      break;
   }
 
   await ackNewProviders();
@@ -268,5 +298,13 @@ function disableProvider(provider) {
       { action: MESSAGE_TYPES.DISABLE_PROVIDER, provider: provider },
       resolve
     );
+  });
+}
+
+function getAuthState() {
+  return new Promise((resolve) => {
+    chrome.storage.local.get(['auth_state'], (resp) => {
+      resolve(resp.auth_state);
+    });
   });
 }
