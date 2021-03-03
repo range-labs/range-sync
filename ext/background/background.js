@@ -292,10 +292,11 @@ async function attemptRecordInteraction(
   }
 
   const a = await attachment(session, tab, force);
-  if (!a) return Promise.reject('could not create attachment for interaction');
-  const waitTime = _recordInteractionCache[a.source_id];
-  if (!!waitTime && moment().before(waitTime)) {
-    return Promise.reject('recently recorded interaction for this source ID');
+  if (!a) throw 'could not create attachment for interaction';
+  const dedupeKey = `${session.org.org_id}:${a.source_id}`;
+  const waitTime = _recordInteractionCache[dedupeKey];
+  if (!!waitTime && moment().isBefore(waitTime)) {
+    throw 'recently recorded interaction for this org and source ID';
   }
 
   setChromeActivity(a, tab);
@@ -310,7 +311,7 @@ async function attemptRecordInteraction(
     },
     authorize(session)
   );
-  _recordInteractionCache[a.source_id] = moment().add(dedupeThreshold, 'ms');
+  _recordInteractionCache[dedupeKey] = moment().add(dedupeThreshold, 'ms');
   setBackfillTime(merged.provider);
 
   return resp;
