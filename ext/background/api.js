@@ -57,13 +57,10 @@ async function refreshSessions(force) {
       try {
         const newSession = await rangeLogin(slug);
         reportFirstAction(USER_ACTIONS.FIRST_LOGIN, newSession);
-        if (newSession) {
-          newSession.cookie_value = cookieValue;
-          _sessionCache[slug] = newSession;
-        } else {
-          _invalidCookieCache[cookieValue] = slug;
-        }
+        newSession.cookie_value = cookieValue;
+        _sessionCache[slug] = newSession;
       } catch (_) {
+        _invalidCookieCache[cookieValue] = slug;
         console.log(`user is not authenticated with ${slug}`);
       }
     }
@@ -236,7 +233,7 @@ async function request(path, params = {}) {
 
   if (resp.ok) return resp.json();
 
-  if (resp.status === 401) {
+  if (resp.status === 401 || resp.status === 403) {
     if (isLogin) {
       console.log('failed login attempt, likely invalid cookies...');
     } else {
