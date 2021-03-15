@@ -8,11 +8,6 @@ const ATTACHMENT_CORE = ['source_id', 'provider', 'org_id', 'type', 'origin', 'n
 // These are the onInstalled reasons that will trigger the options page to open
 const _openOptionsReasons = ['install', 'update'];
 
-// 1 hour
-const dedupeThreshold = 60 * 60 * 1000;
-// This is used to reduce the number of requests to Range servers
-const _recordInteractionCache = {};
-
 chrome.runtime.onInstalled.addListener(async (d) => {
   chrome.storage.local.get(['active_providers'], (r) => {
     // Carry over active providers from previous install
@@ -293,11 +288,6 @@ async function attemptRecordInteraction(
 
   const a = await attachment(session, tab, force);
   if (!a) throw 'could not create attachment for interaction';
-  const dedupeKey = `${session.org.org_id}:${a.source_id}`;
-  const waitTime = _recordInteractionCache[dedupeKey];
-  if (!!waitTime && moment().isBefore(waitTime)) {
-    throw 'recently recorded interaction for this org and source ID';
-  }
 
   setChromeActivity(a, tab);
 
@@ -311,7 +301,6 @@ async function attemptRecordInteraction(
     },
     authorize(session)
   );
-  _recordInteractionCache[dedupeKey] = moment().add(dedupeThreshold, 'ms');
   setBackfillTime(merged.provider);
 
   return resp;
