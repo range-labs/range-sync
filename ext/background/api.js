@@ -46,8 +46,8 @@ async function refreshSessions(force) {
     // If session newly initialized or close to expiring, refresh session
     if (
       !session.session_max_age ||
-      !session.local_session_expires_atx ||
-      moment(session.local_session_expires_atx) - moment() < sessionExpiryThreshold
+      !session.local_session_expires_at ||
+      moment(session.local_session_expires_at) - moment() < sessionExpiryThreshold
     ) {
       const cookieValue = session.cookie_value;
       delete _sessionCache[slug];
