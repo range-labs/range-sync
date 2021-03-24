@@ -1,6 +1,6 @@
 {
   "name": "[STAGING] Range Sync for Chrome",
-  "version": "2.4.3",
+  "version": "2.4.4",
   "description": "[STAGING] Capture work from your browser based tools and share progress with your team",
   "permissions": ["cookies", "history", "storage", "tabs", "https://*.habitat.team/*"],
   "options_page": "options/options.html",
@@ -29,6 +29,7 @@
       "background/filter/metabase.js",
       "background/filter/monday.js",
       "background/filter/notion.js",
+      "background/filter/onedrive.js",
       "background/filter/quip.js",
       "background/filter/stack_overflow.js"
     ],
