@@ -2,16 +2,12 @@
 
 const manifest = chrome.runtime.getManifest();
 
-// 30 seconds
-const sessionCheckInterval = 30 * 1000;
 // 30 minutes
 const sessionExpiryThreshold = 30 * 60 * 1000;
 
 let _sessionCache = {};
 let _invalidCookieCache = {};
 let init = refreshSessions(true);
-
-setInterval(refreshSessions, sessionCheckInterval);
 
 chrome.cookies.onChanged.addListener(async () => {
   console.log('refreshing sessions, cookies changed');
@@ -49,8 +45,9 @@ async function refreshSessions(force) {
     const session = _sessionCache[slug];
     // If session newly initialized or close to expiring, refresh session
     if (
-      !session.session_expires_at ||
-      moment(session.session_expires_at) - moment() < sessionExpiryThreshold
+      !session.session_max_age ||
+      !session.local_session_expires_atx ||
+      moment(session.local_session_expires_atx) - moment() < sessionExpiryThreshold
     ) {
       const cookieValue = session.cookie_value;
       delete _sessionCache[slug];
@@ -58,6 +55,13 @@ async function refreshSessions(force) {
         const newSession = await rangeLogin(slug);
         reportFirstAction(USER_ACTIONS.FIRST_LOGIN, newSession);
         newSession.cookie_value = cookieValue;
+        // Convert max age duration to local time. Cannot rely on session.session_expires_at because
+        // the user's computer might be using the wrong time. This caused a lot of login spam
+        // requests if a user's computer thought that its time was after the session expiration
+        // time.
+        newSession.local_session_expires_at = moment()
+          .add(session.session_max_age, 'milliseconds')
+          .toISOString();
         _sessionCache[slug] = newSession;
       } catch (_) {
         _invalidCookieCache[cookieValue] = slug;
@@ -233,13 +237,11 @@ async function request(path, params = {}) {
 
   if (resp.ok) return resp.json();
 
-  if (resp.status === 401 || resp.status === 403) {
-    if (isLogin) {
-      console.log('failed login attempt, likely invalid cookies...');
-    } else {
-      console.log('no longer authenticated, refreshing sessions...');
-      await refreshSessions(true);
-    }
+  if (isLogin) {
+    console.log('failed login attempt, likely invalid cookies');
+  } else if (resp.status === 401 || resp.status === 403) {
+    console.log('no longer authenticated, refreshing sessions');
+    await refreshSessions(true);
   } else {
     console.log(`invalid request: (${resp.status}, ${resp.statusText})`);
   }
