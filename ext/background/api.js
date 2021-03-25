@@ -60,7 +60,7 @@ async function refreshSessions(force) {
         // requests if a user's computer thought that its time was after the session expiration
         // time.
         newSession.local_session_expires_at = moment()
-          .add(session.session_max_age, 'milliseconds')
+          .add(session.session_max_age, 'seconds')
           .toISOString();
         _sessionCache[slug] = newSession;
       } catch (_) {
@@ -237,11 +237,13 @@ async function request(path, params = {}) {
 
   if (resp.ok) return resp.json();
 
-  if (isLogin) {
-    console.log('failed login attempt, likely invalid cookies');
-  } else if (resp.status === 401 || resp.status === 403) {
-    console.log('no longer authenticated, refreshing sessions');
-    await refreshSessions(true);
+  if (resp.status === 401 || resp.status === 403) {
+    if (isLogin) {
+      console.log('failed login attempt, likely invalid cookies...');
+    } else {
+      console.log('no longer authenticated, refreshing sessions...');
+      await refreshSessions(true);
+    }
   } else {
     console.log(`invalid request: (${resp.status}, ${resp.statusText})`);
   }
