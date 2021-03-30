@@ -5,15 +5,12 @@ const manifest = chrome.runtime.getManifest();
 // 30 minutes
 const sessionExpiryThreshold = 30 * 60 * 1000;
 
-let _sessionCache = {};
-let _invalidCookieCache = {};
-let init = refreshSessions(true);
+// Ensure that sessions are initialized before API calls are made
+let initSessions = refreshSessions();
 
-chrome.cookies.onChanged.addListener(async () => {
+chrome.cookies.onChanged.addListener(() => {
   console.log('refreshing sessions, cookies changed');
-  console.log(_sessionCache);
-  await refreshSessions(true);
-  console.log(_sessionCache);
+  initSessions = refreshSessions(true);
 });
 
 function sessionUserId(s) {
@@ -25,24 +22,29 @@ function sessionUserId(s) {
 }
 
 async function refreshSessions(force) {
-  if (force) _sessionCache = {};
+  const sessionCache = force ? {} : await getSessionCache();
+
+  console.log(`refreshing sessions with${force ? '' : 'out'} force`);
+  console.log(sessionCache);
 
   // Check for new Range workspace cookies
   const map = await cookieMap();
   for (const [slug, value] of Object.entries(map)) {
-    if (!_sessionCache[slug]) _sessionCache[slug] = {};
-    const session = _sessionCache[slug];
+    if (!sessionCache[slug]) sessionCache[slug] = {};
+    const session = sessionCache[slug];
     session.cookie_value = value;
   }
 
-  for (const slug in _sessionCache) {
+  const invalidCookieCache = await getInvalidCookieCache();
+
+  for (const slug in sessionCache) {
     // Check for removed Range workspace cookies
     if (!map[slug]) {
-      delete _sessionCache[slug];
+      delete sessionCache[slug];
       continue;
     }
 
-    const session = _sessionCache[slug];
+    const session = sessionCache[slug];
     // If session newly initialized or close to expiring, refresh session
     if (
       !session.session_max_age ||
@@ -50,7 +52,7 @@ async function refreshSessions(force) {
       moment(session.local_session_expires_at) - moment() < sessionExpiryThreshold
     ) {
       const cookieValue = session.cookie_value;
-      delete _sessionCache[slug];
+      delete sessionCache[slug];
       try {
         const newSession = await rangeLogin(slug);
         reportFirstAction(USER_ACTIONS.FIRST_LOGIN, newSession);
@@ -62,9 +64,9 @@ async function refreshSessions(force) {
         newSession.local_session_expires_at = moment()
           .add(session.session_max_age, 'seconds')
           .toISOString();
-        _sessionCache[slug] = newSession;
+        sessionCache[slug] = newSession;
       } catch (_) {
-        _invalidCookieCache[cookieValue] = slug;
+        invalidCookieCache[cookieValue] = slug;
         console.log(`user is not authenticated with ${slug}`);
       }
     }
@@ -72,7 +74,7 @@ async function refreshSessions(force) {
 
   chrome.storage.local.get(['active_org'], (resp) => {
     const activeOrg = resp.active_org;
-    const slugs = Object.keys(_sessionCache);
+    const slugs = Object.keys(sessionCache);
     if (slugs.length < 1) {
       // If there are no sessions
       chrome.storage.local.set({ auth_state: AUTH_STATES.NO_AUTH.value });
@@ -92,24 +94,28 @@ async function refreshSessions(force) {
     }
   });
 
+  await setSessionCache(sessionCache);
+  await setInvalidCookieCache(invalidCookieCache);
+
+  console.log(`done refreshing sessions with${force ? '' : 'out'} force`);
+  console.log(sessionCache);
+
   return;
 }
 
 async function getSessions() {
-  await refreshSessions();
+  const sessionCache = await getSessionCache();
+  const sessions = Object.values(sessionCache);
 
-  const sessions = Object.values(_sessionCache);
   if (sessions.length < 1) throw 'no authenticated sessions';
-  // Return new objects so the caller does not overwrite the _sessionCache
-  return sessions.map((s) => {
-    return { ...s };
-  });
+  return sessions;
 }
 
 // Returns a map of Range API cookie slugs and cookie values. Filters cookies
 // that have been found to be invalid or expired
 function cookieMap() {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
+    const invalidCookieCache = await getInvalidCookieCache();
     chrome.cookies.getAll({ domain: CONFIG.cookie_host || CONFIG.api_host }, (cookies) => {
       if (cookies === null) {
         reject(chrome.runtime.lastError.message);
@@ -119,7 +125,7 @@ function cookieMap() {
             // Get only Range API cookies
             .filter((c) => c.name.startsWith('at-'))
             // Filter cookies that have previously failed to authenticate
-            .filter((c) => !_invalidCookieCache[c.value])
+            .filter((c) => !invalidCookieCache[c.value])
             // Filter expired cookies
             .filter((c) => moment(c.expirationDate).isBefore(moment()))
             // Convert to slug:cookie_value map
@@ -130,6 +136,34 @@ function cookieMap() {
         );
       }
     });
+  });
+}
+
+function getSessionCache() {
+  return new Promise((resolve) => {
+    chrome.storage.local.get('session_cache', (r) => {
+      resolve(r.session_cache || {});
+    });
+  });
+}
+
+function setSessionCache(sessionCache) {
+  return new Promise((resolve) => {
+    chrome.storage.local.set({ session_cache: sessionCache }, resolve);
+  });
+}
+
+function getInvalidCookieCache() {
+  return new Promise((resolve) => {
+    chrome.storage.local.get('invalid_cookie_cache', (r) => {
+      resolve(r.invalid_cookie_cache || {});
+    });
+  });
+}
+
+function setInvalidCookieCache(invalidCookieCache) {
+  return new Promise((resolve) => {
+    chrome.storage.local.set({ invalid_cookie_cache: invalidCookieCache }, resolve);
   });
 }
 
@@ -216,7 +250,7 @@ async function request(path, params = {}) {
   const isLogin = path.includes('login');
 
   // Make sure we don't do requests before we are authenticated
-  if (!isLogin) await init;
+  if (!isLogin) await initSessions;
 
   let resp;
   try {
@@ -242,7 +276,7 @@ async function request(path, params = {}) {
       console.log('failed login attempt, likely invalid cookies...');
     } else {
       console.log('no longer authenticated, refreshing sessions...');
-      await refreshSessions(true);
+      initSessions = refreshSessions(true);
     }
   } else {
     console.log(`invalid request: (${resp.status}, ${resp.statusText})`);
