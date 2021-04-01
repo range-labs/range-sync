@@ -10,6 +10,7 @@
       "background/const.js",
       "background/conf/staging.js",
       "background/api.js",
+      "background/storage.js",
       "background/background.js",
       "background/filter/filter.js",
       "background/filter/asana.js",

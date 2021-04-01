@@ -72,27 +72,25 @@ async function refreshSessions(force) {
     }
   }
 
-  chrome.storage.local.get(['active_org'], (resp) => {
-    const activeOrg = resp.active_org;
-    const slugs = Object.keys(sessionCache);
-    if (slugs.length < 1) {
-      // If there are no sessions
-      chrome.storage.local.set({ auth_state: AUTH_STATES.NO_AUTH.value });
-      chrome.browserAction.setBadgeText({ text: AUTH_STATES.NO_AUTH.badge });
-    } else if (slugs.length > 1 && !!activeOrg && !slugs.includes(activeOrg)) {
-      // If the currently selected sync session isn't authenticated
-      chrome.storage.local.set({ auth_state: AUTH_STATES.NO_SYNC_AUTH.value });
-      chrome.browserAction.setBadgeText({ text: AUTH_STATES.NO_SYNC_AUTH.badge });
-    } else if (slugs.length > 1 && !activeOrg) {
-      // If there are multiple sessions and one isn't selected for sync
-      chrome.storage.local.set({ auth_state: AUTH_STATES.NO_SYNC_SELECTED.value });
-      chrome.browserAction.setBadgeText({ text: AUTH_STATES.NO_SYNC_SELECTED.badge });
-    } else {
-      // If everything is okay
-      chrome.storage.local.set({ auth_state: AUTH_STATES.OK.value });
-      chrome.browserAction.setBadgeText({ text: AUTH_STATES.OK.badge });
-    }
-  });
+  const activeOrg = await getActiveOrg();
+  const slugs = Object.keys(sessionCache);
+  if (slugs.length < 1) {
+    // If there are no sessions
+    setAuthState(AUTH_STATES.NO_AUTH.value);
+    chrome.browserAction.setBadgeText({ text: AUTH_STATES.NO_AUTH.badge });
+  } else if (slugs.length > 1 && !!activeOrg && !slugs.includes(activeOrg)) {
+    // If the currently selected sync session isn't authenticated
+    setAuthState(AUTH_STATES.NO_SYNC_AUTH.value);
+    chrome.browserAction.setBadgeText({ text: AUTH_STATES.NO_SYNC_AUTH.badge });
+  } else if (slugs.length > 1 && !activeOrg) {
+    // If there are multiple sessions and one isn't selected for sync
+    setAuthState(AUTH_STATES.NO_SYNC_SELECTED.value);
+    chrome.browserAction.setBadgeText({ text: AUTH_STATES.NO_SYNC_SELECTED.badge });
+  } else {
+    // If everything is okay
+    setAuthState(AUTH_STATES.OK.value);
+    chrome.browserAction.setBadgeText({ text: AUTH_STATES.OK.badge });
+  }
 
   await setSessionCache(sessionCache);
   await setInvalidCookieCache(invalidCookieCache);
@@ -136,34 +134,6 @@ function cookieMap() {
         );
       }
     });
-  });
-}
-
-function getSessionCache() {
-  return new Promise((resolve) => {
-    chrome.storage.local.get('session_cache', (r) => {
-      resolve(r.session_cache || {});
-    });
-  });
-}
-
-function setSessionCache(sessionCache) {
-  return new Promise((resolve) => {
-    chrome.storage.local.set({ session_cache: sessionCache }, resolve);
-  });
-}
-
-function getInvalidCookieCache() {
-  return new Promise((resolve) => {
-    chrome.storage.local.get('invalid_cookie_cache', (r) => {
-      resolve(r.invalid_cookie_cache || {});
-    });
-  });
-}
-
-function setInvalidCookieCache(invalidCookieCache) {
-  return new Promise((resolve) => {
-    chrome.storage.local.set({ invalid_cookie_cache: invalidCookieCache }, resolve);
   });
 }
 
