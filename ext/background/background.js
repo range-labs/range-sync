@@ -161,7 +161,10 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       getSessions()
         .then(async (sessions) => {
           const s = sessions.find((s) => s.org.slug == request.org_slug);
-          sendResponse(await setActiveOrg(s.org.slug));
+          await setActiveOrg(s.org.slug);
+          // Refresh sessions to ensure that the active session is checked and
+          // badge icon text is updated
+          sendResponse(await refreshSessions());
         })
         .catch(handleErr);
       break;
