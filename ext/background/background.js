@@ -161,7 +161,10 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       getSessions()
         .then(async (sessions) => {
           const s = sessions.find((s) => s.org.slug == request.org_slug);
-          sendResponse(await setActiveOrg(s.org.slug));
+          await setActiveOrg(s.org.slug);
+          // Refresh sessions to ensure that the active session is checked and
+          // badge icon text is updated
+          sendResponse(await refreshSessions());
         })
         .catch(handleErr);
       break;
@@ -454,23 +457,13 @@ async function currentSession() {
   if (!sessions || sessions.length < 1) throw 'no authenticated sessions';
   if (sessions.length == 1) return sessions[0];
 
-  return new Promise((resolve, reject) => {
-    chrome.storage.local.get(['active_org'], (resp) => {
-      const slug = resp.active_org;
-      if (!slug) reject('no active org slug found');
+  const slug = await getActiveOrg();
+  if (!slug) reject('no active org slug found');
 
-      const session = sessions.find((s) => s.org.slug == slug);
-      if (!session) reject(`no org found matching slug "${slug}"`);
+  const session = sessions.find((s) => s.org.slug == slug);
+  if (!session) reject(`no org found matching slug "${slug}"`);
 
-      resolve(session);
-    });
-  });
-}
-
-function setActiveOrg(slug) {
-  return new Promise((resolve) => {
-    chrome.storage.local.set({ active_org: slug }, resolve);
-  });
+  return session;
 }
 
 // Only reports the first instance of a given action. Used in Intercom for targeting how far

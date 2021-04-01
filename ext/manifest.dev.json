@@ -1,6 +1,6 @@
 {
   "name": "[DEV] Range Sync for Chrome",
-  "version": "2.4.4",
+  "version": "2.4.5",
   "description": "[DEV] Capture work from your browser based tools and share progress with your team",
   "permissions": ["cookies", "history", "storage", "tabs", "https://*.habdev.site/*"],
   "options_page": "options/options.html",
@@ -9,6 +9,7 @@
       "background/deps/moment.js",
       "background/const.js",
       "background/conf/dev.js",
+      "background/storage.js",
       "background/api.js",
       "background/background.js",
       "background/filter/filter.js",
