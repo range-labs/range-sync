@@ -458,10 +458,10 @@ async function currentSession() {
   if (sessions.length == 1) return sessions[0];
 
   const slug = await getActiveOrg();
-  if (!slug) reject('no active org slug found');
+  if (!slug) throw 'no active org slug found';
 
   const session = sessions.find((s) => s.org.slug == slug);
-  if (!session) reject(`no org found matching slug "${slug}"`);
+  if (!session) throw `no org found matching slug "${slug}"`;
 
   return session;
 }
