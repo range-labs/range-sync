@@ -65,9 +65,13 @@ async function refreshSessions(force) {
           .add(session.session_max_age, 'seconds')
           .toISOString();
         sessionCache[slug] = newSession;
-      } catch (_) {
-        invalidCookieCache[cookieValue] = slug;
-        console.log(`user is not authenticated with ${slug}`);
+      } catch (e) {
+        // Only add to invalid cookie cache if the error code is either
+        // PERMISSION DENIED or UNAUTHENTICATED. See gRPC codes.
+        if (e.code === 7 || e.code == 16) {
+          invalidCookieCache[cookieValue] = slug;
+          console.log(`user is not authenticated with ${slug}`);
+        }
       }
     }
   }
@@ -239,7 +243,7 @@ async function request(path, params = {}) {
     throw e;
   }
 
-  if (resp.ok) return resp.json();
+  if (resp.ok) return await resp.json();
 
   if (resp.status === 401 || resp.status === 403) {
     if (isLogin) {
@@ -251,7 +255,7 @@ async function request(path, params = {}) {
   } else {
     console.log(`invalid request: (${resp.status}, ${resp.statusText})`);
   }
-  throw resp.json();
+  throw await resp.json();
 }
 
 // Implementation of Java's String.hashCode. Not secure.
