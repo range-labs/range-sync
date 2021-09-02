@@ -386,15 +386,27 @@ async function providerInfo(url, title, force) {
           const info = {
             name: processor.title_processor(title),
             provider: filter.provider,
-            provider_name: filter.provider_name(url, title),
+            provider_name: !!processor.provider_name
+              ? processor.provider_name(url, title)
+              : filter.provider_name(url, title),
             source_id: sourceId,
-            type: !!filter.type ? filter.type(url) : DEFAULT_TYPE,
-            subtype: !!filter.subtype ? filter.subtype(url, title) : DEFAULT_SUBTYPE,
+            type: !!processor.type
+              ? processor.type(url)
+              : !!filter.type
+              ? filter.type(url)
+              : DEFAULT_TYPE,
+            subtype: !!processor.subtype
+              ? processor.subtype(url, title)
+              : !!filter.subtype
+              ? filter.subtype(url, title)
+              : DEFAULT_SUBTYPE,
           };
 
           if (processor.change_info) Object.assign(info, processor.change_info(url));
           if (processor.issue_info) Object.assign(info, processor.issue_info(url));
-          if (filter.parent) Object.assign(info, filter.parent(url));
+
+          if (processor.parent) Object.assign(info, processor.parent(url, title));
+          else if (filter.parent) Object.assign(info, filter.parent(url, title));
 
           return info;
         }
