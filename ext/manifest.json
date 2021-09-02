@@ -1,6 +1,6 @@
 {
   "name": "Range Sync for Chrome",
-  "version": "2.4.6",
+  "version": "2.4.7",
   "description": "Capture work from your browser based tools and share progress with your team",
   "permissions": ["cookies", "history", "storage", "tabs", "https://*.range.co/*"],
   "options_page": "options/options.html",
@@ -16,6 +16,7 @@
       "background/filter/asana.js",
       "background/filter/bitbucket.js",
       "background/filter/box.js",
+      "background/filter/clickup.js",
       "background/filter/clubhouse.js",
       "background/filter/confluence.js",
       "background/filter/dropbox_paper.js",
