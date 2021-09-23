@@ -297,7 +297,7 @@ async function attemptRecordInteraction(
   const merged = await mergeAttachment(session, a);
   const resp = await recordInteraction(
     {
-      interaction_type: (_) => 'VIEWED',
+      interaction_type: 'VIEWED',
       idempotency_key: `${moment().startOf('day')}::${tab.title}`,
       interaction_at: interactionAt,
       attachment: merged,
