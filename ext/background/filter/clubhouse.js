@@ -1,14 +1,14 @@
 'use strict';
 
 registerFilter({
-  url_regex: [/^app\.clubhouse\.io\//],
+  url_regex: [/^app\.shortcut\.com\//],
   provider: 'clubhouse',
-  provider_name: (_url) => 'Clubhouse',
+  provider_name: (_url) => 'Shortcut',
   type: (_url) => 'TASK',
   processors: [
     {
       source_id_processor: (url) => {
-        // https://app.clubhouse.io/workspace-slug/story/13/task-name
+        // https://app.shortcut.com/workspace-slug/story/13/task-name
         const { pathname } = new URL(url);
 
         // /workspace-slug/story/13/task-name
