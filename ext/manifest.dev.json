@@ -17,7 +17,6 @@
       "background/filter/bitbucket.js",
       "background/filter/box.js",
       "background/filter/clickup.js",
-      "background/filter/clubhouse.js",
       "background/filter/confluence.js",
       "background/filter/dropbox_paper.js",
       "background/filter/figma.js",
@@ -33,6 +32,7 @@
       "background/filter/notion.js",
       "background/filter/onedrive.js",
       "background/filter/quip.js",
+      "background/filter/shortcut.js",
       "background/filter/stack_overflow.js"
     ],
     "persistent": false
