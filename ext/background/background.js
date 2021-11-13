@@ -393,13 +393,13 @@ async function providerInfo(url, title, force) {
             type: !!processor.type
               ? processor.type(url)
               : !!filter.type
-              ? filter.type(url)
-              : DEFAULT_TYPE,
+                ? filter.type(url)
+                : DEFAULT_TYPE,
             subtype: !!processor.subtype
               ? processor.subtype(url, title)
               : !!filter.subtype
-              ? filter.subtype(url, title)
-              : DEFAULT_SUBTYPE,
+                ? filter.subtype(url, title)
+                : DEFAULT_SUBTYPE,
           };
 
           if (processor.change_info) Object.assign(info, processor.change_info(url));
@@ -490,12 +490,27 @@ function reportFirstAction(action, session) {
         return;
       }
 
-      reportAction(action, authorize(session))
-        .then(() => {
-          reportedActions[actionSlug] = true;
-          chrome.storage.sync.set({ reported_actions: reportedActions }, resolve);
-        })
-        .catch(console.log);
+      if (!CONFIG.segment_write_key) {
+        return;
+      }
+
+      fetch('https://api.segment.io/v1/track', {
+        body: JSON.stringify({
+          event: action,
+          userId: session.user.user_id,
+        }),
+        headers: {
+          Authorization: `Basic ${btoa(CONFIG.segment_write_key + ':')}`,
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+      }).then(() => {
+        reportedActions[actionSlug] = true;
+        chrome.storage.sync.set({ reported_actions: reportedActions }, resolve);
+      }).catch((error) => {
+        console.error(error);
+        resolve();
+      });
     });
   });
 }
