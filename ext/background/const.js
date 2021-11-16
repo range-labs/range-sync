@@ -46,9 +46,9 @@ var SNIPPET_TYPES = {
 };
 
 var USER_ACTIONS = {
-  FIRST_LOGIN: 'extension_first_login',
-  FIRST_INTERACTION: 'extension_first_interaction_recorded',
-  FIRST_SNIPPET: 'extension_first_snippet',
+  FIRST_LOGIN: 'Extension First Login',
+  FIRST_INTERACTION: 'Extension First Interaction Recorded',
+  FIRST_SNIPPET: 'Extension First Snippet',
 };
 
 var AUTH_STATES = {

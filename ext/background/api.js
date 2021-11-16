@@ -176,18 +176,6 @@ function rangeLogin(orgSlug) {
   return request(`/v1/auth/login/${orgSlug}`);
 }
 
-function reportAction(action, params) {
-  return post(
-    '/v1/actions',
-    {
-      name: action,
-      reportedAt: new Date(),
-      sessionId: Date.now() + '.' + hashCode(navigator.userAgent),
-    },
-    params
-  );
-}
-
 // Builds a request params object with the appropriate headers to make an
 // authenticated request.
 function authorize(session) {
