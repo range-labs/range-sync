@@ -437,7 +437,13 @@ async function providerInfo(url, title, force) {
     // destination.
     const searchParams = new URLSearchParams(url.search)
     searchParams.sort();
-    search = '?' + searchParams.toString();
+    const hash = hashCode(searchParams.toString());
+    // Drops the sign bit so we can arrive at an alphanumeric string without
+    // a "-" prefix.
+    //
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Unsigned_right_shift#description
+    const postiveHash = hash >>> 0;
+    search = '_' + postiveHash.toString(36);
   }
 
   // If there's no known provider, generate one based on the URL
