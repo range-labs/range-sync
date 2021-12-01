@@ -439,7 +439,7 @@ async function providerInfo(url, title, force) {
     searchParams.sort();
     const hashBytes = toBytesInt32(hashCode(searchParams.toString()));
     const base64 = btoa(String.fromCharCode(...hashBytes));
-    search = '_' + base64.replace(/=+$/g, '');
+    search = '_' + base64.replace(/=+$/g, '').replace(/\+/g, '-').replace(/\//g, '_');
   }
 
   // If there's no known provider, generate one based on the URL
