@@ -430,6 +430,18 @@ async function providerInfo(url, title, force) {
 
   // No filter found for any domain; return null to avoid spam
   if (!force) return null;
+
+  let search = '';
+  if (url.search) {
+    // URL with search params in a different order should result in the same
+    // destination.
+    const searchParams = new URLSearchParams(url.search)
+    searchParams.sort();
+    const hashBytes = toBytesInt32(hashCode(searchParams.toString()));
+    const base64 = btoa(String.fromCharCode(...hashBytes));
+    search = '_' + base64.replace(/=+$/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+  }
+
   // If there's no known provider, generate one based on the URL
   const hostParts = url.hostname.split('.');
   const tld = hostParts[hostParts.length - 1] || '';
@@ -442,7 +454,7 @@ async function providerInfo(url, title, force) {
     provider_name: `${domain}.${tld} (via Range Sync)`,
     // prefixing 'chromeext_' will make it easier to find out what providers
     // to add next
-    source_id: `chromeext_${base}`,
+    source_id: `chromeext_${base + search}`,
     type: DEFAULT_TYPE,
     subtype: DEFAULT_SUBTYPE,
   };
@@ -535,4 +547,25 @@ function setBackfillTime(provider) {
       chrome.storage.local.set({ backfill: backfill }, resolve);
     });
   });
+}
+
+// Implementation of Java's String.hashCode. Not secure.
+function hashCode(str) {
+  let hash = 0;
+  if (!str || str.length === 0) return hash;
+  for (let i = 0; i < str.length; i++) {
+    let char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash;
+  }
+  return hash;
+}
+
+function toBytesInt32(num) {
+  return new Uint8Array([
+    (num & 0xff000000) >> 24,
+    (num & 0x00ff0000) >> 16,
+    (num & 0x0000ff00) >> 8,
+    (num & 0x000000ff)
+  ]);
 }
