@@ -2,42 +2,13 @@
   "name": "Range Sync for Chrome",
   "version": "2.4.12",
   "description": "Capture work from your browser based tools and share progress with your team",
-  "permissions": ["cookies", "history", "storage", "tabs", "https://*.range.co/*"],
+  "permissions": ["cookies", "history", "storage", "tabs"],
+  "host_permissions": ["https://*.range.co/*"],
   "options_page": "options/options.html",
   "background": {
-    "scripts": [
-      "background/deps/moment.js",
-      "background/const.js",
-      "background/conf/prod.js",
-      "background/storage.js",
-      "background/api.js",
-      "background/background.js",
-      "background/filter/filter.js",
-      "background/filter/asana.js",
-      "background/filter/bitbucket.js",
-      "background/filter/box.js",
-      "background/filter/clickup.js",
-      "background/filter/confluence.js",
-      "background/filter/dropbox_paper.js",
-      "background/filter/figma.js",
-      "background/filter/github.js",
-      "background/filter/google_drive.js",
-      "background/filter/gmail.js",
-      "background/filter/jira.js",
-      "background/filter/lever.js",
-      "background/filter/lucid_chart.js",
-      "background/filter/medium.js",
-      "background/filter/metabase.js",
-      "background/filter/monday.js",
-      "background/filter/notion.js",
-      "background/filter/onedrive.js",
-      "background/filter/quip.js",
-      "background/filter/shortcut.js",
-      "background/filter/stack_overflow.js"
-    ],
-    "persistent": false
+    "service_worker": "background/_loader.js"
   },
-  "browser_action": {
+  "action": {
     "default_popup": "popup/popup.html",
     "default_icon": {
       "16": "images/favicons/browser-action16.png",
@@ -54,5 +25,5 @@
     "48": "images/favicons/store48.png",
     "128": "images/favicons/store128.png"
   },
-  "manifest_version": 2
+  "manifest_version": 3
 }

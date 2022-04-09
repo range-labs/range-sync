@@ -25,7 +25,6 @@ async function refreshSessions(force) {
   const sessionCache = force ? {} : await getSessionCache();
 
   console.log(`refreshing sessions with${force ? '' : 'out'} force`);
-  console.log(sessionCache);
 
   // Check for new Range workspace cookies
   const map = await cookieMap();
@@ -81,26 +80,25 @@ async function refreshSessions(force) {
   if (slugs.length < 1) {
     // If there are no sessions
     setAuthState(AUTH_STATES.NO_AUTH.value);
-    chrome.browserAction.setBadgeText({ text: AUTH_STATES.NO_AUTH.badge });
+    chrome.action.setBadgeText({ text: AUTH_STATES.NO_AUTH.badge });
   } else if (slugs.length > 1 && !!activeOrg && !slugs.includes(activeOrg)) {
     // If the currently selected sync session isn't authenticated
     setAuthState(AUTH_STATES.NO_SYNC_AUTH.value);
-    chrome.browserAction.setBadgeText({ text: AUTH_STATES.NO_SYNC_AUTH.badge });
+    chrome.action.setBadgeText({ text: AUTH_STATES.NO_SYNC_AUTH.badge });
   } else if (slugs.length > 1 && !activeOrg) {
     // If there are multiple sessions and one isn't selected for sync
     setAuthState(AUTH_STATES.NO_SYNC_SELECTED.value);
-    chrome.browserAction.setBadgeText({ text: AUTH_STATES.NO_SYNC_SELECTED.badge });
+    chrome.action.setBadgeText({ text: AUTH_STATES.NO_SYNC_SELECTED.badge });
   } else {
     // If everything is okay
     setAuthState(AUTH_STATES.OK.value);
-    chrome.browserAction.setBadgeText({ text: AUTH_STATES.OK.badge });
+    chrome.action.setBadgeText({ text: AUTH_STATES.OK.badge });
   }
 
   await setSessionCache(sessionCache);
   await setInvalidCookieCache(invalidCookieCache);
 
   console.log(`done refreshing sessions with${force ? '' : 'out'} force`);
-  console.log(sessionCache);
 
   return;
 }

@@ -1,9 +1,10 @@
 body {
   color: #222222;
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Open Sans', Inter, helvetica, sans-serif;
   font-size: 14px;
   margin: 0px !important;
   width: 350px;
+  background-color: #ebecf0;
 }
 
 a {
@@ -12,13 +13,13 @@ a {
 }
 
 hr {
-  border: 1px solid #d1d7db;
+  border: 1px solid #dfe1e6;
   border-bottom: 0;
   margin: 0;
 }
 
 .topbar {
-  background: #596e79;
+  background: #343639;
   color: #ffffff;
   display: flex;
   font-size: 16px;
@@ -39,7 +40,7 @@ hr {
 
 .accordion {
   align-items: center;
-  background: #657d8a;
+  background: #4c5057;
   border: none;
   box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.2);
   color: #ffffff;
@@ -75,6 +76,7 @@ hr {
   display: none;
   flex-direction: column;
   padding: 12px;
+  background-color: #fafafc;
 }
 
 .unauthenticated {
@@ -92,7 +94,7 @@ hr {
 }
 
 .largeButton {
-  background: #00bfd8;
+  background: #4848d3;
   border: 0;
   border-radius: 3px;
   color: #ffffff;
@@ -130,7 +132,7 @@ hr {
 
 #checkInStatus {
   align-items: center;
-  background: #657d8a;
+  background: #4c5057;
   color: #ffffff;
   display: flex;
   flex-direction: row;
@@ -188,7 +190,7 @@ hr {
 }
 
 .checkInType {
-  color: #00bfd8;
+  color: #4848d3;
   cursor: pointer;
   font-weight: 700;
   padding: 0 0.5em;
@@ -200,15 +202,21 @@ hr {
 }
 
 #checkInText {
-  border: 1px solid #d1d7db;
+  border: 1px solid #c3c7ce;
   border-radius: 3px;
-  font-family: 'Open Sans', sans-serif;
+  font-family: Inter, 'Open Sans', sans-serif;
   font-size: 14px;
   height: 90px;
   margin-bottom: 15px;
   padding: 8px;
   resize: vertical;
   width: 310px;
+  border-radius: 4px;
+}
+textarea:focus {
+  border: 1px solid #9ba0a8 !important;
+  outline: none !important;
+  box-shadow: 0 0 10px #c2c2ff;
 }
 
 ::placeholder {
@@ -226,11 +234,8 @@ hr {
 }
 
 .attachmentIconWrapper {
-  align-items: center;
-  background-color: #d1d7db;
   border-radius: 3px;
   display: flex;
-  justify-content: center;
   margin-right: 12px;
   padding: 4px;
   width: 32px;
