@@ -1,19 +1,49 @@
 'use strict';
 
-let SNIPPET_TYPES;
-let INTEGRATION_STATUSES;
-let MESSAGE_TYPES;
-let AUTH_STATES;
+// TODO: Figure out how to do code sharing with manifest v3 and service workers.
+// Copied from const.js
 
-const init = new Promise((resolve) => {
-  chrome.runtime.getBackgroundPage((bg) => {
-    SNIPPET_TYPES = bg.SNIPPET_TYPES;
-    INTEGRATION_STATUSES = bg.INTEGRATION_STATUSES;
-    MESSAGE_TYPES = bg.MESSAGE_TYPES;
-    AUTH_STATES = bg.AUTH_STATES;
-    resolve();
-  });
-});
+var SNIPPET_TYPES = {
+  PAST: 1,
+  FUTURE: 2,
+  BACKLOG: 4,
+};
+
+var INTEGRATION_STATUSES = {
+  ENABLED: 'ENABLED',
+  DISABLED: 'DISABLED',
+  NOT_IMPLEMENTED: 'NOT_IMPLEMENTED',
+};
+
+var MESSAGE_TYPES = {
+  INTEGRATION_STATUS: 'INTEGRATION_STATUS',
+  RELEVANT_HISTORY: 'RELEVANT_HISTORY',
+  ALL_FILTERS: 'ALL_FILTERS',
+  ENABLED_PROVIDERS: 'ENABLED_PROVIDERS',
+  ENABLE_PROVIDER: 'ENABLE_PROVIDER',
+  DISABLE_PROVIDER: 'DISABLE_PROVIDER',
+  NEW_PROVIDERS: 'NEW_PROVIDERS',
+  ACK_NEW_PROVIDERS: 'ACK_NEW_PROVIDERS',
+  INTERACTION: 'INTERACTION',
+  ADD_SNIPPET: 'ADD_SNIPPET',
+  USER_STATS: 'USER_STATS',
+  RECENT_ACTIVITY: 'RECENT_ACTIVITY',
+  SESSIONS: 'SESSIONS',
+  SET_SESSION: 'SET_SESSION',
+};
+
+var AUTH_STATES = {
+  // Not authenticated at all
+  NO_AUTH: { value: 'NO_AUTH', badge: 'AUTH' },
+  // Currently selected session is no longer authenticated
+  NO_SYNC_AUTH: { value: 'NO_SYNC_AUTH', badge: 'AUTH' },
+  // Multiple sessions are authenticated but none are selected
+  NO_SYNC_SELECTED: { value: 'NO_SYNC_SELECTED', badge: 'SYNC' },
+  // Everything is okay
+  OK: { value: 'OK', badge: '' },
+};
+
+// End TODO;
 
 const accordions = document.getElementsByClassName('accordion');
 const checkInContainer = document.getElementById('checkInContainer');
@@ -49,8 +79,6 @@ const integrationOff = document.getElementById('integrationOff');
 const enabledCounts = document.getElementsByClassName('enabledCount');
 
 (async () => {
-  await init;
-
   chrome.runtime.sendMessage({ action: MESSAGE_TYPES.USER_STATS }, async (resp) => {
     const userId = resp.user_id;
     const updateCount = resp.update_count;
