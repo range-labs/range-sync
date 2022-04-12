@@ -48,6 +48,7 @@ var AUTH_STATES = {
 const accordions = document.getElementsByClassName('accordion');
 const checkInContainer = document.getElementById('checkInContainer');
 const checkInSuccess = document.getElementById('checkInSuccess');
+const checkInStatus = document.getElementById('checkInStatus');
 const checkInTypes = document.getElementsByClassName('checkInType');
 const checkInText = document.getElementById('checkInText');
 const addToCheckInButton = document.getElementById('addToCheckInButton');
@@ -86,6 +87,7 @@ const enabledCounts = document.getElementsByClassName('enabledCount');
     const sameDay = lastUpdate.isSame(moment(), 'day');
     const dayDiff = moment().diff(lastUpdate, 'days');
 
+    checkInStatus.classList.add('active');
     checkInTime.className = '';
     if (updateCount < 1) {
       checkInLogo.src = '/images/check-in-yesterday.png';
@@ -104,19 +106,19 @@ const enabledCounts = document.getElementsByClassName('enabledCount');
     } else if (dayDiff < 2) {
       checkInLogo.src = '/images/check-in-yesterday.png';
       checkInTime.classList.add('checkInYesterday');
-      checkInTime.textContent = 'Last Check-in: Yesterday';
+      checkInTime.textContent = 'Checked in yesterday';
       checkInButton.classList.add('active');
       viewCheckInButton.classList.remove('active');
     } else if (lastUpdate.isSame(moment(), 'week')) {
       checkInLogo.src = '/images/check-in-long.png';
       checkInTime.classList.add('checkInLong');
-      checkInTime.textContent = `Last Check-in: ${lastUpdate.format('dddd')}`;
+      checkInTime.textContent = `Checked in ${lastUpdate.format('dddd')}`;
       checkInButton.classList.add('active');
       viewCheckInButton.classList.remove('active');
     } else {
       checkInLogo.src = '/images/check-in-long.png';
       checkInTime.classList.add('checkInLong');
-      checkInTime.textContent = `Last Check-in: ${dayDiff} days ago`;
+      checkInTime.textContent = `Checked in ${dayDiff} days ago`;
       checkInButton.classList.add('active');
       viewCheckInButton.classList.remove('active');
     }

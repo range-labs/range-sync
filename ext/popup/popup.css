@@ -1,13 +1,14 @@
 body {
-  color: #222222;
+  color: #1e1f21;
   font-family: 'Open Sans', Inter, helvetica, sans-serif;
   font-size: 14px;
   margin: 0px !important;
   width: 350px;
-  background-color: #ebecf0;
+  background-color: #fff;
 }
 
 a {
+  color: #4848d3;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -19,31 +20,34 @@ hr {
 }
 
 .topbar {
-  background: #343639;
-  color: #ffffff;
+  color: #1e1f21;
   display: flex;
-  font-size: 16px;
+  font-size: 14px;
   font-style: normal;
+  font-weight: normal;
+  line-height: 16px;
+  padding: 13px 10px 10px 10px;
+  border-bottom: 1px solid #c3c7ce;
+}
+.topbarTitle {
   font-weight: bold;
-  line-height: 24px;
-  padding: 10px 10px 5px 10px;
 }
 
 .topbarLogoContainer {
-  margin-right: 15px;
+  margin-right: 10px;
 }
 
 .topbarLogo {
-  height: 20px;
+  height: 16px;
   width: auto;
 }
 
 .accordion {
   align-items: center;
-  background: #4c5057;
-  border: none;
-  box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.2);
-  color: #ffffff;
+  background: #f4f4f7;
+  border: 0;
+  border-bottom: 1px solid #c3c7ce;
+  color: #1e1f21;
   display: flex;
   justify-content: flex-start;
   outline: none;
@@ -54,6 +58,7 @@ hr {
 .indicator {
   margin-right: 15px;
   transition: transform ease-in-out 100ms;
+  filter: invert(100%);
 }
 
 .accordion.active > .indicator {
@@ -76,7 +81,8 @@ hr {
   display: none;
   flex-direction: column;
   padding: 12px;
-  background-color: #fafafc;
+  background-color: #fff;
+  border-bottom: 1px solid #c3c7ce;
 }
 
 .unauthenticated {
@@ -95,14 +101,15 @@ hr {
 
 .largeButton {
   background: #4848d3;
+  border-radius: 10px;
   border: 0;
-  border-radius: 3px;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.05);
   color: #ffffff;
   cursor: pointer;
   font-size: 14px;
   font-weight: 700;
   margin-right: auto;
-  padding: 10px;
+  padding: 10px 16px;
   text-decoration: none;
 }
 
@@ -131,57 +138,48 @@ hr {
 }
 
 #checkInStatus {
-  align-items: center;
-  background: #4c5057;
-  color: #ffffff;
-  display: flex;
-  flex-direction: row;
+  text-align: right;
+  flex-grow: 1;
+  height: 16px;
+  display: none;
+}
+#checkInStatus.active {
+  display: block;
 }
 
-#checkInLogo {
-  align-items: center;
-  height: auto;
+.checkInLogoContainer {
+  display: inline-block;
   margin-left: 10px;
-  margin-right: 12px;
-  width: 16px;
+  position: relative;
+  width: 18px;
+  height: 14px;
+}
+#checkInLogo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: auto;
+  width: 18px;
 }
 
 #checkInTime {
-  color: #ffffff;
+  display: inline-block;
+  margin: 0 3px 0 3px;
 }
 
 #checkInTime.checkInToday {
-  opacity: 50%;
 }
 
 #checkInTime.checkInLong {
-  color: #ffea00;
 }
 
-#checkInButton {
-  background: #009aaa;
-  color: #ffffff;
-  display: none;
-  margin-left: auto;
-  padding: 9px;
-  text-decoration: none;
-}
-
-#checkInButton.active {
-  display: flex;
-}
-
+#checkInButton,
 #viewCheckInButton {
-  color: #ffffff;
   display: none;
-  margin-left: auto;
-  opacity: 50%;
-  padding: 9px;
-  text-decoration-line: underline;
 }
-
+#checkInButton.active,
 #viewCheckInButton.active {
-  display: flex;
+  display: inline;
 }
 
 #checkInPicker {
@@ -192,18 +190,19 @@ hr {
 .checkInType {
   color: #4848d3;
   cursor: pointer;
-  font-weight: 700;
   padding: 0 0.5em;
   user-select: none;
 }
 
 .checkInType.active {
   color: #000000;
+  font-weight: bold;
+}
+.checkInTypeSep {
+  color: #c3c7ce;
 }
 
 #checkInText {
-  border: 1px solid #c3c7ce;
-  border-radius: 3px;
   font-family: Inter, 'Open Sans', sans-serif;
   font-size: 14px;
   height: 90px;
@@ -211,12 +210,14 @@ hr {
   padding: 8px;
   resize: vertical;
   width: 310px;
-  border-radius: 4px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #c3c7ce;
+  box-sizing: border-box;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.05);
 }
 textarea:focus {
-  border: 1px solid #9ba0a8 !important;
-  outline: none !important;
-  box-shadow: 0 0 10px #c2c2ff;
+  outline: 4px solid rgba(105, 105, 244, 0.35) !important;
 }
 
 ::placeholder {
@@ -322,7 +323,7 @@ textarea:focus {
 }
 
 .activityItem .attachmentIconWrapper {
-  background-color: transparent;
+  background-color: #f4f4f7;
   width: auto;
 }
 .activityItem .attachmentSubtitle {

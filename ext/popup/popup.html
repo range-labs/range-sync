@@ -11,6 +11,14 @@
       <img class="topbarLogo" src="/images/range.svg" />
     </div>
     <div class="topbarTitle">Range</div>
+    <div id="checkInStatus">
+      <div class="checkInLogoContainer">
+        <img id="checkInLogo" src="/images/check-in-today.png" />
+      </div>
+      <div id="checkInTime" class="checkInToday">Checked in today</div>
+        <a id="checkInButton" href="https://range.co/_/compose" target="_blank">Check-in</a>
+        <a id="viewCheckInButton" href="https://range.co/_/me" class="active" target="_blank">View</a>
+    </div>
   </div>
   <div class="unauthenticated">
     <p>
@@ -29,12 +37,6 @@
     <a class="largeButton settingsLink">Please sync a Range workspace</a>
   </div>
   <div class="authenticated">
-    <div id="checkInStatus">
-      <img id="checkInLogo" src="/images/check-in-today.png" />
-      <div id="checkInTime" class="checkInToday">Checked in today</div>
-      <a id="checkInButton" href="https://range.co/_/compose" target="_blank">Check-in</a>
-      <a id="viewCheckInButton" class="active" target="_blank">View Check-in</a>
-    </div>
     <button class="accordion active">
       <img class="indicator" src="/images/accordion-indicator.svg" />
       <div class="title">Add page to <span class="activeOrgName"></span>Check-in</div>
@@ -43,8 +45,8 @@
       <div class="active" id="checkInContainer">
         <div id="checkInPicker">
           Add to:
-          <span class="checkInType active" id="PAST">What happened</span> |
-          <span class="checkInType" id="FUTURE">Plan</span> |
+          <span class="checkInType active" id="PAST">What happened</span> <span class="checkInTypeSep">|</span>
+          <span class="checkInType" id="FUTURE">Plan</span> <span class="checkInTypeSep">|</span>
           <span class="checkInType" id="BACKLOG">Backlog</span>
         </div>
         <textarea id="checkInText" type="text" placeholder="What progress did you make?"></textarea>
