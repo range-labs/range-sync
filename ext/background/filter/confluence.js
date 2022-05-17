@@ -12,12 +12,19 @@ registerFilter({
         const parts = url.pathname.split('/');
         if (parts.length != 7) return null;
 
+        const projectId = parts[3];
+        let documentId;
+
         const reEdit = /\/edit(?:-v2)?\//;
         if (reEdit.test(url)) {
-          return `${parts[2]}-${parts[5]}`;
+          // "/wiki/spaces/RR/pages/edit-v2/12345"
+          documentId = parts[6];
         } else {
-          return `${parts[2]}-${parts[4]}`;
+          // "/wiki/spaces/RR/pages/12345/My+first+confluence+document"
+          documentId = parts[5];
         }
+
+        return `${projectId}-${documentId}`;
       },
       // i.e. 'Edit - Here's a neat document - Range Labs - Confluence' -> 'Here's a neat document'
       // i.e. 'Here's a neat document - Range Labs - Confluence' -> 'Here's a neat document'
