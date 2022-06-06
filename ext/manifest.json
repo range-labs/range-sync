@@ -1,6 +1,6 @@
 {
   "name": "Range Sync for Chrome",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "description": "Capture work from your browser based tools and share progress with your team",
   "permissions": ["cookies", "history", "storage", "tabs"],
   "host_permissions": ["https://*.range.co/*"],
