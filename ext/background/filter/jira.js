@@ -18,9 +18,12 @@
           return `${hostname}/${issueKey}`;
         },
         title_processor: (title) => {
-          if (title.endsWith(' - Jira')) {
+          // Jira document titles end with a dash and the name of the Jira instance, like "- Jira".
+          // However, this name is customizable. We just remove whatever comes after the last dash.
+          if (title.includes(' - ')) {
             title = trimLastPart(title, ' - ');
           }
+
           if (title.startsWith('[')) {
             // The leading issue key will be included in the issue_info.
             // Remove the leading leading "[AB-1] ".
